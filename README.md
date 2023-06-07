@@ -272,7 +272,7 @@ Query execution:
 - Update
 - Delete
 
-## Transaction support
+## Transaction
 
 Queryx also supported type-safe database transactions, making it easy to execute database transactions safely.
 
@@ -380,7 +380,7 @@ model "Device" {
 }
 ```
 
-## Queryx Types
+## Data Types
 
 Predefined data types in queryx:
 
