@@ -151,7 +151,7 @@ start() {
 
   pkg="github.com/swiftcarrot/queryx"
   bin="queryx.tar.gz"
-  original_version="v0.1.2"
+  original_version="v0.1.3"
 
   prefix=${PREFIX:-"/usr/local/bin"}
   tmp="$(mktmpdir)"
