@@ -2,6 +2,7 @@ package main
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 	"github.com/swiftcarrot/queryx/internal/integration/db"
@@ -18,6 +19,29 @@ func TestCreate(t *testing.T) {
 	require.Equal(t, "admin", user.Type.Val)
 	require.False(t, user.Type.Null)
 	require.True(t, user.ID > 0)
+}
+
+func TestTime(t *testing.T) {
+	c, _ := db.NewClientWithEnv("test")
+
+	user, err := c.QueryUser().Create(c.ChangeUser().SetLunchBreak("12:04:05").SetLoginTime("1996-04-02 15:04:05").SetBirth("1996-04-02"))
+	require.NoError(t, err)
+	require.True(t, user.ID > 0)
+
+	location, err := time.LoadLocation("Asia/Shanghai")
+	require.NoError(t, err)
+	loginTime, err := time.ParseInLocation("2006-01-02 15:04:05", "1996-04-02 15:04:05", location)
+	require.NoError(t, err)
+	require.Equal(t, loginTime.UTC().String(), user.LoginTime.Val.String())
+
+	birth, err := time.ParseInLocation("2006-01-02", "1996-04-02", location)
+	require.NoError(t, err)
+	require.Equal(t, birth.UTC().Format("2006-01-02"), user.Birth.Val.Format("2006-01-02"))
+
+	lunchBreak, err := time.ParseInLocation("15:04:05", "12:04:05", location)
+	require.NoError(t, err)
+	require.Equal(t, lunchBreak.UTC().Format("15:04:05"), user.LunchBreak.Val.Format("15:04:05"))
+
 }
 
 func TestUUID(t *testing.T) {
