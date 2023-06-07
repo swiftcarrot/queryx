@@ -32,7 +32,7 @@ func NewDatetime(v string) Datetime {
 	if err != nil {
 		return Datetime{Null: true}
 	}
-	return Datetime{Val: t.UTC()}
+	return Datetime{Val: *t}
 }
 
 func NewNullableDatetime(v *string) Datetime {
@@ -42,13 +42,7 @@ func NewNullableDatetime(v *string) Datetime {
 	return Datetime{Null: true}
 }
 
-// TODO:
-func (d Datetime) Format(layout string) string {
-	return ""
-}
-
 // Scan implements the Scanner interface.
-// TODO:
 func (d *Datetime) Scan(value interface{}) error {
 	n := sql.NullTime{}
 	err := n.Scan(value)
@@ -64,7 +58,7 @@ func (d Datetime) Value() (driver.Value, error) {
 	if d.Null {
 		return nil, nil
 	}
-	return d.Val.UTC(), nil
+	return d.Val, nil
 }
 
 func (d Datetime) MarshalJSON() ([]byte, error) {

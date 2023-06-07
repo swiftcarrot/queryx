@@ -42,15 +42,15 @@ database "db" {
       type = float
     }
 
-    column "birth" {
+    column "date" {
       type = date
     }
 
-    column "login_time" {
+    column "datetime" {
       type = datetime
     }
 
-    column "lunch_break" {
+    column "time" {
       type = time
     }
 

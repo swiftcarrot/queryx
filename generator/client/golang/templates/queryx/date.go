@@ -34,7 +34,7 @@ func NewDate(v string) Date {
 		return Date{Null: true}
 	}
 
-	return Date{Val: t.UTC()}
+	return Date{Val: *t}
 }
 
 func NewNullableDate(v *string) Date {
@@ -60,7 +60,7 @@ func (d Date) Value() (driver.Value, error) {
 	if d.Null {
 		return nil, nil
 	}
-	return d.Val.UTC(), nil
+	return d.Val, nil
 }
 
 func (d Date) MarshalJSON() ([]byte, error) {

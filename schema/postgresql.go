@@ -86,11 +86,9 @@ func (d *Database) CreateSQLSchema() *schema.Schema {
 			case "date":
 				col.SetType(&schema.TimeType{T: postgres.TypeDate})
 			case "time":
-				n := 0
-				col.SetType(&schema.TimeType{T: postgres.TypeTimestampWTZ, Precision: &n})
+				col.SetType(&schema.TimeType{T: postgres.TypeTime})
 			case "datetime":
-				n := 0
-				col.SetType(&schema.TimeType{T: postgres.TypeTimestampWTZ, Precision: &n})
+				col.SetType(&schema.TimeType{T: postgres.TypeTimestamp})
 			case "json":
 				col.SetType(&schema.JSONType{T: postgres.TypeJSON})
 			case "jsonb":
