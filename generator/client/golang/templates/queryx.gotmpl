@@ -22,12 +22,6 @@ type QXClient struct {
 	*queryx.Schema
 }
 
-// TODO:
-func (c *QXClient) String() string {
-	return "queryx client"
-}
-
-
 func NewClient() (*QXClient, error) {
 	env := os.Getenv("QUERYX_ENV")
 	if env == "" {
@@ -40,7 +34,7 @@ func NewClient() (*QXClient, error) {
 func NewClientWithEnv(env string) (*QXClient, error) {
 	config := queryx.NewConfig(env)
 	if config == nil {
-		return nil, fmt.Errorf("client config is missing for %s", env) // TODO: custom error
+		return nil, fmt.Errorf("client config is missing for %s", env)
 	}
 
 	db, err := sql.Open("postgres", config.URL)

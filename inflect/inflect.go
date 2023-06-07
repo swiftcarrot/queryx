@@ -9,17 +9,11 @@ import (
 	"github.com/go-openapi/inflect"
 )
 
-// TODO: https://github.com/ent/ent/blob/master/entc/gen/func.go
 var acronyms = make(map[string]struct{})
-
-var variables = make(map[string]struct{})
-
 var rules = ruleset()
-
 var Singular = rules.Singularize
 var Tableize = inflect.Tableize
 
-// TODO: move to template generator
 var TemplateFunctions = template.FuncMap{
 	"lower":                     strings.ToLower,
 	"upper":                     strings.ToUpper,
@@ -27,9 +21,6 @@ var TemplateFunctions = template.FuncMap{
 	"plural":                    plural,
 	"singular":                  rules.Singularize,
 	"goType":                    goType,
-	"goInputType":               goInputType,
-	"customType":                customType,
-	"columnType":                columnType,
 	"snake":                     Snake,
 	"join":                      strings.Join,
 	"camel":                     camel,
@@ -40,8 +31,6 @@ var TemplateFunctions = template.FuncMap{
 	"add":                       add,
 	"hasManyWithNoThrough":      hasManyWithNoThrough,
 	"hasManyWithThrough":        hasManyWithThrough,
-	"checkVariable":             checkVariable,
-	"delVariable":               delVariable,
 	"addStr":                    addStr,
 	"isAssociation":             isAssociation,
 	"isOnlyBelongTo":            isOnlyBelongTo,
@@ -240,22 +229,6 @@ func getTableNameOfHasMany(hasMany interface{}, model interface{}) string {
 	return m[h.ModelName].TableName
 }
 
-func checkVariable(name string) bool {
-	if name != "" {
-		_, ok := variables[name]
-		if ok {
-			return true
-		}
-	}
-	variables[name] = struct{}{}
-	return false
-}
-
-func delVariable() bool {
-	variables = make(map[string]struct{}, 0)
-	return true
-}
-
 func isAssociation(model interface{}) bool {
 	m, err := json.Marshal(model)
 	if err != nil {
@@ -424,90 +397,6 @@ func Snake(s string) string {
 	return b.String()
 }
 
-func goInputType(t string, null bool) string {
-	switch t {
-	case "string", "text":
-		if null {
-			return "*string"
-		}
-		return "string"
-	case "datetime":
-		if null {
-			return "*time.Time"
-		}
-		return "*time.Time"
-	case "integer":
-		if null {
-			return "*int"
-		}
-		return "int"
-	case "boolean":
-		if null {
-			return "*bool"
-		}
-		return "bool"
-	case "float":
-		if null {
-			return "*float64"
-		}
-		return "float64"
-	case "json", "jsonb":
-		return "*JSON"
-	default:
-		return "" // TODO: raise error
-	}
-}
-
-func columnType(t string) string {
-	switch t {
-	case "string", "text":
-		return "StringColumn"
-	case "uuid":
-		return "UUIDColumn"
-	case "datetime":
-		return "DateTimeColumn"
-	case "date":
-		return "DateColumn"
-	case "time":
-		return "TimeColumn"
-	case "integer":
-		return "IntColumn"
-	case "boolean":
-		return "BoolColumn"
-	case "float":
-		return "Float64Column"
-	case "json", "jsonb":
-		return "JSONColumn"
-	default:
-		return "" // TODO: raise error
-	}
-}
-
-func customType(t string) string {
-	switch t {
-	case "time":
-		return "Time"
-	case "date":
-		return "Date"
-	case "datetime":
-		return "Datetime"
-	case "string", "text":
-		return "String"
-	case "uuid":
-		return "UUID"
-	case "int", "integer":
-		return "Integer"
-	case "boolean":
-		return "Boolean"
-	case "float":
-		return "Float"
-	case "json", "jsonb":
-		return "JSON" // TODO: this won't work
-	default:
-		return "" // TODO: raise error
-	}
-}
-
 func isSeparator(r rune) bool {
 	return r == '_' || r == '-' || unicode.IsSpace(r)
 }
@@ -531,18 +420,6 @@ func ruleset() *inflect.Ruleset {
 func pascalWords(words []string) string {
 	for i, w := range words {
 		upper := strings.ToUpper(w)
-		if _, ok := acronyms[upper]; ok {
-			words[i] = upper
-		} else {
-			words[i] = rules.Capitalize(w)
-		}
-	}
-	return strings.Join(words, "")
-}
-
-func pascalWordsToLower(words []string) string {
-	for i, w := range words {
-		upper := strings.ToLower(w)
 		if _, ok := acronyms[upper]; ok {
 			words[i] = upper
 		} else {

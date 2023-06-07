@@ -82,7 +82,6 @@ func (d *Database) CreateSQLSchema() *schema.Schema {
 					}
 				}
 			case "enum":
-				// TODO: convert enum to integer?
 				col.SetType(&schema.StringType{T: "character varying", Size: 0})
 			case "date":
 				col.SetType(&schema.TimeType{T: postgres.TypeDate})

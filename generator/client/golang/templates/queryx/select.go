@@ -74,11 +74,6 @@ func (s *SelectStatement) Having(having string) *SelectStatement {
 	return s
 }
 
-// TODO: support WITH subquery
-func (s *SelectStatement) With() *SelectStatement {
-	return s
-}
-
 func (s *SelectStatement) Join(join ...string) *SelectStatement {
 	s.joins = append(s.joins, join...)
 	return s

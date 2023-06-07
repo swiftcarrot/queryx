@@ -220,7 +220,6 @@ func (m *Migrator) DownWithStep(step int) error {
 			return fmt.Errorf("migration version %s does not exist", dm.Version)
 		}
 
-		// TODO: wrap in transaction
 		if err := m.RunMigration(dm); err != nil {
 			return err
 		}
@@ -237,7 +236,6 @@ func (m *Migrator) Reset() error {
 	return nil
 }
 
-// TODO: add ctx
 func (m *Migrator) Status(out io.Writer) error {
 	ctx := context.Background()
 

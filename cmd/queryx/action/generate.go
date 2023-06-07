@@ -2,6 +2,7 @@ package action
 
 import (
 	"fmt"
+
 	"github.com/spf13/cobra"
 	"github.com/swiftcarrot/queryx/generator/client/golang"
 )
@@ -25,7 +26,6 @@ var generateCmd = &cobra.Command{
 					return err
 				}
 			case "client-typescript":
-			// TODO: fix typescript
 			// gen := &typescript.Generator{}
 			// if err := gen.Generate(sch, args); err != nil {
 			// 	return err
