@@ -16,8 +16,7 @@ type Time struct {
 }
 
 func parseTime(s string) (*time.Time, error) {
-	// TODO: timezone from config
-	location, err := time.LoadLocation("Asia/Shanghai")
+	location, err := time.LoadLocation("{{ $.client.TimeZone }}")
 	if err != nil {
 		return nil, err
 	}

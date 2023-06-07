@@ -7,10 +7,6 @@ import (
 	"time"
 )
 
-{{$timeZone := .client.TimeZone}}
-{{- if eq $timeZone ""}}
-{{$timeZone = "Asia/Shanghai"}}
-{{- end}}
 
 type TimeColumn struct {
 	Name  string
@@ -25,76 +21,71 @@ func (t *Table) NewTimeColumn(name string) *TimeColumn {
 }
 
 func (c *TimeColumn) LE(v string) *Clause {
-	location, err := time.LoadLocation("{{$timeZone}}")
+	t, err := parseTime(v)
 	if err != nil {
 		return &Clause{
 			err: err,
 		}
 	}
-	_v, err := time.ParseInLocation("15:04:05", v, location)
 	return &Clause{
 		fragment: fmt.Sprintf("%s.%s <= ?", c.Table.Name, c.Name),
-		args:     []interface{}{_v.UTC()},
+		args:     []interface{}{t.UTC()},
 		err:      err,
 	}
 }
 
 func (c *TimeColumn) LT(v string) *Clause {
-	location, err := time.LoadLocation("{{$timeZone}}")
+	t, err := parseTime(v)
 	if err != nil {
 		return &Clause{
 			err: err,
 		}
 	}
-	_v, err := time.ParseInLocation("15:04:05", v, location)
 	return &Clause{
 		fragment: fmt.Sprintf("%s.%s <=?", c.Table.Name, c.Name),
-		args:     []interface{}{_v.UTC()},
+		args:     []interface{}{t.UTC()},
 		err:      err,
 	}
 }
 
 func (c *TimeColumn) GE(v string) *Clause {
-	location, err := time.LoadLocation("{{$timeZone}}")
+	t, err := parseTime(v)
 	if err != nil {
 		return &Clause{
 			err: err,
 		}
 	}
-	_v, err := time.ParseInLocation("15:04:05", v, location)
 	return &Clause{
 		fragment: fmt.Sprintf("%s.%s >= ?", c.Table.Name, c.Name),
-		args:     []interface{}{_v.UTC()},
+		args:     []interface{}{t.UTC()},
 		err:      err,
 	}
 }
 
 func (c *TimeColumn) GT(v string) *Clause {
-	location, err := time.LoadLocation("{{$timeZone}}")
+	t, err := parseTime(v)
 	if err != nil {
 		return &Clause{
 			err: err,
 		}
 	}
-	_v, err := time.ParseInLocation("15:04:05", v, location)
 	return &Clause{
 		fragment: fmt.Sprintf("%s.%s > ?", c.Table.Name, c.Name),
-		args:     []interface{}{_v.UTC()},
+		args:     []interface{}{t.UTC()},
 		err:      err,
 	}
 }
 
 func (c *TimeColumn) EQ(v string) *Clause {
-	location, err := time.LoadLocation("{{$timeZone}}")
+	t, err := parseTime(v)
 	if err != nil {
 		return &Clause{
 			err: err,
 		}
 	}
-	_v, err := time.ParseInLocation("2006-01-02 15:04:05", fmt.Sprintf("%s %s", "2006-01-02", v), location)
 	return &Clause{
 		fragment: fmt.Sprintf("%s.%s = ?", c.Table.Name, c.Name),
-		args:     []interface{}{_v.UTC()},
+		args:     []interface{}{t.UTC()},
 		err:      err,
 	}
 }

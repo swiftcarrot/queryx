@@ -15,6 +15,7 @@ func NewSchema() *Schema {
 func (s *Schema) NewDatabase(name string) *Database {
 	return &Database{
 		Name:       name,
+		TimeZone:   "Local",
 		Configs:    make([]*Config, 0),
 		Generators: make([]*Generator, 0),
 		Models:     make([]*Model, 0),
