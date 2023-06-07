@@ -1,0 +1,4 @@
+/bin
+.idea
+*.sqlite3
+*.out
