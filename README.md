@@ -166,7 +166,7 @@ post, err := c.QueryPost().Where(c.PostTitle.EQ("post title")).First()
 
 # Association
 
-Queryx supports association defintion in the schema file and generated corresponding preload query methods.
+Queryx supports association definition in the schema file. It also generates corresponding preload query methods to avoid "N+1" query.
 
 ## has_one and belongs_to
 
