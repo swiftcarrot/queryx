@@ -12,9 +12,9 @@ Queryx is schema-first and type-safe ORM with code generation.
 
 This project is heavily inspired by [Active Record](https://guides.rubyonrails.org/active_record_basics.html) and [ent](https://entgo.io/). Database schema management is built upon [Atlas](https://atlasgo.io/).
 
-## Getting Started
+# Getting Started
 
-### Installation
+## Installation
 
 To easily install the latest version of queryx, open your terminal and run the following command:
 
@@ -32,7 +32,7 @@ queryx version
 
 This command will output current installed queryx version if installed successfully.
 
-### Define your first schema
+## Define your first schema
 
 Queryx uses [HCL format](https://github.com/hashicorp/hcl) for schema defintion. Create the following sample `schema.hcl` in the current directory:
 
@@ -65,7 +65,7 @@ Run the following command to automatically format the schema file:
 queryx format
 ```
 
-### Database managment
+## Database managment
 
 Run the following command to create the PostgreSQL database, by default, queryx with read from the `development` config block. It can be changed by setting the `QUERYX_ENV` environment variable.
 
@@ -87,7 +87,7 @@ queryx db:migrate
 
 The `db:migrate` command will initially compare the current state of database to the schema defined in `schema.hcl`. It will generate migrations files in SQL format in the `db/migrations` directory if there are any differences. It will proceed to execute the generated migration files to update the database in line with the schema defined in `schema.hcl`.
 
-### Code generation
+## Code generation
 
 In the sample `schema.hcl`, we already defined the generator as
 
@@ -164,9 +164,75 @@ Retrieve the first post from query:
 post, err := c.QueryPost().Where(c.PostTitle.EQ("post title")).First()
 ```
 
-## ORM API
+# Association
 
-### Query
+Queryx supports association defintion in the schema file and generated corresponding preload query methods.
+
+## has_one and belongs_to
+
+```hcl
+model "User" {
+  has_one "account" {}
+}
+
+model "Account" {
+  belongs_to "user" {}
+}
+```
+
+```go
+c.QueryUser().PreloadAccount().All()
+c.QueryAccount().PreloadUser().All()
+```
+
+## has_many and belongs_to
+
+```hcl
+model "User" {
+  belongs_to "group" {}
+}
+
+model "Group" {
+  has_many "users" {}
+}
+```
+
+```go
+c.QueryUser().PreloadGroup().All()
+c.QueryGroup().PreloadUsers().All()
+```
+
+## has_many through
+
+```hcl
+model "User" {
+  has_many "user_posts" {}
+  has_many "posts" {
+    through = "user_posts"
+  }
+}
+
+model "Post" {
+  has_many "user_posts" {}
+  has_many "users" {
+    through = "user_posts"
+  }
+}
+
+model "UserPost" {
+  belongs_to "user" {}
+  belongs_to "post" {}
+}
+```
+
+```go
+c.QueryUser().PreloadPosts().All()
+c.QueryPost().PreloadUsers().All()
+```
+
+# ORM API
+
+## Query
 
 For each model defined in the schema, queryx generates a corresponding query object.
 
@@ -174,7 +240,7 @@ For each model defined in the schema, queryx generates a corresponding query obj
 q := c.QueryPost()
 ```
 
-#### Finder Methods
+### Finder Methods
 
 A query object supports the following find methods:
 
@@ -182,7 +248,7 @@ A query object supports the following find methods:
 - FindBy
 - FindBySQL
 
-#### Query Methods
+### Query Methods
 
 Query contruction:
 
@@ -201,12 +267,12 @@ Query execution:
 - UpdateAll
 - DeleteAll
 
-#### Record Methods
+### Record Methods
 
 - Update
 - Delete
 
-### Transaction support
+## Transaction support
 
 Queryx also supported type-safe database transactions, making it easy to execute database transactions safely.
 
@@ -227,19 +293,35 @@ if err := tx.Commit() {
 }
 ```
 
-## Schema API
+# Schema API
 
-### Convention
+## Convention
 
 > **Warning**
 > WIP, please refer to test example [here](/internal/integration/postgresql.hcl)
 
-### Relationship
+## Association
 
 > **Warning**
 > WIP, please refer to test example [here](/internal/integration/postgresql.hcl) for relationship and preload methods
 
-### Custom table name
+## Database Index
+
+Database index can be declared in schema via the `index` block:
+
+```hcl
+model "UserPost" {
+  belongs_to "user" {}
+  belongs_to "post" {}
+
+  index {
+    columns = ["user_id", "post_id"]
+    unique  = true
+  }
+}
+```
+
+## Custom table name
 
 By default, queryx generates a `table_name` in plural form. For example, a `User` model will have a table named `users`. However, you can customize this behavior using the `table_name` attribute in model block. For example:
 
@@ -251,7 +333,7 @@ model "User" {
 
 In this example, queryx will generate the table `queryx_users` for the `User` model.
 
-### Custom primary key
+## Custom primary key
 
 By default, each model defined in the schema will generate an auto-incremented integer `id` column in the corresponding table. This behavior can be customized using the `primary_key` block.
 
@@ -298,7 +380,7 @@ model "Device" {
 }
 ```
 
-### Queryx Types
+## Queryx Types
 
 Predefined data types in queryx:
 
@@ -314,7 +396,7 @@ Predefined data types in queryx:
 - `time`
 - `date`
 
-## CLI
+# CLI
 
 By default, the queryx cli will read from `schema.hcl` in the current directory. To use an alternative schema file, you can specify the file path using the `--schema` flag:
 
@@ -335,6 +417,6 @@ All available commands:
 - `queryx generate`
 - `queryx version`
 
-## License
+# License
 
 Queryx is licensed under Apache 2.0 as found in the LICENSE file.
