@@ -16,8 +16,7 @@ type Date struct {
 }
 
 func parseDate(s string) (*time.Time, error) {
-	// TODO: timezone from config
-	location, err := time.LoadLocation("Asia/Shanghai")
+	location, err := time.LoadLocation("{{ $.client.TimeZone}}")
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +33,7 @@ func NewDate(v string) Date {
 		return Date{Null: true}
 	}
 
-	return Date{Val: t.UTC()}
+	return Date{Val: *t}
 }
 
 func NewNullableDate(v *string) Date {
@@ -60,7 +59,7 @@ func (d Date) Value() (driver.Value, error) {
 	if d.Null {
 		return nil, nil
 	}
-	return d.Val.UTC(), nil
+	return d.Val, nil
 }
 
 func (d Date) MarshalJSON() ([]byte, error) {

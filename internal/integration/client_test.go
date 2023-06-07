@@ -20,6 +20,30 @@ func TestCreate(t *testing.T) {
 	require.True(t, user.ID > 0)
 }
 
+func TestTime(t *testing.T) {
+	c, _ := db.NewClientWithEnv("test")
+
+	user, err := c.QueryUser().Create(c.ChangeUser().SetTime("12:12:12"))
+	require.NoError(t, err)
+	require.Equal(t, "12:12:12", user.Time.Val.Format("15:04:05"))
+}
+
+func TestDate(t *testing.T) {
+	c, _ := db.NewClientWithEnv("test")
+
+	user, err := c.QueryUser().Create(c.ChangeUser().SetDate("2012-12-12"))
+	require.NoError(t, err)
+	require.Equal(t, "2012-12-12", user.Date.Val.Format("2006-01-02"))
+}
+
+func TestDatetime(t *testing.T) {
+	c, _ := db.NewClientWithEnv("test")
+
+	user, err := c.QueryUser().Create(c.ChangeUser().SetDatetime("2012-12-12 12:12:12"))
+	require.NoError(t, err)
+	require.Equal(t, "2012-12-12 12:12:12", user.Datetime.Val.Format("2006-01-02 15:04:05"))
+}
+
 func TestUUID(t *testing.T) {
 	c, err := db.NewClientWithEnv("test")
 	require.NoError(t, err)
