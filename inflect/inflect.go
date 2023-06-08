@@ -15,32 +15,24 @@ var Singular = rules.Singularize
 var Tableize = inflect.Tableize
 
 var TemplateFunctions = template.FuncMap{
-	"lower":                     strings.ToLower,
-	"upper":                     strings.ToUpper,
-	"pascal":                    Pascal,
-	"plural":                    plural,
-	"singular":                  rules.Singularize,
-	"goType":                    goType,
-	"snake":                     Snake,
-	"join":                      strings.Join,
-	"camel":                     camel,
-	"firstWordUpperCamel":       firstWordUpperCamel,
-	"firstWordLowerCamel":       firstWordLowerCamel,
-	"firstLetterLower":          firstLetterLower,
-	"sub":                       sub,
-	"add":                       add,
-	"hasManyWithNoThrough":      hasManyWithNoThrough,
-	"hasManyWithThrough":        hasManyWithThrough,
-	"addStr":                    addStr,
-	"isAssociation":             isAssociation,
-	"isOnlyBelongTo":            isOnlyBelongTo,
-	"getHasOne":                 getHasOne,
-	"getTableNameOfBelongTo":    getTableNameOfBelongTo,
-	"getTableNameOfHasOne":      getTableNameOfHasOne,
-	"getTableNameOfHasMany":     getTableNameOfHasMany,
-	"getTableNameOfThrough":     getTableNameOfThrough,
-	"getTableNameFromModelName": getTableNameFromModelName,
+	"lower":                 strings.ToLower,
+	"upper":                 strings.ToUpper,
+	"pascal":                Pascal,
+	"plural":                plural,
+	"singular":              rules.Singularize,
+	"snake":                 Snake,
+	"join":                  strings.Join,
+	"camel":                 camel,
+	"firstWordUpperCamel":   firstWordUpperCamel,
+	"firstWordLowerCamel":   firstWordLowerCamel,
+	"firstLetterLower":      firstLetterLower,
+	"sub":                   sub,
+	"add":                   add,
+	"addStr":                addStr,
+	"getTableNameOfHasMany": getTableNameOfHasMany,
+	"getTableNameOfThrough": getTableNameOfThrough,
 
+	"goType":          goType,
 	"goChangeSetType": goChangeSetType,
 	"goKeywordFix":    goKeywordFix,
 	"goModelType":     goModelType,
@@ -108,26 +100,6 @@ func addStr(a ...string) string {
 	return str
 }
 
-func getTableNameFromModelName(modelName string, models interface{}) string {
-	if modelName == "" {
-		return ""
-	}
-	marshaller, err := json.Marshal(models)
-	if err != nil {
-		return ""
-	}
-	var ms []*Model
-	err = json.Unmarshal(marshaller, &ms)
-	if err != nil {
-		return ""
-	}
-	m := make(map[string]Model)
-	for i := 0; i < len(ms); i++ {
-		m[ms[i].Name] = *ms[i]
-	}
-	return m[modelName].TableName
-}
-
 func getTableNameOfThrough(through string, models interface{}) string {
 	s := Singular(firstWordUpperCamel(through))
 	marshaller, err := json.Marshal(models)
@@ -144,62 +116,6 @@ func getTableNameOfThrough(through string, models interface{}) string {
 		m[ms[i].Name] = *ms[i]
 	}
 	return m[s].TableName
-}
-
-// 通过has_one,has_many获取对应的table_name
-func getTableNameOfBelongTo(belongsTo interface{}, database interface{}) string {
-	marshaller, err := json.Marshal(database)
-	if err != nil {
-		return ""
-	}
-	var ms []*Model
-	err = json.Unmarshal(marshaller, &ms)
-	if err != nil {
-		return ""
-	}
-
-	_belongsTo, err := json.Marshal(belongsTo)
-	if err != nil {
-		return ""
-	}
-	var b BelongsTo
-	err = json.Unmarshal(_belongsTo, &b)
-	if err != nil {
-		return ""
-	}
-	m := make(map[string]Model)
-	for i := 0; i < len(ms); i++ {
-		m[ms[i].Name] = *ms[i]
-	}
-	return m[b.ModelName].TableName
-}
-
-// has_many获取对应的table_name
-func getTableNameOfHasOne(hasOne interface{}, model interface{}) string {
-	marshaller, err := json.Marshal(model)
-	if err != nil {
-		return ""
-	}
-	var ms []*Model
-	err = json.Unmarshal(marshaller, &ms)
-	if err != nil {
-		return ""
-	}
-
-	_hasOne, err := json.Marshal(hasOne)
-	if err != nil {
-		return ""
-	}
-	var h HasOne
-	err = json.Unmarshal(_hasOne, &h)
-	if err != nil {
-		return ""
-	}
-	m := make(map[string]Model)
-	for i := 0; i < len(ms); i++ {
-		m[ms[i].Name] = *ms[i]
-	}
-	return m[h.ModelName].TableName
 }
 
 func getTableNameOfHasMany(hasMany interface{}, model interface{}) string {
@@ -227,117 +143,6 @@ func getTableNameOfHasMany(hasMany interface{}, model interface{}) string {
 		m[ms[i].Name] = *ms[i]
 	}
 	return m[h.ModelName].TableName
-}
-
-func isAssociation(model interface{}) bool {
-	m, err := json.Marshal(model)
-	if err != nil {
-		return false
-	}
-	var _model Model
-	err = json.Unmarshal(m, &_model)
-	if err != nil {
-		return false
-	}
-	if len(_model.HasMany) > 0 {
-		return true
-	}
-	if len(_model.BelongsTo) > 0 {
-		return true
-	}
-	if len(_model.HasOne) > 0 {
-		return true
-	}
-	return false
-}
-
-func isOnlyBelongTo(client interface{}, model interface{}) bool {
-	marshaller, err := json.Marshal(client)
-	if err != nil {
-		return false
-	}
-	var database Database
-	err = json.Unmarshal(marshaller, &database)
-	if err != nil {
-		return false
-	}
-	return false
-}
-
-func getHasOne(client interface{}, model interface{}) []*Model {
-	marshaller, err := json.Marshal(client)
-	if err != nil {
-		return nil
-	}
-	var database Database
-	err = json.Unmarshal(marshaller, &database)
-	if err != nil {
-		return nil
-	}
-
-	marshaller2, err := json.Marshal(model)
-	if err != nil {
-		return nil
-	}
-	var m Model
-	err = json.Unmarshal(marshaller2, &m)
-	if err != nil {
-		return nil
-	}
-	hasOnes := make([]*Model, 0)
-	for i := 0; i < len(database.Models); i++ {
-		for j := 0; j < len(database.Models[i].HasOne); j++ {
-			if firstWordUpperCamel(database.Models[i].HasOne[j].Name) == m.Name {
-				hasOnes = append(hasOnes, database.Models[i])
-			}
-		}
-	}
-	return hasOnes
-}
-
-func hasManyWithNoThrough(model2 interface{}) map[string]*HasMany {
-	marshaler, err := json.Marshal(model2)
-	if err != nil {
-		return nil
-	}
-	var model Model
-	err = json.Unmarshal(marshaler, &model)
-	if err != nil {
-		return nil
-	}
-	m := make(map[string]*HasMany, 0)
-	if len(model.HasMany) > 0 {
-		for i := 0; i < len(model.HasMany); i++ {
-			if model.HasMany[i].Through == "" {
-				m[model.HasMany[i].Name] = model.HasMany[i]
-			}
-		}
-		for i := 0; i < len(model.HasMany); i++ {
-			if model.HasMany[i].Through != "" {
-				delete(m, model.HasMany[i].Through)
-			}
-		}
-	}
-	return m
-}
-
-func hasManyWithThrough(model2 interface{}) map[string]*HasMany {
-	marshaller, err := json.Marshal(model2)
-	if err != nil {
-		return nil
-	}
-	var model Model
-	err = json.Unmarshal(marshaller, &model)
-	if err != nil {
-		return nil
-	}
-	m := make(map[string]*HasMany, 0)
-	for i := 0; i < len(model.HasMany); i++ {
-		if model.HasMany[i].Through != "" {
-			m[model.HasMany[i].ModelName] = model.HasMany[i]
-		}
-	}
-	return m
 }
 
 func camel(s string) string {
