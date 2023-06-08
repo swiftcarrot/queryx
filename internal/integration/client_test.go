@@ -1,16 +1,16 @@
 package main
 
 import (
+	"log"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 	"github.com/swiftcarrot/queryx/internal/integration/db"
 )
 
-func TestCreate(t *testing.T) {
-	c, err := db.NewClientWithEnv("test")
-	require.NoError(t, err)
+var c *db.QXClient
 
+func TestCreate(t *testing.T) {
 	user, err := c.QueryUser().Create(c.ChangeUser().SetName("user").SetType("admin"))
 	require.NoError(t, err)
 	require.Equal(t, "user", user.Name.Val)
@@ -21,33 +21,24 @@ func TestCreate(t *testing.T) {
 }
 
 func TestTime(t *testing.T) {
-	c, _ := db.NewClientWithEnv("test")
-
 	user, err := c.QueryUser().Create(c.ChangeUser().SetTime("12:12:12"))
 	require.NoError(t, err)
 	require.Equal(t, "12:12:12", user.Time.Val.Format("15:04:05"))
 }
 
 func TestDate(t *testing.T) {
-	c, _ := db.NewClientWithEnv("test")
-
 	user, err := c.QueryUser().Create(c.ChangeUser().SetDate("2012-12-12"))
 	require.NoError(t, err)
 	require.Equal(t, "2012-12-12", user.Date.Val.Format("2006-01-02"))
 }
 
 func TestDatetime(t *testing.T) {
-	c, _ := db.NewClientWithEnv("test")
-
 	user, err := c.QueryUser().Create(c.ChangeUser().SetDatetime("2012-12-12 12:12:12"))
 	require.NoError(t, err)
 	require.Equal(t, "2012-12-12 12:12:12", user.Datetime.Val.Format("2006-01-02 15:04:05"))
 }
 
 func TestUUID(t *testing.T) {
-	c, err := db.NewClientWithEnv("test")
-	require.NoError(t, err)
-
 	user, err := c.QueryUser().Create(c.ChangeUser())
 	require.NoError(t, err)
 	require.True(t, user.UUID.Null)
@@ -71,8 +62,6 @@ func TestUUID(t *testing.T) {
 }
 
 func TestSetNullable(t *testing.T) {
-	c, _ := db.NewClientWithEnv("test")
-
 	name := "user"
 	user, _ := c.QueryUser().Create(c.ChangeUser().SetNullableName(&name))
 	require.Equal(t, name, user.Name.Val)
@@ -85,7 +74,6 @@ func TestSetNullable(t *testing.T) {
 }
 
 func TestJSON(t *testing.T) {
-	c, _ := db.NewClientWithEnv("test")
 	payload := make(map[string]interface{})
 	payload["theme"] = "dark"
 	payload["height"] = 170
@@ -98,8 +86,6 @@ func TestJSON(t *testing.T) {
 }
 
 func TestPrimaryKey(t *testing.T) {
-	c, _ := db.NewClientWithEnv("test")
-
 	_, _ = c.QueryCode().DeleteAll()
 	code, err := c.QueryCode().Create(c.ChangeCode().SetType("type").SetKey("key"))
 	require.Equal(t, "type", code.Type)
@@ -124,15 +110,11 @@ func TestPrimaryKey(t *testing.T) {
 }
 
 func TestBoolean(t *testing.T) {
-	c, _ := db.NewClientWithEnv("test")
-
 	user, _ := c.QueryUser().Create(c.ChangeUser().SetIsAdmin(true))
 	require.Equal(t, true, user.IsAdmin.Val)
 }
 
 func TestExists(t *testing.T) {
-	c, _ := db.NewClientWithEnv("test")
-
 	_, _ = c.QueryClient().DeleteAll()
 	exists, err := c.QueryClient().Exists()
 	require.NoError(t, err)
@@ -145,8 +127,6 @@ func TestExists(t *testing.T) {
 }
 
 func TestPreload(t *testing.T) {
-	c, _ := db.NewClientWithEnv("test")
-
 	user1, _ := c.QueryUser().Create(c.ChangeUser().SetName("user1"))
 	post1, _ := c.QueryPost().Create(c.ChangePost().SetTitle("post1"))
 	post2, _ := c.QueryPost().Create(c.ChangePost().SetTitle("post2"))
@@ -170,15 +150,13 @@ func TestPreload(t *testing.T) {
 	require.Equal(t, 1, len(post.UserPosts))
 	require.Equal(t, userPost1.ID, post.UserPosts[0].ID)
 
-	// 测试post没有数据的情形
+	// preload with zero rows
 	posts, err := c.QueryPost().Where(c.PostID.GT(1000)).PreloadUserPosts().All()
 	require.NoError(t, err)
 	require.Equal(t, 0, len(posts))
 }
 
 func TestTx(t *testing.T) {
-	c, _ := db.NewClientWithEnv("test")
-
 	tag1, _ := c.QueryTag().Create(c.ChangeTag().SetName("tag1"))
 	require.Equal(t, "tag1", tag1.Name.Val)
 
@@ -207,4 +185,12 @@ func TestTx(t *testing.T) {
 
 	tag1, _ = c.QueryTag().Find(tag1.ID)
 	require.Equal(t, "tag1-updated", tag1.Name.Val)
+}
+
+func init() {
+	client, err := db.NewClientWithEnv("test")
+	if err != nil {
+		log.Fatal(err)
+	}
+	c = client
 }
