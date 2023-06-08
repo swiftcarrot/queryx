@@ -1,7 +1,7 @@
 # Queryx
 
 > **Warning**
-> This project is currently in beta (v0), although it has been battled tested in internal projects. Currently, it only supports golang code generation for PostgreSQL databases. We plan to release support for TypeScript code generation along with MySQL and SQLite databases.
+> This project is currently in beta (v0), although it has been battled tested in internal projects. Currently, it only supports golang code generation for PostgreSQL databases. We plan to release support for TypeScript code generation along with MySQL and SQLite databases. Feel free to [open an issue](https://github.com/swiftcarrot/queryx/issues) or [start a discussion](https://github.com/swiftcarrot/queryx/discussions) if you have any questions.
 
 [English](README.md) | [中文](README_zh.md)
 
@@ -319,6 +319,22 @@ Predefined data types in queryx:
 
 > **Warning**
 > WIP, please refer to test example [here](/internal/integration/postgresql.hcl)
+
+## Environment Variable
+
+Queryx provides a convenient feature for reading from environment variables using the built-in `env()` HCL function. It is a common practice for applications to read configuration settings from environment variables in production environments. In the following example, by setting `QUERYX_ENV` to `production`, queryx will automatically read the database connection URL from `the DATABASE_URL` environment variable.
+
+```hcl
+database "db" {
+  config "development" {
+    url = "postgres://postgres:postgres@localhost:5432/blog_development?sslmode=disable"
+  }
+
+  config "production" {
+    url = env("DATABASE_URL")
+  }
+}
+```
 
 ## Database Index
 
