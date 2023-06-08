@@ -61,29 +61,6 @@ func (c *QXClient) setDefaultLogger() {
 	c.logger = log.New(os.Stderr, "sql ", log.Llongfile|log.LstdFlags)
 }
 
-// func (c *QXClient) Ping() error {
-// 	if c.db == nil{
-// 		return fmt.Errorf("db not initialized")
-// 	}
-// 	return c.db.Ping()
-// }
-
-// func (c *QXClient) SetMaxIdleConns(v int) error {
-// 	if c.db == nil {
-// 		return fmt.Errorf("db not initialized")
-// 	}
-// 	c.db.SetMaxIdleConns(v)
-// 	return nil
-// }
-
-// func (c *QXClient) SetMaxOpenConns(v int) error {
-// 	if c.db == nil {
-// 		return fmt.Errorf("db not initialized")
-// 	}
-// 	c.db.SetMaxOpenConns(v)
-// 	return nil
-// }
-
 {{- range $m := $.client.Models }}
 
 func (c *QXClient) Query{{ $m.Name }}() *{{ $m.Name }}Query {
