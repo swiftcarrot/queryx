@@ -7,6 +7,10 @@
 
 Queryx is schema-first and type-safe ORM with code generation.
 
+[![go report card](https://goreportcard.com/badge/github.com/swiftcarrot/queryx "go report card")](https://goreportcard.com/report/github.com/swiftcarrot/queryx)
+[![test status](https://github.com/swiftcarrot/queryx/workflows/integration/badge.svg "test status")](https://github.com/swiftcarrot/queryx/actions)
+[![Go.Dev reference](https://img.shields.io/badge/go.dev-reference-blue?logo=go&logoColor=white)](https://pkg.go.dev/github.com/swiftcarrot/queryx)
+
 - **Schema First**: Define application models in a queryx schema file, and it can automatically synchronize with the database structure.
 - **Type Safe**: Queryx generates friendly and type-safe ORM methods based on the schema, which come with autocomplete support and are free from type-related errors.
 
