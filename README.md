@@ -320,11 +320,6 @@ Predefined data types in queryx:
 > **Warning**
 > WIP, please refer to test example [here](/internal/integration/postgresql.hcl)
 
-## Association
-
-> **Warning**
-> WIP, please refer to test example [here](/internal/integration/postgresql.hcl) for relationship and preload methods
-
 ## Database Index
 
 Database index can be declared in schema via the `index` block:
