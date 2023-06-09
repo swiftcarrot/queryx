@@ -20,7 +20,7 @@ func NewString(v string) String {
 
 func NewNullableString(v *string) String {
 	if v != nil {
-		return String{Val: *v}
+		return NewString(*v)
 	}
 	return String{Null: true}
 }
