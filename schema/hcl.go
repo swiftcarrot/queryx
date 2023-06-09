@@ -128,7 +128,6 @@ func (s *Schema) databaseFromBlock(block *hcl.Block, ctx *hcl.EvalContext) (*Dat
 			return nil, d.Errs()[0]
 		}
 
-		// TODO: improve hcl unmarshal
 		switch name {
 		case "adapter":
 			database.Adapter = value.AsString()
