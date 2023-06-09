@@ -5,6 +5,8 @@ package queryx
 import (
 	"database/sql"
 	"database/sql/driver"
+	"encoding/json"
+	"strconv"
 )
 
 type Integer struct {
@@ -44,9 +46,22 @@ func (i Integer) Value() (driver.Value, error) {
 }
 
 func (i Integer) MarshalJSON() ([]byte, error) {
+	if i.Null {
+		return json.Marshal(nil)
+	}
 	return nil, nil
 }
 
-func (i *Integer) UnmarshalJSON(text []byte) error {
+func (i *Integer) UnmarshalJSON(b []byte) error {
+	s := string(b)
+	if s == "null" {
+		i.Null = true
+		return nil
+	}
+	p, err := strconv.ParseInt(s, 10, 32)
+	if err != nil {
+		return err
+	}
+	i.Val = int32(p)
 	return nil
 }
