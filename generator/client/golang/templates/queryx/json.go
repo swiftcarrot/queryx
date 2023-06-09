@@ -18,8 +18,10 @@ func NewJSON(v map[string]interface{}) JSON {
 	return JSON{Val: v}
 }
 
-// TODO: nullable json
 func NewNullableJSON(v interface{}) JSON {
+	if v != nil {
+		return NewJSON(v.(map[string]interface{}))
+	}
 	return JSON{Null: true}
 }
 
@@ -39,4 +41,12 @@ func (j *JSON) Scan(value interface{}) error {
 // Value implements the driver Valuer interface.
 func (j JSON) Value() (driver.Value, error) {
 	return json.Marshal(j.Val)
+}
+
+func (j JSON) MarshalJSON() ([]byte, error) {
+	return nil, nil
+}
+
+func (j *JSON) UnmarshalJSON(b []byte) error {
+	return nil
 }
