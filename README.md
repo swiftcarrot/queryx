@@ -342,6 +342,24 @@ Predefined data types in queryx:
 > **Warning**
 > WIP, please refer to test example [here](/internal/integration/postgresql.hcl)
 
+## Time Zone
+
+By default, each database uses the "Local" time zone.
+
+```hcl
+database "db" {
+  time_zone = "Local" # this is optional
+}
+```
+
+To specify time zone:
+
+```hcl
+database "db" {
+  time_zone = "Africa/Lagos"
+}
+```
+
 ## Environment Variable
 
 Queryx provides a convenient feature for reading from environment variables using the built-in `env()` HCL function. It is a common practice for applications to read configuration settings from environment variables in production environments. In the following example, by setting `QUERYX_ENV` to `production`, queryx will automatically read the database connection URL from the `DATABASE_URL` environment variable.

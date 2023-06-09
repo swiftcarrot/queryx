@@ -16,11 +16,11 @@ type Date struct {
 }
 
 func parseDate(s string) (*time.Time, error) {
-	location, err := time.LoadLocation("{{ $.client.TimeZone}}")
+	loc, err := time.LoadLocation("{{ $.client.TimeZone}}")
 	if err != nil {
 		return nil, err
 	}
-	t, err := time.ParseInLocation("2006-01-02", s, location)
+	t, err := time.ParseInLocation("2006-01-02", s, loc)
 	if err != nil {
 		return nil, err
 	}

@@ -15,11 +15,11 @@ type Datetime struct {
 }
 
 func parseDatetime(s string) (*time.Time, error) {
-	location, err := time.LoadLocation("{{ $.client.TimeZone }}")
+	loc, err := time.LoadLocation("{{ $.client.TimeZone }}")
 	if err != nil {
 		return nil, err
 	}
-	t, err := time.ParseInLocation("2006-01-02 15:04:05", s, location)
+	t, err := time.ParseInLocation("2006-01-02 15:04:05", s, loc)
 	if err != nil {
 		return nil, err
 	}
@@ -49,6 +49,11 @@ func (d *Datetime) Scan(value interface{}) error {
 		return err
 	}
 	d.Val, d.Null = n.Time, !n.Valid
+	loc, err := time.LoadLocation("{{ $.client.TimeZone }}")
+	if err != nil {
+		return err
+	}
+	d.Val = d.Val.In(loc)
 	return nil
 }
 
@@ -57,7 +62,7 @@ func (d Datetime) Value() (driver.Value, error) {
 	if d.Null {
 		return nil, nil
 	}
-	return d.Val, nil
+	return d.Val.UTC(), nil
 }
 
 func (d Datetime) MarshalJSON() ([]byte, error) {
