@@ -5,6 +5,7 @@ package queryx
 import (
 	"database/sql"
 	"database/sql/driver"
+	"encoding/json"
 	"time"
 )
 
@@ -14,8 +15,12 @@ type Datetime struct {
 	Set  bool
 }
 
+func loadLocation() (*time.Location, error) {
+	return time.LoadLocation("{{ $.client.TimeZone }}")
+}
+
 func parseDatetime(s string) (*time.Time, error) {
-	loc, err := time.LoadLocation("{{ $.client.TimeZone }}")
+	loc, err := loadLocation()
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +54,7 @@ func (d *Datetime) Scan(value interface{}) error {
 		return err
 	}
 	d.Val, d.Null = n.Time, !n.Valid
-	loc, err := time.LoadLocation("{{ $.client.TimeZone }}")
+	loc, err := loadLocation()
 	if err != nil {
 		return err
 	}
@@ -66,9 +71,25 @@ func (d Datetime) Value() (driver.Value, error) {
 }
 
 func (d Datetime) MarshalJSON() ([]byte, error) {
-	return nil, nil
+	if d.Null {
+		return json.Marshal(nil)
+	}
+	return json.Marshal(d.Val)
 }
 
-func (d *Datetime) UnmarshalJSON(text []byte) error {
+func (d *Datetime) UnmarshalJSON(b []byte) error {
+	s := string(b)
+	if s == "null" || s == "" {
+		d.Null = true
+		return nil
+	}
+
+	t:= time.Time{}
+	err := t.UnmarshalJSON(b)
+	if err != nil {
+		return err
+	}
+	d.Val = t
+
 	return nil
 }
