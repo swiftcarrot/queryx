@@ -151,20 +151,20 @@ start() {
 
   pkg="github.com/swiftcarrot/queryx"
   bin="queryx.tar.gz"
-  original_version="v0.1.4"
+  version="v0.1.4"
 
   prefix=${PREFIX:-"/usr/local/bin"}
   tmp="$(mktmpdir)"
 
   echo
-  log_info "Downloading $pkg@$original_version"
+  log_info "Downloading $pkg@$version"
   log_info "Downloading binary for $os $arch"
 
-  asset=$(curl -s https://api.github.com/repos/swiftcarrot/queryx/releases/latest | grep -i "browser_download_url.*$os\_$arch" | sed -E 's/.*"([^"]+)".*/\1/')
-  http_download "$tmp/queryx_$original_version.tar.gz" "$asset"
+  asset=$(curl -s https://api.github.com/repos/swiftcarrot/queryx/releases/tags/$version | grep -i "browser_download_url.*$os\_$arch" | sed -E 's/.*"([^"]+)".*/\1/')
+  http_download "$tmp/queryx_$version.tar.gz" "$asset"
 
   cd "$tmp"
-  tar zxf "queryx_$original_version.tar.gz"
+  tar zxf "queryx_$version.tar.gz"
 
   if [ -w "$prefix" ]; then
   log_info "Installing queryx to $prefix"
