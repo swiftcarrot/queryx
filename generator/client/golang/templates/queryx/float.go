@@ -3,6 +3,7 @@
 package queryx
 
 import (
+	"database/sql"
 	"database/sql/driver"
 )
 
@@ -25,7 +26,10 @@ func NewNullableFloat(v *float64) Float {
 
 // Scan implements the Scanner interface.
 func (f *Float) Scan(value interface{}) error {
-	return nil
+	ns := sql.NullFloat64{Float64: f.Val}
+	err := ns.Scan(value)
+	f.Val, f.Null = ns.Float64, !ns.Valid
+	return err
 }
 
 // Value implements the driver Valuer interface.
