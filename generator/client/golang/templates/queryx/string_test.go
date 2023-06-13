@@ -18,3 +18,29 @@ func TestNewNullableString(t *testing.T) {
 	i := NewNullableString(nil)
 	require.Equal(t, true, i.Null)
 }
+
+func TestStringMarshalJSON(t *testing.T) {
+	i := NewString("queryx")
+	require.Equal(t, "queryx", i.Val)
+	require.Equal(t, false, i.Null)
+	_, err := i.MarshalJSON()
+	require.NoError(t, err)
+}
+
+func TestStringScan(t *testing.T) {
+	i := NewString("queryx")
+	require.Equal(t, "queryx", i.Val)
+	require.Equal(t, false, i.Null)
+	err := i.Scan("query")
+	require.NoError(t, err)
+	require.Equal(t, "query", i.Val)
+}
+
+func TestStringValue(t *testing.T) {
+	i := NewString("queryx")
+	require.Equal(t, "queryx", i.Val)
+	require.Equal(t, false, i.Null)
+	value, err := i.Value()
+	require.NoError(t, err)
+	require.Equal(t, "queryx", value)
+}

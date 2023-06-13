@@ -18,3 +18,21 @@ func TestNewNullableBoolean(t *testing.T) {
 	i := NewNullableBoolean(nil)
 	require.Equal(t, true, i.Null)
 }
+
+func TestBooleanScan(t *testing.T) {
+	i := NewBoolean(true)
+	require.Equal(t, true, i.Val)
+	require.Equal(t, false, i.Null)
+	err := i.Scan(false)
+	require.NoError(t, err)
+	require.Equal(t, false, i.Val)
+}
+
+func TestBooleanValue(t *testing.T) {
+	i := NewBoolean(true)
+	require.Equal(t, true, i.Val)
+	require.Equal(t, false, i.Null)
+	value, err := i.Value()
+	require.NoError(t, err)
+	require.Equal(t, true, value)
+}
