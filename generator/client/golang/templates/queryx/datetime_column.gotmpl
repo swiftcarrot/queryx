@@ -88,3 +88,11 @@ func (c *DatetimeColumn) GT(v string) *Clause {
 		err:      err,
 	}
 }
+
+func (c *DatetimeColumn) Asc() string {
+	return fmt.Sprintf("%s.%s ASC", c.Table.Name, c.Name)
+}
+
+func (c *DatetimeColumn) Desc() string {
+	return fmt.Sprintf("%s.%s DESC", c.Table.Name, c.Name)
+}

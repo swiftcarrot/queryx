@@ -57,3 +57,11 @@ func (c *FloatColumn) In(v []float64) *Clause {
 		args:     []interface{}{v},
 	}
 }
+
+func (c *FloatColumn) Asc() string {
+	return fmt.Sprintf("%s.%s ASC", c.Table.Name, c.Name)
+}
+
+func (c *FloatColumn) Desc() string {
+	return fmt.Sprintf("%s.%s DESC", c.Table.Name, c.Name)
+}
