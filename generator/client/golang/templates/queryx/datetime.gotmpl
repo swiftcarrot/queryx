@@ -84,16 +84,16 @@ func (d *Datetime) UnmarshalJSON(b []byte) error {
     		return nil
     	}
 
-    	t := time.Time{}.Local()
-    	err := json.Unmarshal(b, &t)
+    	t := time.Time{}
+    	// err := json.Unmarshal(b, &t)
+    	// if err != nil {
+    	// 	return err
+    	// }
+    	err := t.UnmarshalJSON(b)
     	if err != nil {
     		return err
     	}
-    	//err := t.UnmarshalJSON(b)
-    	//if err != nil {
-    	//	return err
-    	//}
-    	d.Val = t.Local()
+    	d.Val = t
 
     	return nil
 }
