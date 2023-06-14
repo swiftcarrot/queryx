@@ -93,7 +93,7 @@ func (d *Datetime) UnmarshalJSON(b []byte) error {
     	//if err != nil {
     	//	return err
     	//}
-    	d.Val = t
+    	d.Val = t.Local()
 
     	return nil
 }
