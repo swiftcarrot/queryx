@@ -36,3 +36,24 @@ func TestBooleanValue(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, true, value)
 }
+
+func TestBooleanMarshalJSON(t *testing.T) {
+	i := NewBoolean(true)
+	require.Equal(t, true, i.Val)
+	require.Equal(t, false, i.Null)
+	_, err := i.MarshalJSON()
+	require.NoError(t, err)
+}
+
+func TestBooleanUnmarshalJSON(t *testing.T) {
+	i := NewBoolean(true)
+	require.Equal(t, true, i.Val)
+	require.Equal(t, false, i.Null)
+	bytes, err := i.MarshalJSON()
+	require.NoError(t, err)
+	b := NewBoolean(false)
+	err = b.UnmarshalJSON(bytes)
+	require.NoError(t, err)
+	require.Equal(t, true, i.Val)
+	require.Equal(t, false, b.Null)
+}

@@ -27,6 +27,19 @@ func TestStringMarshalJSON(t *testing.T) {
 	require.NoError(t, err)
 }
 
+func TestStringUnmarshalJSON(t *testing.T) {
+	i := NewString("queryx")
+	require.Equal(t, "queryx", i.Val)
+	require.Equal(t, false, i.Null)
+	bytes, err := i.MarshalJSON()
+	require.NoError(t, err)
+	s := NewString("")
+	err = s.UnmarshalJSON(bytes)
+	require.NoError(t, err)
+	require.Equal(t, "queryx", s.Val)
+	require.Equal(t, false, s.Null)
+}
+
 func TestStringScan(t *testing.T) {
 	i := NewString("queryx")
 	require.Equal(t, "queryx", i.Val)

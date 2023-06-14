@@ -47,13 +47,14 @@ func (s String) MarshalJSON() ([]byte, error) {
 }
 
 func (s *String) UnmarshalJSON(text []byte) error {
-	// ns.Valid = false
-	// if string(text) == "null" {
-	// 	return nil
-	// }
-	// if err := json.Unmarshal(text, &ns.String); err == nil {
-	// 	ns.Valid = true
-	// }
+	if string(text) == "null" {
+		s.Null = true
+		return nil
+	}
+	var str string
+	if err := json.Unmarshal(text, &str); err == nil {
+		s.Val = str
+	}
 	return nil
 }
 

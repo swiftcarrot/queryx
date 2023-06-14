@@ -5,6 +5,7 @@ package queryx
 import (
 	"database/sql"
 	"database/sql/driver"
+	"encoding/json"
 )
 
 type Float struct {
@@ -38,4 +39,25 @@ func (f Float) Value() (driver.Value, error) {
 		return nil, nil
 	}
 	return float64(f.Val), nil
+}
+
+func (f Float) MarshalJSON() ([]byte, error) {
+	if f.Null {
+		return json.Marshal(nil)
+	}
+	return json.Marshal(f.Val)
+}
+
+func (f Float) UnmarshalJSON(text []byte) error {
+	if len(text) == 0 {
+		f.Null = true
+		return nil
+	}
+	var i float64
+	err := json.Unmarshal(text, &i)
+	if err != nil {
+		return err
+	}
+	f.Val = i
+	return err
 }

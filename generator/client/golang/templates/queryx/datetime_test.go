@@ -28,6 +28,18 @@ func TestDatetimeMarshalJSON(t *testing.T) {
 	require.NoError(t, err)
 }
 
+func TestDatetimeUnmarshalJSON(t *testing.T) {
+	i := NewDatetime("2012-12-12 15:04:05")
+	require.Equal(t, "2012-12-12 15:04:05", i.Val.Local().Format("2006-01-02 15:04:05"))
+	require.Equal(t, false, i.Null)
+	b, err := json.Marshal(i)
+	require.NoError(t, err)
+	tt := NewDatetime("1996-11-13 15:04:05")
+	err = tt.UnmarshalJSON(b)
+	require.NoError(t, err)
+	require.Equal(t, i, tt)
+}
+
 func TestDatetimeScan(t *testing.T) {
 	i := NewDatetime("2012-12-12 15:04:05")
 	require.Equal(t, "2012-12-12 15:04:05", i.Val.Local().Format("2006-01-02 15:04:05"))

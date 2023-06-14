@@ -6,6 +6,7 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
+	"strconv"
 )
 
 type JSON struct {
@@ -44,9 +45,23 @@ func (j JSON) Value() (driver.Value, error) {
 }
 
 func (j JSON) MarshalJSON() ([]byte, error) {
-	return nil, nil
+	if j.Null {
+		return json.Marshal(nil)
+	}
+	return json.Marshal(j.Val)
 }
 
 func (j *JSON) UnmarshalJSON(b []byte) error {
+	s := string(b)
+	if s == "{}" {
+		j.Null = true
+		return nil
+	}
+	m := map[string]interface{}{}
+	err := json.Unmarshal(b, &m)
+	if err != nil {
+		return err
+	}
+	j.Val = m
 	return nil
 }

@@ -36,3 +36,24 @@ func TestFloatValue(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, float64(2.1), value)
 }
+
+func TestFloatMarshalJSON(t *testing.T) {
+	i := NewFloat(2.1)
+	require.Equal(t, float64(2.1), i.Val)
+	require.Equal(t, false, i.Null)
+	_, err := i.MarshalJSON()
+	require.NoError(t, err)
+}
+
+func TestFloatUnmarshalJSON(t *testing.T) {
+	i := NewFloat(2.1)
+	require.Equal(t, float64(2.1), i.Val)
+	require.Equal(t, false, i.Null)
+	bytes, err := i.MarshalJSON()
+	require.NoError(t, err)
+	b := NewFloat(0)
+	err = b.UnmarshalJSON(bytes)
+	require.NoError(t, err)
+	require.Equal(t, float64(2.1), i.Val)
+	require.Equal(t, false, b.Null)
+}

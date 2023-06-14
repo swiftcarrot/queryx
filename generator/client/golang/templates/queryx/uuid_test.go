@@ -27,6 +27,19 @@ func TestUUIDMarshalJSON(t *testing.T) {
 	require.NoError(t, err)
 }
 
+func TestUUIDUnmarshalJSON(t *testing.T) {
+	i := NewUUID("a81e44c5-7e18-4dfe-b9b3-d9280629d2ef")
+	require.Equal(t, "a81e44c5-7e18-4dfe-b9b3-d9280629d2ef", i.Val)
+	require.Equal(t, false, i.Null)
+	bytes, err := i.MarshalJSON()
+	require.NoError(t, err)
+	u := NewUUID("")
+	err = u.UnmarshalJSON(bytes)
+	require.NoError(t, err)
+	require.Equal(t, "a81e44c5-7e18-4dfe-b9b3-d9280629d2ef", u.Val)
+	require.Equal(t, false, u.Null)
+}
+
 func TestUUIDScan(t *testing.T) {
 	i := NewUUID("a81e44c5-7e18-4dfe-b9b3-d9280629d2ef")
 	require.Equal(t, "a81e44c5-7e18-4dfe-b9b3-d9280629d2ef", i.Val)

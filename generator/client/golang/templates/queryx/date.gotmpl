@@ -69,6 +69,19 @@ func (d Date) MarshalJSON() ([]byte, error) {
 	return json.Marshal(d.Val)
 }
 
-func (d *Date) UnmarshalJSON(text []byte) error {
+func (d *Date) UnmarshalJSON(b []byte) error {
+	s := string(b)
+	if s == "null" || s == "" {
+		d.Null = true
+		return nil
+	}
+
+	t := time.Time{}
+	err := t.UnmarshalJSON(b)
+	if err != nil {
+		return err
+	}
+	d.Val = t
+
 	return nil
 }

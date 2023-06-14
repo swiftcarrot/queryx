@@ -49,5 +49,13 @@ func (u UUID) MarshalJSON() ([]byte, error) {
 }
 
 func (u *UUID) UnmarshalJSON(text []byte) error {
+	if string(text) == "null" {
+		u.Null = true
+		return nil
+	}
+	var str string
+	if err := json.Unmarshal(text, &str); err == nil {
+		u.Val = str
+	}
 	return nil
 }

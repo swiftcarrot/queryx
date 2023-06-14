@@ -36,3 +36,24 @@ func TestIntegerValue(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, int64(2), value)
 }
+
+func TestIntegerMarshalJSON(t *testing.T) {
+	i := NewInteger(2)
+	require.Equal(t, int32(2), i.Val)
+	require.Equal(t, false, i.Null)
+	_, err := i.MarshalJSON()
+	require.NoError(t, err)
+}
+
+func TestIntegerUnmarshalJSON(t *testing.T) {
+	i := NewInteger(2)
+	require.Equal(t, int32(2), i.Val)
+	require.Equal(t, false, i.Null)
+	bytes, err := i.MarshalJSON()
+	require.NoError(t, err)
+	b := NewInteger(3)
+	err = b.UnmarshalJSON(bytes)
+	require.NoError(t, err)
+	require.Equal(t, int32(2), i.Val)
+	require.Equal(t, false, b.Null)
+}

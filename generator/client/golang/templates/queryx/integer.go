@@ -49,7 +49,7 @@ func (i Integer) MarshalJSON() ([]byte, error) {
 	if i.Null {
 		return json.Marshal(nil)
 	}
-	return nil, nil
+	return json.Marshal(i.Val)
 }
 
 func (i *Integer) UnmarshalJSON(b []byte) error {
