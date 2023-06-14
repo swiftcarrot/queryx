@@ -78,18 +78,22 @@ func (d Datetime) MarshalJSON() ([]byte, error) {
 }
 
 func (d *Datetime) UnmarshalJSON(b []byte) error {
-	s := string(b)
-	if s == "null" || s == "" {
-		d.Null = true
-		return nil
-	}
+		s := string(b)
+    	if s == "null" || s == "" {
+    		d.Null = true
+    		return nil
+    	}
 
-	t:= time.Time{}
-	err := t.UnmarshalJSON(b)
-	if err != nil {
-		return err
-	}
-	d.Val = t
+    	t := time.Time{}
+    	err := json.Unmarshal(b, &t)
+    	if err != nil {
+    		return err
+    	}
+    	//err := t.UnmarshalJSON(b)
+    	//if err != nil {
+    	//	return err
+    	//}
+    	d.Val = t
 
-	return nil
+    	return nil
 }
