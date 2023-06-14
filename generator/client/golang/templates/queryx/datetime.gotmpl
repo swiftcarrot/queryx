@@ -85,10 +85,6 @@ func (d *Datetime) UnmarshalJSON(b []byte) error {
     	}
 
     	t := time.Time{}
-    	// err := json.Unmarshal(b, &t)
-    	// if err != nil {
-    	// 	return err
-    	// }
     	err := t.UnmarshalJSON(b)
     	if err != nil {
     		return err

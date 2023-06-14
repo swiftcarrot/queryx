@@ -11,7 +11,7 @@ import (
 
 func TestNewTime(t *testing.T) {
 	i := NewTime("12:12:12")
-	require.Equal(t, "12:12:12", i.Val.Local().Format("15:04:05"))
+	require.Equal(t, "12:12:12", i.Val.Format("15:04:05"))
 	require.Equal(t, false, i.Null)
 }
 
@@ -22,7 +22,7 @@ func TestNewNullableTime(t *testing.T) {
 
 func TestTimeMarshalJSON(t *testing.T) {
 	i := NewTime("12:12:12")
-	require.Equal(t, "12:12:12", i.Val.Local().Format("15:04:05"))
+	require.Equal(t, "12:12:12", i.Val.Format("15:04:05"))
 	require.Equal(t, false, i.Null)
 	_, err := i.MarshalJSON()
 	require.NoError(t, err)
@@ -30,33 +30,33 @@ func TestTimeMarshalJSON(t *testing.T) {
 
 func TestTimeUnmarshalJSON(t *testing.T) {
 	i := NewTime("12:12:13")
-	require.Equal(t, "12:12:13", i.Val.Local().Format("15:04:05"))
+	require.Equal(t, "12:12:13", i.Val.Format("15:04:05"))
 	require.Equal(t, false, i.Null)
 	bytes, err := i.MarshalJSON()
 	require.NoError(t, err)
 	b := NewTime("")
 	err = b.UnmarshalJSON(bytes)
 	require.NoError(t, err)
-	require.Equal(t, "12:12:13", b.Val.Local().Format("15:04:05"))
+	require.Equal(t, "12:12:13", b.Val.Format("15:04:05"))
 }
 
 func TestTimeScan(t *testing.T) {
 	i := NewTime("15:03:04")
-	require.Equal(t, "15:03:04", i.Val.Local().Format("15:04:05"))
+	require.Equal(t, "15:03:04", i.Val.Format("15:04:05"))
 	require.Equal(t, false, i.Null)
 	time, err := parseTime("12:02:05")
 	require.NoError(t, err)
 	err = i.Scan(*time)
 	require.NoError(t, err)
-	require.Equal(t, "12:02:05", i.Val.Local().Format("15:04:05"))
+	require.Equal(t, "12:02:05", i.Val.Format("15:04:05"))
 }
 
 func TestTimeValue(t *testing.T) {
 	i := NewTime("16:04:05")
-	require.Equal(t, "16:04:05", i.Val.Local().Format("15:04:05"))
+	require.Equal(t, "16:04:05", i.Val.Format("15:04:05"))
 	require.Equal(t, false, i.Null)
 	value, err := i.Value()
 	require.NoError(t, err)
 	_value := value.(time.Time)
-	require.Equal(t, "16:04:05", _value.Local().Format("15:04:05"))
+	require.Equal(t, "16:04:05", _value.Format("15:04:05"))
 }
