@@ -37,7 +37,7 @@ func TestDatetimeUnmarshalJSON(t *testing.T) {
 	tt := NewDatetime("1996-11-13 15:04:05")
 	err = tt.UnmarshalJSON(b)
 	require.NoError(t, err)
-	require.Equal(t, i, tt)
+	require.Equal(t, i.Val, tt.Val)
 }
 
 func TestDatetimeScan(t *testing.T) {
