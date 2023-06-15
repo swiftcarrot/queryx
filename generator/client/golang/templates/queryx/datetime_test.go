@@ -57,6 +57,8 @@ func TestDatetimeValue(t *testing.T) {
 	require.Equal(t, false, i.Null)
 	value, err := i.Value()
 	require.NoError(t, err)
+	location, err := loadLocation()
+	require.NoError(t, err)
 	_value := value.(time.Time)
-	require.Equal(t, "2012-12-12 15:04:05", _value.Format("2006-01-02 15:04:05"))
+	require.Equal(t, "2012-12-12 15:04:05", _value.In(location).Format("2006-01-02 15:04:05"))
 }
