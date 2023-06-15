@@ -1,1 +1,2 @@
+*.go linguist-language=Go
 *.gotmpl linguist-language=Go
