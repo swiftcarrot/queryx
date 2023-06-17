@@ -16,10 +16,10 @@ type {{ $.model.Name }} struct {
     {{ $b.Name | pascal }} *{{ $b.ModelName }} `json:"{{ camel $b.Name }}"`
   {{- end }}
 	{{- range $h := $.model.HasMany }}
-		{{ $h.Name | pascal }} []*{{ $h.ModelName }}
+		{{ $h.Name | pascal }} []*{{ $h.ModelName }} `json:"{{ $h.Name | camel }}"`
 	{{- end }}
 	{{- range $h := $.model.HasOne }}
-		{{ $h.Name | pascal }} *{{ $h.ModelName }}
+		{{ $h.Name | pascal }} *{{ $h.ModelName }} `json:"{{ $h.Name | camel }}"`
 	{{- end }}
 
 	schema *queryx.Schema
