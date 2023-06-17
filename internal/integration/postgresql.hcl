@@ -64,6 +64,9 @@ database "db" {
     has_many "users" {
       through = "user_posts"
     }
+    belongs_to "author" {
+      class_name = "User"
+    }
 
     column "title" {
       type = string
@@ -85,6 +88,7 @@ database "db" {
 
   model "Account" {
     belongs_to "user" {}
+
     column "name" {
       type = string
     }

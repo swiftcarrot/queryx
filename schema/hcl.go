@@ -98,7 +98,7 @@ var hclIndex = &hcl.BodySchema{
 
 var hclHasMany = &hcl.BodySchema{
 	Attributes: []hcl.AttributeSchema{
-		{Name: "model_name"},
+		{Name: "class_name"},
 		{Name: "through"},
 		{Name: "foreign_key"},
 		{Name: "source"},
@@ -107,8 +107,15 @@ var hclHasMany = &hcl.BodySchema{
 
 var hclHasOne = &hcl.BodySchema{
 	Attributes: []hcl.AttributeSchema{
-		{Name: "model_name"},
+		{Name: "class_name"},
 		{Name: "through"},
+		{Name: "foreign_key"},
+	},
+}
+
+var hclBelongsTo = &hcl.BodySchema{
+	Attributes: []hcl.AttributeSchema{
+		{Name: "class_name"},
 		{Name: "foreign_key"},
 	},
 }
@@ -348,7 +355,7 @@ func indexFromBlock(block *hcl.Block, ctx *hcl.EvalContext) (*Index, error) {
 func primaryKeyFromBlock(block *hcl.Block, ctx *hcl.EvalContext) (*PrimaryKey, error) {
 	primaryKey := &PrimaryKey{}
 
-	content, d := block.Body.Content(hclIndex)
+	content, d := block.Body.Content(hclPrimaryKey)
 	if d.HasErrors() {
 		return nil, d.Errs()[0]
 	}
@@ -372,7 +379,26 @@ func belongsToFromBlock(block *hcl.Block, ctx *hcl.EvalContext) (*BelongsTo, err
 	belongsTo := &BelongsTo{
 		Name: block.Labels[0],
 	}
-	belongsTo.ModelName = inflect.Pascal(inflect.Singular(belongsTo.Name))
+
+	content, d := block.Body.Content(hclBelongsTo)
+	if d.HasErrors() {
+		return nil, d.Errs()[0]
+	}
+
+	for name, attr := range content.Attributes {
+		value, d := attr.Expr.Value(ctx)
+		if d.HasErrors() {
+			return nil, d.Errs()[0]
+		}
+
+		switch name {
+		case "class_name":
+			belongsTo.ClassName = value.AsString()
+		case "foreign_key":
+			belongsTo.ForeignKey = value.AsString()
+		}
+	}
+
 	return belongsTo, nil
 }
 
@@ -380,7 +406,7 @@ func hasManyFromBlock(block *hcl.Block, ctx *hcl.EvalContext) (*HasMany, error) 
 	hasMany := &HasMany{
 		Name: block.Labels[0],
 	}
-	hasMany.ModelName = inflect.Pascal(inflect.Singular(hasMany.Name))
+	hasMany.ClassName = inflect.Pascal(inflect.Singular(hasMany.Name))
 	content, d := block.Body.Content(hclHasMany)
 	if d.HasErrors() {
 		return nil, d.Errs()[0]
@@ -405,7 +431,7 @@ func hasOneFromBlock(block *hcl.Block, ctx *hcl.EvalContext) (*HasOne, error) {
 	hasOne := &HasOne{
 		Name: block.Labels[0],
 	}
-	hasOne.ModelName = inflect.Pascal(inflect.Singular(hasOne.Name))
+	hasOne.ClassName = inflect.Pascal(inflect.Singular(hasOne.Name))
 	content, d := block.Body.Content(hclHasOne)
 	if d.HasErrors() {
 		return nil, d.Errs()[0]

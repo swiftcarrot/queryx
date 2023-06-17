@@ -172,7 +172,9 @@ post, err := c.QueryPost().Where(c.PostTitle.EQ("post title")).First()
 
 Queryx supports association definition in the schema file. It also generates corresponding preload query methods to avoid "N+1" query.
 
-## has_one and belongs_to
+## belongs_to
+
+## has_one
 
 ```hcl
 model "User" {
@@ -199,7 +201,7 @@ c.QueryUser().PreloadAccount().All()
 c.QueryAccount().PreloadUser().All()
 ```
 
-## has_many and belongs_to
+## has_many
 
 ```hcl
 model "User" {

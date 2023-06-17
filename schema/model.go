@@ -71,7 +71,7 @@ type Attribute struct {
 
 type HasMany struct {
 	Name       string
-	ModelName  string
+	ClassName  string
 	Through    string
 	ForeignKey string
 	Source     string
@@ -79,14 +79,14 @@ type HasMany struct {
 
 type HasOne struct {
 	Name       string
-	ModelName  string
+	ClassName  string
 	Through    string
 	ForeignKey string
 }
 
 type BelongsTo struct {
 	Name        string
-	ModelName   string
+	ClassName   string
 	ForeignKey  string
 	ForeignType string
 	PrimaryKey  string

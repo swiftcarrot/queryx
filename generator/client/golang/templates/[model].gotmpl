@@ -13,13 +13,13 @@ type {{ $.model.Name }} struct {
 	{{ pascal $c.Name }} {{ goModelType $c.Type $c.Null }} `json:"{{ camel $c.Name }}" db:"{{ $c.Name }}"`
 	{{- end }}
 	{{- range $b := $.model.BelongsTo}}
-    {{ $b.Name | pascal }} *{{ $b.ModelName }} `json:"{{ camel $b.Name }}"`
+    {{ $b.Name | pascal }} *{{ $b.ClassName }} `json:"{{ camel $b.Name }}"`
   {{- end }}
 	{{- range $h := $.model.HasMany }}
-		{{ $h.Name | pascal }} []*{{ $h.ModelName }} `json:"{{ $h.Name | camel }}"`
+		{{ $h.Name | pascal }} []*{{ $h.ClassName }} `json:"{{ $h.Name | camel }}"`
 	{{- end }}
 	{{- range $h := $.model.HasOne }}
-		{{ $h.Name | pascal }} *{{ $h.ModelName }} `json:"{{ $h.Name | camel }}"`
+		{{ $h.Name | pascal }} *{{ $h.ClassName }} `json:"{{ $h.Name | camel }}"`
 	{{- end }}
 
 	schema *queryx.Schema

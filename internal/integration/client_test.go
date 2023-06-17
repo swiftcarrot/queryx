@@ -10,6 +10,12 @@ import (
 
 var c *db.QXClient
 
+// TODO: add api to readme
+func TestQueryOne(t *testing.T) {}
+func TestQuery(t *testing.T)    {}
+
+func TestExec(t *testing.T) {}
+
 func TestCreate(t *testing.T) {
 	user, err := c.QueryUser().Create(c.ChangeUser().SetName("user").SetType("admin"))
 	require.NoError(t, err)
@@ -124,6 +130,16 @@ func TestExists(t *testing.T) {
 	exists, err = c.QueryClient().Exists()
 	require.NoError(t, err)
 	require.True(t, exists)
+}
+
+func TestBelongsTo(t *testing.T) {
+	author, err := c.QueryUser().Create(c.ChangeUser().SetName("author"))
+	require.NoError(t, err)
+	post, err := c.QueryPost().Create(c.ChangePost().SetTitle("post title").SetAuthorID(author.ID))
+	require.NoError(t, err)
+	post, err = c.QueryPost().PreloadAuthor().Find(post.ID)
+	require.NoError(t, err)
+	require.Equal(t, author.ID, post.Author.ID)
 }
 
 func TestPreload(t *testing.T) {
