@@ -174,6 +174,18 @@ Queryx supports association definition in the schema file. It also generates cor
 
 ## belongs_to
 
+```hcl
+model "Post" {
+  belongs_to "Author" {
+    class_name = "User"
+  }
+}
+```
+
+```go
+c.QueryPost().PreloadAuthor().All()
+```
+
 ## has_one
 
 ```hcl

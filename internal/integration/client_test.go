@@ -142,6 +142,19 @@ func TestBelongsTo(t *testing.T) {
 	require.Equal(t, author.ID, post.Author.ID)
 }
 
+func TestHasManyEmpty(t *testing.T) {
+	user, err := c.QueryUser().Create(c.ChangeUser().SetName("user"))
+	require.NoError(t, err)
+	user, err = c.QueryUser().PreloadUserPosts().Find(user.ID)
+	require.NoError(t, err)
+	require.Equal(t, 0, len(user.UserPosts))
+	user, err = c.QueryUser().PreloadPosts().Find(user.ID)
+	require.NoError(t, err)
+	require.Equal(t, 0, len(user.Posts))
+}
+
+func TestHasOne(t *testing.T) {}
+
 func TestPreload(t *testing.T) {
 	user1, _ := c.QueryUser().Create(c.ChangeUser().SetName("user1"))
 	post1, _ := c.QueryPost().Create(c.ChangePost().SetTitle("post1"))
@@ -165,11 +178,6 @@ func TestPreload(t *testing.T) {
 	post, _ := c.QueryPost().PreloadUserPosts().Find(post1.ID)
 	require.Equal(t, 1, len(post.UserPosts))
 	require.Equal(t, userPost1.ID, post.UserPosts[0].ID)
-
-	// preload with zero rows
-	posts, err := c.QueryPost().Where(c.PostID.GT(1000)).PreloadUserPosts().All()
-	require.NoError(t, err)
-	require.Equal(t, 0, len(posts))
 }
 
 func TestTx(t *testing.T) {
