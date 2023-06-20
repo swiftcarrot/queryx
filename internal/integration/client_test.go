@@ -151,15 +151,42 @@ func TestBelongsTo(t *testing.T) {
 	require.Equal(t, author.ID, post.Author.ID)
 }
 
+func TestAllEmpty(t *testing.T) {
+	_, err := c.QueryUser().DeleteAll()
+	require.NoError(t, err)
+
+	users, err := c.QueryUser().All()
+	require.NoError(t, err)
+	require.NotNil(t, users)
+	require.Equal(t, 0, len(users))
+}
+
+func TestInEmptySlice(t *testing.T) {
+	_, err := c.QueryUser().DeleteAll()
+	require.NoError(t, err)
+	users, err := c.QueryUser().Where(c.UserID.In([]int64{})).All()
+	require.NoError(t, err)
+	require.NotNil(t, users)
+	require.Equal(t, 0, len(users))
+}
+
 func TestHasManyEmpty(t *testing.T) {
 	user, err := c.QueryUser().Create(c.ChangeUser().SetName("user"))
 	require.NoError(t, err)
+	require.Nil(t, user.UserPosts)
+	require.Nil(t, user.Posts)
+
 	user, err = c.QueryUser().PreloadUserPosts().Find(user.ID)
 	require.NoError(t, err)
+	require.NotNil(t, user.UserPosts)
 	require.Equal(t, 0, len(user.UserPosts))
+
 	user, err = c.QueryUser().PreloadPosts().Find(user.ID)
 	require.NoError(t, err)
+	require.NotNil(t, user.Posts)
+	require.NotNil(t, user.UserPosts)
 	require.Equal(t, 0, len(user.Posts))
+	require.Equal(t, 0, len(user.UserPosts))
 }
 
 func TestHasOne(t *testing.T) {
