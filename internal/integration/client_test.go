@@ -14,7 +14,16 @@ var c *db.QXClient
 func TestQueryOne(t *testing.T) {}
 func TestQuery(t *testing.T)    {}
 
-func TestExec(t *testing.T) {}
+func TestExec(t *testing.T) {
+	user, err := c.QueryUser().Create(c.ChangeUser().SetName("has_one"))
+	require.NoError(t, err)
+	res, err := c.Exec("update users set name='test' where id= ?", user.ID)
+	require.NoError(t, err)
+	require.True(t, res > 0)
+	res, err = c.Exec("delete from users where id= ?", user.ID)
+	require.NoError(t, err)
+	require.True(t, res > 0)
+}
 
 func TestCreate(t *testing.T) {
 	user, err := c.QueryUser().Create(c.ChangeUser().SetName("user").SetType("admin"))
@@ -153,7 +162,16 @@ func TestHasManyEmpty(t *testing.T) {
 	require.Equal(t, 0, len(user.Posts))
 }
 
-func TestHasOne(t *testing.T) {}
+func TestHasOne(t *testing.T) {
+	user, err := c.QueryUser().Create(c.ChangeUser().SetName("has_one"))
+	require.NoError(t, err)
+	account, err := c.QueryAccount().Create(c.ChangeAccount().SetName("account").SetUserID(user.ID))
+	require.NoError(t, err)
+
+	user, err = c.QueryUser().PreloadAccount().Find(user.ID)
+	require.NoError(t, err)
+	require.Equal(t, account.Name, user.Account.Name)
+}
 
 func TestPreload(t *testing.T) {
 	user1, _ := c.QueryUser().Create(c.ChangeUser().SetName("user1"))

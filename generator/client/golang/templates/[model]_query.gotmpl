@@ -237,7 +237,7 @@ func (q *{{ $.model.Name }}Query) preload{{ pascal $h.Name }}(rows []*{{ $.model
 	}
 	if rows1==nil {
     	return nil
-    }
+        }
 	m1 := make(map[int64][]*{{ $m }})
 	for _, r := range rows1 {
 		m1[r.{{ $.model.Name }}ID.Val] = append(m1[r.{{ $.model.Name }}ID.Val], r)
