@@ -1,18 +1,52 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 	"github.com/swiftcarrot/queryx/internal/integration/db"
+	"github.com/swiftcarrot/queryx/internal/integration/db/queryx"
 )
 
 var c *db.QXClient
 
 // TODO: add api to readme
-func TestQueryOne(t *testing.T) {}
-func TestQuery(t *testing.T)    {}
+func TestQueryOne(t *testing.T) {
+	_, err := c.QueryUser().DeleteAll()
+	require.NoError(t, err)
+	var changes []*queryx.UserChange
+	for i := 0; i < 3; i++ {
+		changes = append(changes, c.ChangeUser().SetName("name"+strconv.Itoa(i)))
+	}
+	res, err := c.QueryUser().BulkCreate(changes)
+	require.NoError(t, err)
+	require.True(t, res > 0)
+	var count struct {
+		Count int64 `db:"count"`
+	}
+	err = c.QueryOne("select count('*') from users").Scan(&count)
+	require.NoError(t, err)
+	require.Equal(t, int64(3), count.Count)
+}
+func TestQuery(t *testing.T) {
+	_, err := c.QueryUser().DeleteAll()
+	require.NoError(t, err)
+	var changes []*queryx.UserChange
+	for i := 0; i < 3; i++ {
+		changes = append(changes, c.ChangeUser().SetName("name"+strconv.Itoa(i)))
+	}
+	res, err := c.QueryUser().BulkCreate(changes)
+	require.NoError(t, err)
+	require.True(t, res > 0)
+
+	var users []db.User
+	err = c.Query("select * from users where id>?", 0).Scan(&users)
+	require.NoError(t, err)
+	require.Equal(t, 3, len(users))
+}
 
 func TestExec(t *testing.T) {
 	user, err := c.QueryUser().Create(c.ChangeUser().SetName("has_one"))

@@ -59,6 +59,11 @@ func (c *BigIntColumn) GE(v int64) *Clause {
 }
 
 func (c *BigIntColumn) In(v []int64) *Clause {
+	if len(v) == 0 {
+		return &Clause{
+			fragment: fmt.Sprintf("1=0"),
+		}
+	}
 	return &Clause{
 		fragment: fmt.Sprintf("%s.%s IN (?)", c.Table.Name, c.Name),
 		args:     []interface{}{v},
