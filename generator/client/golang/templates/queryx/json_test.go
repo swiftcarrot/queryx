@@ -47,8 +47,6 @@ func TestJSONValue(t *testing.T) {
 func TestJSONMarshalJSON(t *testing.T) {
 	m := map[string]interface{}{"a": 1}
 	j := NewJSON(m)
-	require.Equal(t, 1, j.Val["a"])
-	require.Equal(t, false, j.Null)
 	_, err := j.MarshalJSON()
 	require.NoError(t, err)
 }
@@ -56,13 +54,10 @@ func TestJSONMarshalJSON(t *testing.T) {
 func TestJSONUnmarshalJSON(t *testing.T) {
 	m := map[string]interface{}{"a": 1}
 	j := NewJSON(m)
-	require.Equal(t, 1, j.Val["a"])
-	require.Equal(t, false, j.Null)
-	bytes, err := j.MarshalJSON()
-	require.NoError(t, err)
+	bytes, _ := j.MarshalJSON()
 	m2 := map[string]interface{}{}
 	newJson := NewJSON(m2)
-	err = newJson.UnmarshalJSON(bytes)
+	err := newJson.UnmarshalJSON(bytes)
 	require.NoError(t, err)
 	require.Equal(t, float64(1), newJson.Val["a"])
 	require.Equal(t, false, newJson.Null)

@@ -21,8 +21,6 @@ func TestNewNullableBoolean(t *testing.T) {
 
 func TestBooleanScan(t *testing.T) {
 	i := NewBoolean(true)
-	require.Equal(t, true, i.Val)
-	require.Equal(t, false, i.Null)
 	err := i.Scan(false)
 	require.NoError(t, err)
 	require.Equal(t, false, i.Val)
@@ -30,8 +28,6 @@ func TestBooleanScan(t *testing.T) {
 
 func TestBooleanValue(t *testing.T) {
 	i := NewBoolean(true)
-	require.Equal(t, true, i.Val)
-	require.Equal(t, false, i.Null)
 	value, err := i.Value()
 	require.NoError(t, err)
 	require.Equal(t, true, value)
@@ -39,20 +35,15 @@ func TestBooleanValue(t *testing.T) {
 
 func TestBooleanMarshalJSON(t *testing.T) {
 	i := NewBoolean(true)
-	require.Equal(t, true, i.Val)
-	require.Equal(t, false, i.Null)
 	_, err := i.MarshalJSON()
 	require.NoError(t, err)
 }
 
 func TestBooleanUnmarshalJSON(t *testing.T) {
 	i := NewBoolean(true)
-	require.Equal(t, true, i.Val)
-	require.Equal(t, false, i.Null)
-	bytes, err := i.MarshalJSON()
-	require.NoError(t, err)
+	bytes, _ := i.MarshalJSON()
 	b := NewBoolean(false)
-	err = b.UnmarshalJSON(bytes)
+	err := b.UnmarshalJSON(bytes)
 	require.NoError(t, err)
 	require.Equal(t, true, i.Val)
 	require.Equal(t, false, b.Null)

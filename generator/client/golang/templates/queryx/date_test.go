@@ -22,28 +22,21 @@ func TestNewNullableDate(t *testing.T) {
 
 func TestDateMarshalJSON(t *testing.T) {
 	i := NewDate("2012-12-12")
-	require.Equal(t, "2012-12-12", i.Val.Format("2006-01-02"))
-	require.Equal(t, false, i.Null)
 	_, err := i.MarshalJSON()
 	require.NoError(t, err)
 }
 
 func TestDateUnmarshalJSON(t *testing.T) {
 	i := NewDate("2012-12-12")
-	require.Equal(t, "2012-12-12", i.Val.Format("2006-01-02"))
-	require.Equal(t, false, i.Null)
-	bytes, err := i.MarshalJSON()
-	require.NoError(t, err)
+	bytes, _ := i.MarshalJSON()
 	b := NewDate("")
-	err = b.UnmarshalJSON(bytes)
+	err := b.UnmarshalJSON(bytes)
 	require.NoError(t, err)
 	require.Equal(t, "2012-12-12", b.Val.Format("2006-01-02"))
 }
 
 func TestDateScan(t *testing.T) {
 	i := NewDate("2012-12-12")
-	require.Equal(t, "2012-12-12", i.Val.Format("2006-01-02"))
-	require.Equal(t, false, i.Null)
 	date, err := parseDate("2012-11-13")
 	require.NoError(t, err)
 	err = i.Scan(*date)
@@ -53,8 +46,6 @@ func TestDateScan(t *testing.T) {
 
 func TestDateValue(t *testing.T) {
 	i := NewDate("2012-12-12")
-	require.Equal(t, "2012-12-12", i.Val.Format("2006-01-02"))
-	require.Equal(t, false, i.Null)
 	value, err := i.Value()
 	require.NoError(t, err)
 	_value := value.(time.Time)

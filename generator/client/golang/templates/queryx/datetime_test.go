@@ -22,16 +22,12 @@ func TestNewNullableDatetime(t *testing.T) {
 
 func TestDatetimeMarshalJSON(t *testing.T) {
 	i := NewDatetime("2012-12-12 15:04:05")
-	require.Equal(t, "2012-12-12 15:04:05", i.Val.Format("2006-01-02 15:04:05"))
-	require.Equal(t, false, i.Null)
 	_, err := i.MarshalJSON()
 	require.NoError(t, err)
 }
 
 func TestDatetimeUnmarshalJSON(t *testing.T) {
 	i := NewDatetime("2012-12-12 15:04:05")
-	require.Equal(t, "2012-12-12 15:04:05", i.Val.Format("2006-01-02 15:04:05"))
-	require.Equal(t, false, i.Null)
 	b, err := json.Marshal(i)
 	require.NoError(t, err)
 	tt := NewDatetime("1996-11-13 15:04:05")
@@ -42,8 +38,6 @@ func TestDatetimeUnmarshalJSON(t *testing.T) {
 
 func TestDatetimeScan(t *testing.T) {
 	i := NewDatetime("2012-12-12 15:04:05")
-	require.Equal(t, "2012-12-12 15:04:05", i.Val.Format("2006-01-02 15:04:05"))
-	require.Equal(t, false, i.Null)
 	date, err := parseDatetime("2012-12-12 15:04:05")
 	require.NoError(t, err)
 	err = i.Scan(*date)
@@ -53,8 +47,6 @@ func TestDatetimeScan(t *testing.T) {
 
 func TestDatetimeValue(t *testing.T) {
 	i := NewDatetime("2012-12-12 15:04:05")
-	require.Equal(t, "2012-12-12 15:04:05", i.Val.Format("2006-01-02 15:04:05"))
-	require.Equal(t, false, i.Null)
 	value, err := i.Value()
 	require.NoError(t, err)
 	location, err := loadLocation()

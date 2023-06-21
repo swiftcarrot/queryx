@@ -21,8 +21,6 @@ func TestNewNullableBigInt(t *testing.T) {
 
 func TestBigIntScan(t *testing.T) {
 	i := NewBigInt(2)
-	require.Equal(t, int64(2), i.Val)
-	require.Equal(t, false, i.Null)
 	err := i.Scan(3)
 	require.NoError(t, err)
 	require.Equal(t, int64(3), i.Val)
@@ -30,8 +28,6 @@ func TestBigIntScan(t *testing.T) {
 
 func TestBigIntValue(t *testing.T) {
 	i := NewBigInt(2)
-	require.Equal(t, int64(2), i.Val)
-	require.Equal(t, false, i.Null)
 	value, err := i.Value()
 	require.NoError(t, err)
 	require.Equal(t, int64(2), value)
@@ -39,20 +35,15 @@ func TestBigIntValue(t *testing.T) {
 
 func TestBigIntMarshalJSON(t *testing.T) {
 	i := NewBigInt(2)
-	require.Equal(t, int64(2), i.Val)
-	require.Equal(t, false, i.Null)
 	_, err := i.MarshalJSON()
 	require.NoError(t, err)
 }
 
 func TestBigIntUnmarshalJSON(t *testing.T) {
 	i := NewBigInt(2)
-	require.Equal(t, int64(2), i.Val)
-	require.Equal(t, false, i.Null)
-	bytes, err := i.MarshalJSON()
-	require.NoError(t, err)
+	bytes, _ := i.MarshalJSON()
 	b := NewBigInt(3)
-	err = b.UnmarshalJSON(bytes)
+	err := b.UnmarshalJSON(bytes)
 	require.NoError(t, err)
 	require.Equal(t, int64(2), i.Val)
 	require.Equal(t, false, b.Null)

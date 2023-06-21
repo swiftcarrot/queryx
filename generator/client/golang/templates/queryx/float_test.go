@@ -21,8 +21,6 @@ func TestNewNullableFloat(t *testing.T) {
 
 func TestFloatScan(t *testing.T) {
 	i := NewFloat(2.1)
-	require.Equal(t, float64(2.1), i.Val)
-	require.Equal(t, false, i.Null)
 	err := i.Scan(3.1)
 	require.NoError(t, err)
 	require.Equal(t, float64(3.1), i.Val)
@@ -30,8 +28,6 @@ func TestFloatScan(t *testing.T) {
 
 func TestFloatValue(t *testing.T) {
 	i := NewFloat(2.1)
-	require.Equal(t, float64(2.1), i.Val)
-	require.Equal(t, false, i.Null)
 	value, err := i.Value()
 	require.NoError(t, err)
 	require.Equal(t, float64(2.1), value)
@@ -39,20 +35,15 @@ func TestFloatValue(t *testing.T) {
 
 func TestFloatMarshalJSON(t *testing.T) {
 	i := NewFloat(2.1)
-	require.Equal(t, float64(2.1), i.Val)
-	require.Equal(t, false, i.Null)
 	_, err := i.MarshalJSON()
 	require.NoError(t, err)
 }
 
 func TestFloatUnmarshalJSON(t *testing.T) {
 	i := NewFloat(2.1)
-	require.Equal(t, float64(2.1), i.Val)
-	require.Equal(t, false, i.Null)
-	bytes, err := i.MarshalJSON()
-	require.NoError(t, err)
+	bytes, _ := i.MarshalJSON()
 	b := NewFloat(0)
-	err = b.UnmarshalJSON(bytes)
+	err := b.UnmarshalJSON(bytes)
 	require.NoError(t, err)
 	require.Equal(t, float64(2.1), i.Val)
 	require.Equal(t, false, b.Null)

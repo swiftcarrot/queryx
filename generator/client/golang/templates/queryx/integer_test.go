@@ -21,8 +21,6 @@ func TestNewNullableInteger(t *testing.T) {
 
 func TestIntegerScan(t *testing.T) {
 	i := NewInteger(2)
-	require.Equal(t, int32(2), i.Val)
-	require.Equal(t, false, i.Null)
 	err := i.Scan(3)
 	require.NoError(t, err)
 	require.Equal(t, int32(3), i.Val)
@@ -30,8 +28,6 @@ func TestIntegerScan(t *testing.T) {
 
 func TestIntegerValue(t *testing.T) {
 	i := NewInteger(2)
-	require.Equal(t, int32(2), i.Val)
-	require.Equal(t, false, i.Null)
 	value, err := i.Value()
 	require.NoError(t, err)
 	require.Equal(t, int64(2), value)
@@ -39,20 +35,15 @@ func TestIntegerValue(t *testing.T) {
 
 func TestIntegerMarshalJSON(t *testing.T) {
 	i := NewInteger(2)
-	require.Equal(t, int32(2), i.Val)
-	require.Equal(t, false, i.Null)
 	_, err := i.MarshalJSON()
 	require.NoError(t, err)
 }
 
 func TestIntegerUnmarshalJSON(t *testing.T) {
 	i := NewInteger(2)
-	require.Equal(t, int32(2), i.Val)
-	require.Equal(t, false, i.Null)
-	bytes, err := i.MarshalJSON()
-	require.NoError(t, err)
+	bytes, _ := i.MarshalJSON()
 	b := NewInteger(3)
-	err = b.UnmarshalJSON(bytes)
+	err := b.UnmarshalJSON(bytes)
 	require.NoError(t, err)
 	require.Equal(t, int32(2), i.Val)
 	require.Equal(t, false, b.Null)

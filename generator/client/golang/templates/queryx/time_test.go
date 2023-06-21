@@ -9,6 +9,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func init() {
+
+}
+
 func TestNewTime(t *testing.T) {
 	i := NewTime("12:12:12")
 	require.Equal(t, "12:12:12", i.Val.Format("15:04:05"))
@@ -22,16 +26,12 @@ func TestNewNullableTime(t *testing.T) {
 
 func TestTimeMarshalJSON(t *testing.T) {
 	i := NewTime("12:12:12")
-	require.Equal(t, "12:12:12", i.Val.Format("15:04:05"))
-	require.Equal(t, false, i.Null)
 	_, err := i.MarshalJSON()
 	require.NoError(t, err)
 }
 
 func TestTimeUnmarshalJSON(t *testing.T) {
 	i := NewTime("12:12:13")
-	require.Equal(t, "12:12:13", i.Val.Format("15:04:05"))
-	require.Equal(t, false, i.Null)
 	bytes, err := i.MarshalJSON()
 	require.NoError(t, err)
 	b := NewTime("")
@@ -42,8 +42,6 @@ func TestTimeUnmarshalJSON(t *testing.T) {
 
 func TestTimeScan(t *testing.T) {
 	i := NewTime("15:03:04")
-	require.Equal(t, "15:03:04", i.Val.Format("15:04:05"))
-	require.Equal(t, false, i.Null)
 	time, err := parseTime("12:02:05")
 	require.NoError(t, err)
 	err = i.Scan(*time)
@@ -53,8 +51,6 @@ func TestTimeScan(t *testing.T) {
 
 func TestTimeValue(t *testing.T) {
 	i := NewTime("16:04:05")
-	require.Equal(t, "16:04:05", i.Val.Format("15:04:05"))
-	require.Equal(t, false, i.Null)
 	value, err := i.Value()
 	require.NoError(t, err)
 	_value := value.(time.Time)
