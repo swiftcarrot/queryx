@@ -240,11 +240,11 @@ func (q *{{ $.model.Name }}Query) preload{{ pascal $h.Name }}(rows []*{{ $.model
 		m1[r.{{ $.model.Name }}ID.Val] = append(m1[r.{{ $.model.Name }}ID.Val], r)
 	}
 	for _, r := range rows {
-	    if m1[r.ID]!=nil {
-	         r.{{ $h.Through | pascal }} = m1[r.ID]
-	    }else{
-             r.{{ $h.Through | pascal }} = make([]*{{ $m }}, 0)
-	    }
+		if m1[r.ID] != nil {
+			r.{{ $h.Through | pascal }} = m1[r.ID]
+		} else {
+			r.{{ $h.Through | pascal }} = make([]*{{ $m }}, 0)
+		}
 	}
 
 	ids1 := []int64{}
@@ -269,10 +269,10 @@ func (q *{{ $.model.Name }}Query) preload{{ pascal $h.Name }}(rows []*{{ $.model
 	}
 	for _, r := range rows {
 		if m3[r.ID] != nil {
-	    r.{{ $h.Name | pascal }} = m3[r.ID]
-	  } else {
-	    r.{{ $h.Name | pascal }} = make([]*{{ $h.ModelName }},0)
-	  }
+			r.{{ $h.Name | pascal }} = m3[r.ID]
+		} else {
+			r.{{ $h.Name | pascal }} = make([]*{{ $h.ModelName }},0)
+		}
 	}
 	{{- else }}
 	rows1, err := q.queries.Query{{ $h.ModelName }}().Where(q.schema.{{ $h.ModelName }}{{ $.model.Name }}ID.In(ids)).All()
