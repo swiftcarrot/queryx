@@ -25,9 +25,9 @@ func TestBigIntJSON(t *testing.T) {
 	}
 	x := NewBigInt(2)
 	y := NewNullableBigInt(nil)
-	f1 := Foo{X:x, Y:y}
 	s := `{"x":2,"y":null}`
 
+	f1 := Foo{X: x, Y: y}
 	b, err := json.Marshal(f1)
 	require.NoError(t, err)
 	require.Equal(t, s, string(b))
