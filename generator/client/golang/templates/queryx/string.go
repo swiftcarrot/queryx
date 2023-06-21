@@ -25,6 +25,7 @@ func NewNullableString(v *string) String {
 	return String{Null: true}
 }
 
+// Scan implements the Scanner interface.
 func (s *String) Scan(value interface{}) error {
 	ns := sql.NullString{String: s.Val}
 	err := ns.Scan(value)
@@ -32,6 +33,7 @@ func (s *String) Scan(value interface{}) error {
 	return err
 }
 
+// Value implements the driver Valuer interface.
 func (s String) Value() (driver.Value, error) {
 	if s.Null {
 		return nil, nil
@@ -56,23 +58,4 @@ func (s *String) UnmarshalJSON(text []byte) error {
 		s.Val = str
 	}
 	return nil
-}
-
-func (s *String) UnmarshalText(text []byte) error {
-	// ns.Valid = false
-	// t := string(text)
-	// if t == "null" {
-	// 	return nil
-	// }
-	// ns.String = t
-	// ns.Valid = true
-	return nil
-}
-
-// String implements the fmt.Stringer.
-func (s *String) String() string {
-	if s.Null {
-		return "null"
-	}
-	return s.Val
 }

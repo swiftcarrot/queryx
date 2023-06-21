@@ -26,41 +26,38 @@ func NewNullableBigInt(v *int64) BigInt {
 }
 
 // Scan implements the Scanner interface.
-func (b *BigInt) Scan(value interface{}) error {
+func (bi *BigInt) Scan(value interface{}) error {
 	n := sql.NullInt64{}
 	err := n.Scan(value)
 	if err != nil {
 		return err
 	}
-	b.Val, b.Null = n.Int64, !n.Valid
+	bi.Val, bi.Null = n.Int64, !n.Valid
 	return nil
 }
 
 // Value implements the driver Valuer interface.
-func (b BigInt) Value() (driver.Value, error) {
-	if b.Null {
+func (bi BigInt) Value() (driver.Value, error) {
+	if bi.Null {
 		return nil, nil
 	}
-	return b.Val, nil
+	return bi.Val, nil
 }
 
-func (b BigInt) MarshalJSON() ([]byte, error) {
-	if b.Null {
+func (bi BigInt) MarshalJSON() ([]byte, error) {
+	if bi.Null {
 		return json.Marshal(nil)
 	}
-	return json.Marshal(b.Val)
+	return json.Marshal(bi.Val)
 }
 
-func (b *BigInt) UnmarshalJSON(text []byte) error {
-	if len(text) == 0 {
-		b.Null = true
+func (bi *BigInt) UnmarshalJSON(b []byte) error {
+	if string(b) == "null" {
+		bi.Null = true
 		return nil
 	}
-	var i int64
-	err := json.Unmarshal(text, &i)
-	if err != nil {
+	if err := json.Unmarshal(b, &bi.Val); err != nil {
 		return err
 	}
-	b.Val = i
-	return err
+	return nil
 }
