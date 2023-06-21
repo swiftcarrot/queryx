@@ -201,6 +201,11 @@ func TestInEmptySlice(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, users)
 	require.Equal(t, 0, len(users))
+
+	users, err = c.QueryUser().Where(c.UserID.In([]int64{}).And(c.UserID.EQ(1)).And(c.UserID.In([]int64{1}))).All()
+	require.NoError(t, err)
+	require.NotNil(t, users)
+	require.Equal(t, 0, len(users))
 }
 
 func TestHasManyEmpty(t *testing.T) {

@@ -65,7 +65,7 @@ database "db" {
       through = "user_posts"
     }
     belongs_to "author" {
-      class_name = "User"
+      model_name = "User"
     }
 
     column "title" {

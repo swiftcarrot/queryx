@@ -177,7 +177,7 @@ Queryx supports association definition in the schema file. It also generates cor
 ```hcl
 model "Post" {
   belongs_to "Author" {
-    class_name = "User"
+    model_name = "User"
   }
 }
 ```

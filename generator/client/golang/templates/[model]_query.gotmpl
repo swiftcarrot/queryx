@@ -197,12 +197,12 @@ func (q *{{ $.model.Name }}Query) preload{{ pascal $b.Name }}(rows []*{{ $.model
 			ids = append(ids, r.{{ $b.ForeignKey | pascal }}.Val)
 		}
 	}
-	rows1, err := q.queries.Query{{ $b.ClassName }}().Where(q.schema.{{ $b.ClassName }}ID.In(ids)).All()
+	rows1, err := q.queries.Query{{ $b.ModelName }}().Where(q.schema.{{ $b.ModelName }}ID.In(ids)).All()
 	if err != nil {
 		return err
 	}
 
-	m := make(map[int64]*{{ $b.ClassName }})
+	m := make(map[int64]*{{ $b.ModelName }})
 	for _, r := range rows1 {
 		m[r.ID] = r
 	}
@@ -249,38 +249,38 @@ func (q *{{ $.model.Name }}Query) preload{{ pascal $h.Name }}(rows []*{{ $.model
 
 	ids1 := []int64{}
 	for _, r := range rows1 {
-		ids1 = append(ids1, r.{{ $h.ClassName }}ID.Val)
+		ids1 = append(ids1, r.{{ $h.ModelName }}ID.Val)
 	}
-	rows2, err := q.queries.Query{{ $h.ClassName }}().Where(q.schema.{{ $h.ClassName }}ID.In(ids1)).All()
+	rows2, err := q.queries.Query{{ $h.ModelName }}().Where(q.schema.{{ $h.ModelName }}ID.In(ids1)).All()
 	if err != nil {
 		return err
 	}
-	m2 := make(map[int64]*{{ $h.ClassName}})
+	m2 := make(map[int64]*{{ $h.ModelName}})
 	for _, r := range rows2 {
 		m2[r.ID] = r
 	}
 	for _, r := range rows1 {
-		r.{{ $h.ClassName}} = m2[r.{{ $h.ClassName}}ID.Val]
+		r.{{ $h.ModelName}} = m2[r.{{ $h.ModelName}}ID.Val]
 	}
 
-	m3 := make(map[int64][]*{{ $h.ClassName }})
+	m3 := make(map[int64][]*{{ $h.ModelName }})
 	for _, r := range rows1 {
-		m3[r.{{ $.model.Name }}ID.Val] = append(m3[r.{{ $.model.Name }}ID.Val], r.{{ $h.ClassName }})
+		m3[r.{{ $.model.Name }}ID.Val] = append(m3[r.{{ $.model.Name }}ID.Val], r.{{ $h.ModelName }})
 	}
 	for _, r := range rows {
-	    if m3[r.ID]!=nil {
-	          r.{{ $h.Name | pascal }} = m3[r.ID]
-	    }else{
-	          r.{{ $h.Name | pascal }} = make([]*{{ $h.ClassName }},0)
-	    }
+		if m3[r.ID] != nil {
+	    r.{{ $h.Name | pascal }} = m3[r.ID]
+	  } else {
+	    r.{{ $h.Name | pascal }} = make([]*{{ $h.ModelName }},0)
+	  }
 	}
 	{{- else }}
-	rows1, err := q.queries.Query{{ $h.ClassName }}().Where(q.schema.{{ $h.ClassName }}{{ $.model.Name }}ID.In(ids)).All()
+	rows1, err := q.queries.Query{{ $h.ModelName }}().Where(q.schema.{{ $h.ModelName }}{{ $.model.Name }}ID.In(ids)).All()
 	if err != nil {
 		return err
 	}
 
-	m := make(map[int64][]*{{ $h.ClassName }})
+	m := make(map[int64][]*{{ $h.ModelName }})
 	for _, r := range rows1 {
 		m[r.{{ $.model.Name }}ID.Val] = append(m[r.{{ $.model.Name }}ID.Val], r)
 	}
@@ -288,7 +288,7 @@ func (q *{{ $.model.Name }}Query) preload{{ pascal $h.Name }}(rows []*{{ $.model
 		if m[r.ID] != nil {
 			r.{{ $h.Name | pascal }} = m[r.ID]
 		} else {
-			r.{{ $h.Name | pascal }} = make([]*{{ $h.ClassName }}, 0)
+			r.{{ $h.Name | pascal }} = make([]*{{ $h.ModelName }}, 0)
 		}
 	}
 	{{- end }}
@@ -309,17 +309,17 @@ func (q *{{ $.model.Name }}Query) preload{{ pascal $h.Name }}(rows []*{{ $.model
 	for _, r := range rows {
 		ids = append(ids, r.ID)
 	}
-	rows1, err := q.queries.Query{{ $h.ClassName }}().Where(q.schema.{{ $h.ClassName }}{{ $.model.Name }}ID.In(ids)).All()
+	rows1, err := q.queries.Query{{ $h.ModelName }}().Where(q.schema.{{ $h.ModelName }}{{ $.model.Name }}ID.In(ids)).All()
 	if err != nil {
 		return err
 	}
 
-	m := make(map[int64]*{{ $h.ClassName }})
+	m := make(map[int64]*{{ $h.ModelName }})
 	for _, r := range rows1 {
 		m[r.{{ $.model.Name }}ID.Val] = r
 	}
 	for _, r := range rows {
-		r.{{ $h.ClassName }} = m[r.ID]
+		r.{{ $h.ModelName }} = m[r.ID]
 	}
 
 	return nil
