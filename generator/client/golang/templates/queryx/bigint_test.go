@@ -10,12 +10,12 @@ import (
 )
 
 func TestNewBigInt(t *testing.T) {
-	bi1 := NewBigInt(2)
-	require.Equal(t, int64(2), bi1.Val)
-	require.Equal(t, false, bi1.Null)
+	b1 := NewBigInt(2)
+	require.Equal(t, int64(2), b1.Val)
+	require.Equal(t, false, b1.Null)
 
-	bi2 := NewNullableBigInt(nil)
-	require.Equal(t, true, bi2.Null)
+	b2 := NewNullableBigInt(nil)
+	require.Equal(t, true, b2.Null)
 }
 
 func TestBigIntJSON(t *testing.T) {

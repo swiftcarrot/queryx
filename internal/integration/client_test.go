@@ -2,60 +2,53 @@ package main
 
 import (
 	"log"
-	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 	"github.com/swiftcarrot/queryx/internal/integration/db"
-	"github.com/swiftcarrot/queryx/internal/integration/db/queryx"
 )
 
 var c *db.QXClient
 
-// TODO: add api to readme
 func TestQueryOne(t *testing.T) {
-	_, err := c.QueryUser().DeleteAll()
+	user, err := c.QueryUser().Create(c.ChangeUser().SetName("test"))
 	require.NoError(t, err)
-	var changes []*queryx.UserChange
-	for i := 0; i < 3; i++ {
-		changes = append(changes, c.ChangeUser().SetName("name"+strconv.Itoa(i)))
-	}
-	res, err := c.QueryUser().BulkCreate(changes)
-	require.NoError(t, err)
-	require.True(t, res > 0)
-	var count struct {
-		Count int64 `db:"count"`
-	}
-	err = c.QueryOne("select count('*') from users").Scan(&count)
-	require.NoError(t, err)
-	require.Equal(t, int64(3), count.Count)
-}
-func TestQuery(t *testing.T) {
-	_, err := c.QueryUser().DeleteAll()
-	require.NoError(t, err)
-	var changes []*queryx.UserChange
-	for i := 0; i < 3; i++ {
-		changes = append(changes, c.ChangeUser().SetName("name"+strconv.Itoa(i)))
-	}
-	res, err := c.QueryUser().BulkCreate(changes)
-	require.NoError(t, err)
-	require.True(t, res > 0)
 
-	var users []db.User
-	err = c.Query("select * from users where id>?", 0).Scan(&users)
+	var row struct {
+		UserID int64 `db:"user_id"`
+	}
+	err = c.QueryOne("select id as user_id from users where id = ?", user.ID).Scan(&row)
 	require.NoError(t, err)
-	require.Equal(t, 3, len(users))
+	require.Equal(t, user.ID, row.UserID)
+}
+
+func TestQuery(t *testing.T) {
+	user1, err := c.QueryUser().Create(c.ChangeUser().SetName("test1"))
+	require.NoError(t, err)
+	user2, err := c.QueryUser().Create(c.ChangeUser().SetName("test2"))
+	require.NoError(t, err)
+
+	type Foo struct {
+		UserName string `db:"user_name"`
+	}
+	var rows []Foo
+	err = c.Query("select name as user_name from users where id in (?)", []int64{user1.ID, user2.ID}).Scan(&rows)
+	require.NoError(t, err)
+	require.Equal(t, []Foo{
+		{user1.Name.Val},
+		{user2.Name.Val},
+	}, rows)
 }
 
 func TestExec(t *testing.T) {
-	user, err := c.QueryUser().Create(c.ChangeUser().SetName("has_one"))
+	user, err := c.QueryUser().Create(c.ChangeUser().SetName("test"))
 	require.NoError(t, err)
-	res, err := c.Exec("update users set name='test' where id= ?", user.ID)
+	updated, err := c.Exec("update users set name = ? where id = ?", "test1", user.ID)
 	require.NoError(t, err)
-	require.True(t, res > 0)
-	res, err = c.Exec("delete from users where id= ?", user.ID)
+	require.Equal(t, int64(1), updated)
+	deleted, err := c.Exec("delete from users where id = ?", user.ID)
 	require.NoError(t, err)
-	require.True(t, res > 0)
+	require.Equal(t, int64(1), deleted)
 }
 
 func TestCreate(t *testing.T) {
