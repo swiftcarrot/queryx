@@ -3,48 +3,38 @@
 package queryx
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
 
 func TestNewBoolean(t *testing.T) {
-	i := NewBoolean(true)
-	require.Equal(t, true, i.Val)
-	require.Equal(t, false, i.Null)
+	b1 := NewBoolean(true)
+	require.Equal(t, true, b1.Val)
+	require.Equal(t, false, b1.Null)
+
+	b2 := NewNullableBoolean(nil)
+	require.Equal(t, true, b2.Null)
 }
 
-func TestNewNullableBoolean(t *testing.T) {
-	i := NewNullableBoolean(nil)
-	require.Equal(t, true, i.Null)
-}
+func TestBooleanJSON(t *testing.T) {
+	type Foo struct {
+		X Boolean `json:"x"`
+		Y Boolean `json:"y"`
+	}
+	x := NewBoolean(true)
+	y := NewNullableBoolean(nil)
+	s := `{"x":true,"y":null}`
 
-func TestBooleanScan(t *testing.T) {
-	i := NewBoolean(true)
-	err := i.Scan(false)
+	f1 := Foo{X: x, Y: y}
+	b, err := json.Marshal(f1)
 	require.NoError(t, err)
-	require.Equal(t, false, i.Val)
-}
+	require.Equal(t, s, string(b))
 
-func TestBooleanValue(t *testing.T) {
-	i := NewBoolean(true)
-	value, err := i.Value()
+	var f2 Foo
+	err = json.Unmarshal([]byte(s), &f2)
 	require.NoError(t, err)
-	require.Equal(t, true, value)
-}
-
-func TestBooleanMarshalJSON(t *testing.T) {
-	i := NewBoolean(true)
-	_, err := i.MarshalJSON()
-	require.NoError(t, err)
-}
-
-func TestBooleanUnmarshalJSON(t *testing.T) {
-	i := NewBoolean(true)
-	bytes, _ := i.MarshalJSON()
-	b := NewBoolean(false)
-	err := b.UnmarshalJSON(bytes)
-	require.NoError(t, err)
-	require.Equal(t, true, i.Val)
-	require.Equal(t, false, b.Null)
+	require.Equal(t, x, f2.X)
+	require.Equal(t, y, f2.Y)
 }

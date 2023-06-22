@@ -48,16 +48,13 @@ func (f Float) MarshalJSON() ([]byte, error) {
 	return json.Marshal(f.Val)
 }
 
-func (f Float) UnmarshalJSON(text []byte) error {
-	if len(text) == 0 {
+func (f *Float) UnmarshalJSON(b []byte) error {
+	if string(b) == "null" {
 		f.Null = true
 		return nil
 	}
-	var i float64
-	err := json.Unmarshal(text, &i)
-	if err != nil {
+	if err := json.Unmarshal(b, &f.Val); err != nil {
 		return err
 	}
-	f.Val = i
-	return err
+	return nil
 }

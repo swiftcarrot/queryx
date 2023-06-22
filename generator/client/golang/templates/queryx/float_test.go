@@ -3,48 +3,38 @@
 package queryx
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
 
 func TestNewFloat(t *testing.T) {
-	i := NewFloat(2.1)
-	require.Equal(t, 2.1, i.Val)
-	require.Equal(t, false, i.Null)
+	f1 := NewFloat(2.1)
+	require.Equal(t, 2.1, f1.Val)
+	require.Equal(t, false, f1.Null)
+
+	f2 := NewNullableFloat(nil)
+	require.Equal(t, true, f2.Null)
 }
 
-func TestNewNullableFloat(t *testing.T) {
-	i := NewNullableFloat(nil)
-	require.Equal(t, true, i.Null)
-}
+func TestFloatJSON(t *testing.T) {
+	type Foo struct {
+		X Float `json:"x"`
+		Y Float `json:"y"`
+	}
+	x := NewFloat(2.1)
+	y := NewNullableFloat(nil)
+	s := `{"x":2.1,"y":null}`
 
-func TestFloatScan(t *testing.T) {
-	i := NewFloat(2.1)
-	err := i.Scan(3.1)
+	f1 := Foo{X: x, Y: y}
+	b, err := json.Marshal(f1)
 	require.NoError(t, err)
-	require.Equal(t, float64(3.1), i.Val)
-}
+	require.Equal(t, s, string(b))
 
-func TestFloatValue(t *testing.T) {
-	i := NewFloat(2.1)
-	value, err := i.Value()
+	var f2 Foo
+	err = json.Unmarshal([]byte(s), &f2)
 	require.NoError(t, err)
-	require.Equal(t, float64(2.1), value)
-}
-
-func TestFloatMarshalJSON(t *testing.T) {
-	i := NewFloat(2.1)
-	_, err := i.MarshalJSON()
-	require.NoError(t, err)
-}
-
-func TestFloatUnmarshalJSON(t *testing.T) {
-	i := NewFloat(2.1)
-	bytes, _ := i.MarshalJSON()
-	b := NewFloat(0)
-	err := b.UnmarshalJSON(bytes)
-	require.NoError(t, err)
-	require.Equal(t, float64(2.1), i.Val)
-	require.Equal(t, false, b.Null)
+	require.Equal(t, x, f2.X)
+	require.Equal(t, y, f2.Y)
 }

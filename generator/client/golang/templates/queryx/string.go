@@ -48,14 +48,13 @@ func (s String) MarshalJSON() ([]byte, error) {
 	return json.Marshal(s.Val)
 }
 
-func (s *String) UnmarshalJSON(text []byte) error {
-	if string(text) == "null" {
+func (s *String) UnmarshalJSON(b []byte) error {
+	if string(b) == "null" {
 		s.Null = true
 		return nil
 	}
-	var str string
-	if err := json.Unmarshal(text, &str); err == nil {
-		s.Val = str
+	if err := json.Unmarshal(b, &s.Val); err != nil {
+		return err
 	}
 	return nil
 }

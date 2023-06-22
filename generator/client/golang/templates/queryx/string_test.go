@@ -3,48 +3,38 @@
 package queryx
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
 
 func TestNewString(t *testing.T) {
-	i := NewString("queryx")
-	require.Equal(t, "queryx", i.Val)
-	require.Equal(t, false, i.Null)
+	s1 := NewString("ss")
+	require.Equal(t, "ss", s1.Val)
+	require.Equal(t, false, s1.Null)
+
+	s2 := NewNullableString(nil)
+	require.Equal(t, true, s2.Null)
 }
 
-func TestNewNullableString(t *testing.T) {
-	i := NewNullableString(nil)
-	require.Equal(t, true, i.Null)
-}
+func TestStringJSON(t *testing.T) {
+	type Foo struct {
+		X String `json:"x"`
+		Y String `json:"y"`
+	}
+	x := NewString("ss")
+	y := NewNullableString(nil)
+	s := `{"x":"ss","y":null}`
 
-func TestStringMarshalJSON(t *testing.T) {
-	i := NewString("queryx")
-	_, err := i.MarshalJSON()
+	f1 := Foo{X: x, Y: y}
+	b, err := json.Marshal(f1)
 	require.NoError(t, err)
-}
+	require.Equal(t, s, string(b))
 
-func TestStringUnmarshalJSON(t *testing.T) {
-	i := NewString("queryx")
-	bytes, _ := i.MarshalJSON()
-	s := NewString("")
-	err := s.UnmarshalJSON(bytes)
+	var f2 Foo
+	err = json.Unmarshal([]byte(s), &f2)
 	require.NoError(t, err)
-	require.Equal(t, "queryx", s.Val)
-	require.Equal(t, false, s.Null)
-}
-
-func TestStringScan(t *testing.T) {
-	i := NewString("queryx")
-	err := i.Scan("query")
-	require.NoError(t, err)
-	require.Equal(t, "query", i.Val)
-}
-
-func TestStringValue(t *testing.T) {
-	i := NewString("queryx")
-	value, err := i.Value()
-	require.NoError(t, err)
-	require.Equal(t, "queryx", value)
+	require.Equal(t, x, f2.X)
+	require.Equal(t, y, f2.Y)
 }

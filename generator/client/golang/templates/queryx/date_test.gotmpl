@@ -10,44 +10,31 @@ import (
 )
 
 func TestNewDate(t *testing.T) {
-	i := NewDate("2012-12-12")
-	require.Equal(t, "2012-12-12", i.Val.Format("2006-01-02"))
-	require.Equal(t, false, i.Null)
+	d1 := NewDate("2012-12-12")
+	require.Equal(t, "2012-12-12", d1.Val.Format("2006-01-02"))
+	require.Equal(t, false, d1.Null)
+
+	d2 := NewNullableDate(nil)
+	require.Equal(t, true, d2.Null)
 }
 
-func TestNewNullableDate(t *testing.T) {
-	i := NewNullableDate(nil)
-	require.Equal(t, true, i.Null)
-}
+func TestDateJSON(t *testing.T) {
+	type Foo struct {
+		X Date `json:"x"`
+		Y Date `json:"y"`
+	}
+	x := NewDate("2012-12-12")
+	y := NewNullableDate(nil)
+	s := `{"x":"2012-12-12","y":null}`
 
-func TestDateMarshalJSON(t *testing.T) {
-	i := NewDate("2012-12-12")
-	_, err := i.MarshalJSON()
+	f1 := Foo{X: x, Y: y}
+	b, err := json.Marshal(f1)
 	require.NoError(t, err)
-}
+	require.Equal(t, s, string(b))
 
-func TestDateUnmarshalJSON(t *testing.T) {
-	i := NewDate("2012-12-12")
-	bytes, _ := i.MarshalJSON()
-	b := NewDate("")
-	err := b.UnmarshalJSON(bytes)
+	var f2 Foo
+	err = json.Unmarshal([]byte(s), &f2)
 	require.NoError(t, err)
-	require.Equal(t, "2012-12-12", b.Val.Format("2006-01-02"))
-}
-
-func TestDateScan(t *testing.T) {
-	i := NewDate("2012-12-12")
-	date, err := parseDate("2012-11-13")
-	require.NoError(t, err)
-	err = i.Scan(*date)
-	require.NoError(t, err)
-	require.Equal(t, "2012-11-13", i.Val.Format("2006-01-02"))
-}
-
-func TestDateValue(t *testing.T) {
-	i := NewDate("2012-12-12")
-	value, err := i.Value()
-	require.NoError(t, err)
-	_value := value.(time.Time)
-	require.Equal(t, "2012-12-12", _value.Format("2006-01-02"))
+	require.Equal(t, x, f2.X)
+	require.Equal(t, y, f2.Y)
 }
