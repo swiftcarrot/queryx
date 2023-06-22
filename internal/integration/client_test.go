@@ -10,6 +10,47 @@ import (
 
 var c *db.QXClient
 
+func TestQueryOne(t *testing.T) {
+	user, err := c.QueryUser().Create(c.ChangeUser().SetName("test"))
+	require.NoError(t, err)
+
+	var row struct {
+		UserID int64 `db:"user_id"`
+	}
+	err = c.QueryOne("select id as user_id from users where id = ?", user.ID).Scan(&row)
+	require.NoError(t, err)
+	require.Equal(t, user.ID, row.UserID)
+}
+
+func TestQuery(t *testing.T) {
+	user1, err := c.QueryUser().Create(c.ChangeUser().SetName("test1"))
+	require.NoError(t, err)
+	user2, err := c.QueryUser().Create(c.ChangeUser().SetName("test2"))
+	require.NoError(t, err)
+
+	type Foo struct {
+		UserName string `db:"user_name"`
+	}
+	var rows []Foo
+	err = c.Query("select name as user_name from users where id in (?)", []int64{user1.ID, user2.ID}).Scan(&rows)
+	require.NoError(t, err)
+	require.Equal(t, []Foo{
+		{user1.Name.Val},
+		{user2.Name.Val},
+	}, rows)
+}
+
+func TestExec(t *testing.T) {
+	user, err := c.QueryUser().Create(c.ChangeUser().SetName("test"))
+	require.NoError(t, err)
+	updated, err := c.Exec("update users set name = ? where id = ?", "test1", user.ID)
+	require.NoError(t, err)
+	require.Equal(t, int64(1), updated)
+	deleted, err := c.Exec("delete from users where id = ?", user.ID)
+	require.NoError(t, err)
+	require.Equal(t, int64(1), deleted)
+}
+
 func TestCreate(t *testing.T) {
 	user, err := c.QueryUser().Create(c.ChangeUser().SetName("user").SetType("admin"))
 	require.NoError(t, err)
@@ -126,6 +167,70 @@ func TestExists(t *testing.T) {
 	require.True(t, exists)
 }
 
+func TestBelongsTo(t *testing.T) {
+	author, err := c.QueryUser().Create(c.ChangeUser().SetName("author"))
+	require.NoError(t, err)
+	post, err := c.QueryPost().Create(c.ChangePost().SetTitle("post title").SetAuthorID(author.ID))
+	require.NoError(t, err)
+	post, err = c.QueryPost().PreloadAuthor().Find(post.ID)
+	require.NoError(t, err)
+	require.Equal(t, author.ID, post.Author.ID)
+}
+
+func TestAllEmpty(t *testing.T) {
+	_, err := c.QueryUser().DeleteAll()
+	require.NoError(t, err)
+
+	users, err := c.QueryUser().All()
+	require.NoError(t, err)
+	require.NotNil(t, users)
+	require.Equal(t, 0, len(users))
+}
+
+func TestInEmptySlice(t *testing.T) {
+	_, err := c.QueryUser().DeleteAll()
+	require.NoError(t, err)
+	users, err := c.QueryUser().Where(c.UserID.In([]int64{})).All()
+	require.NoError(t, err)
+	require.NotNil(t, users)
+	require.Equal(t, 0, len(users))
+
+	users, err = c.QueryUser().Where(c.UserID.In([]int64{}).And(c.UserID.EQ(1)).And(c.UserID.In([]int64{1}))).All()
+	require.NoError(t, err)
+	require.NotNil(t, users)
+	require.Equal(t, 0, len(users))
+}
+
+func TestHasManyEmpty(t *testing.T) {
+	user, err := c.QueryUser().Create(c.ChangeUser().SetName("user"))
+	require.NoError(t, err)
+	require.Nil(t, user.UserPosts)
+	require.Nil(t, user.Posts)
+
+	user, err = c.QueryUser().PreloadUserPosts().Find(user.ID)
+	require.NoError(t, err)
+	require.NotNil(t, user.UserPosts)
+	require.Equal(t, 0, len(user.UserPosts))
+
+	user, err = c.QueryUser().PreloadPosts().Find(user.ID)
+	require.NoError(t, err)
+	require.NotNil(t, user.Posts)
+	require.NotNil(t, user.UserPosts)
+	require.Equal(t, 0, len(user.Posts))
+	require.Equal(t, 0, len(user.UserPosts))
+}
+
+func TestHasOne(t *testing.T) {
+	user, err := c.QueryUser().Create(c.ChangeUser().SetName("has_one"))
+	require.NoError(t, err)
+	account, err := c.QueryAccount().Create(c.ChangeAccount().SetName("account").SetUserID(user.ID))
+	require.NoError(t, err)
+
+	user, err = c.QueryUser().PreloadAccount().Find(user.ID)
+	require.NoError(t, err)
+	require.Equal(t, account.Name, user.Account.Name)
+}
+
 func TestPreload(t *testing.T) {
 	user1, _ := c.QueryUser().Create(c.ChangeUser().SetName("user1"))
 	post1, _ := c.QueryPost().Create(c.ChangePost().SetTitle("post1"))
@@ -149,11 +254,6 @@ func TestPreload(t *testing.T) {
 	post, _ := c.QueryPost().PreloadUserPosts().Find(post1.ID)
 	require.Equal(t, 1, len(post.UserPosts))
 	require.Equal(t, userPost1.ID, post.UserPosts[0].ID)
-
-	// preload with zero rows
-	posts, err := c.QueryPost().Where(c.PostID.GT(1000)).PreloadUserPosts().All()
-	require.NoError(t, err)
-	require.Equal(t, 0, len(posts))
 }
 
 func TestTx(t *testing.T) {

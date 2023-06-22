@@ -5,6 +5,7 @@ package queryx
 import (
 	"database/sql"
 	"database/sql/driver"
+	"encoding/json"
 )
 
 type BigInt struct {
@@ -43,10 +44,22 @@ func (b BigInt) Value() (driver.Value, error) {
 	return b.Val, nil
 }
 
+// MarshalJSON implements the json.Marshaler interface.
 func (b BigInt) MarshalJSON() ([]byte, error) {
-	return nil, nil
+	if b.Null {
+		return json.Marshal(nil)
+	}
+	return json.Marshal(b.Val)
 }
 
-func (b *BigInt) UnmarshalJSON(text []byte) error {
+// UnmarshalJSON implements the json.Unmarshaler interface.
+func (b *BigInt) UnmarshalJSON(data []byte) error {
+	if string(data) == "null" {
+		b.Null = true
+		return nil
+	}
+	if err := json.Unmarshal(data, &b.Val); err != nil {
+		return err
+	}
 	return nil
 }

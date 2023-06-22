@@ -1,5 +1,6 @@
 database "db" {
   adapter = "postgresql"
+  time_zone = "Asia/Shanghai"
 
   config "test" {
     url = "postgres://postgres:postgres@localhost:5432/queryx_test?sslmode=disable"
@@ -64,6 +65,9 @@ database "db" {
     has_many "users" {
       through = "user_posts"
     }
+    belongs_to "author" {
+      model_name = "User"
+    }
 
     column "title" {
       type = string
@@ -85,6 +89,7 @@ database "db" {
 
   model "Account" {
     belongs_to "user" {}
+
     column "name" {
       type = string
     }

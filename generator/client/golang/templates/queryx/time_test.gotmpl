@@ -3,29 +3,29 @@
 package queryx
 
 import (
-	"encoding/json"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 )
 
-func TestNewInteger(t *testing.T) {
-	i1 := NewInteger(2)
-	require.Equal(t, int32(2), i1.Val)
-	require.Equal(t, false, i1.Null)
+func TestNewTime(t *testing.T) {
+	t1 := NewTime("12:11:10")
+	require.Equal(t, "12:11:10", t1.Val.Format("15:04:05"))
+	require.Equal(t, false, t1.Null)
 
-	i2 := NewNullableInteger(nil)
-	require.Equal(t, true, i2.Null)
+	t2 := NewNullableTime(nil)
+	require.Equal(t, true, t2.Null)
 }
 
-func TestIntegerJSON(t *testing.T) {
+func TestTimeJSON(t *testing.T) {
 	type Foo struct {
-		X Integer `json:"x"`
-		Y Integer `json:"y"`
+		X Time `json:"x"`
+		Y Time `json:"y"`
 	}
-	x := NewInteger(2)
-	y := NewNullableInteger(nil)
-	s := `{"x":2,"y":null}`
+	x := NewTime("12:11:10")
+	y := NewNullableTime(nil)
+	s := `{"x":"12:11:10","y":null}`
 
 	f1 := Foo{X: x, Y: y}
 	b, err := json.Marshal(f1)

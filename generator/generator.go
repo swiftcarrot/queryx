@@ -88,10 +88,6 @@ func (g *Generator) Generate(schema *schema.Schema) error {
 	database := schema.Databases[0]
 	dir := database.Name
 	created := []string{}
-	err := checkRelationship(database)
-	if err != nil {
-		return err
-	}
 
 	for _, tpl := range g.template.Templates() {
 		name := tpl.Name()
@@ -164,39 +160,4 @@ func readDir(dir string) ([]string, error) {
 		return nil, err
 	}
 	return files, nil
-}
-
-func checkRelationship(d *schema.Database) error {
-	modeMap := make(map[string]struct{})
-	for i := 0; i < len(d.Models); i++ {
-		modeMap[d.Models[i].Name] = struct{}{}
-	}
-	for i := 0; i < len(d.Models); i++ {
-		for j := 0; j < len(d.Models[i].HasOne); j++ {
-			if len(d.Models[i].HasOne) > 0 {
-				if _, ok := modeMap[inflect.Pascal(inflect.Singular(d.Models[i].HasOne[j].Name))]; !ok {
-					return fmt.Errorf(fmt.Sprintf("the model of %s do not exist", d.Models[i].HasOne[j].Name))
-				}
-			}
-
-		}
-		for k := 0; k < len(d.Models[i].HasMany); k++ {
-			if len(d.Models[i].HasMany) > 0 {
-				if _, ok := modeMap[inflect.Pascal(inflect.Singular(d.Models[i].HasMany[k].Name))]; !ok {
-					return fmt.Errorf(fmt.Sprintf("the model of %s do not exist", d.Models[i].HasMany[k].Name))
-				}
-			}
-
-		}
-
-		for h := 0; h < len(d.Models[i].BelongsTo); h++ {
-			if len(d.Models[i].BelongsTo) > 0 {
-				if _, ok := modeMap[inflect.Pascal(inflect.Singular(d.Models[i].BelongsTo[h].Name))]; !ok {
-					return fmt.Errorf(fmt.Sprintf("the model of %s do not exist", d.Models[i].BelongsTo[h].Name))
-				}
-			}
-		}
-	}
-
-	return nil
 }

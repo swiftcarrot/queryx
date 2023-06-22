@@ -5,6 +5,7 @@ package queryx
 import (
 	"database/sql"
 	"database/sql/driver"
+	"encoding/json"
 )
 
 type Boolean struct {
@@ -41,4 +42,24 @@ func (b Boolean) Value() (driver.Value, error) {
 		return nil, nil
 	}
 	return b.Val, nil
+}
+
+// MarshalJSON implements the json.Marshaler interface.
+func (b Boolean) MarshalJSON() ([]byte, error) {
+	if b.Null {
+		return json.Marshal(nil)
+	}
+	return json.Marshal(b.Val)
+}
+
+// UnmarshalJSON implements the json.Unmarshaler interface.
+func (b *Boolean) UnmarshalJSON(data []byte) error {
+	if string(data) == "null" {
+		b.Null = true
+		return nil
+	}
+	if err := json.Unmarshal(data, &b.Val); err != nil {
+		return err
+	}
+	return nil
 }

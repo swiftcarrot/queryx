@@ -1,1 +1,2 @@
-*.gotmpl linguist-language=Go
+*.go linguist-language=Go linguist-generated=false
+*.gotmpl linguist-language=Go linguist-generated=false

@@ -9,23 +9,23 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestNewInteger(t *testing.T) {
-	i1 := NewInteger(2)
-	require.Equal(t, int32(2), i1.Val)
-	require.Equal(t, false, i1.Null)
+func TestNewBoolean(t *testing.T) {
+	b1 := NewBoolean(true)
+	require.Equal(t, true, b1.Val)
+	require.Equal(t, false, b1.Null)
 
-	i2 := NewNullableInteger(nil)
-	require.Equal(t, true, i2.Null)
+	b2 := NewNullableBoolean(nil)
+	require.Equal(t, true, b2.Null)
 }
 
-func TestIntegerJSON(t *testing.T) {
+func TestBooleanJSON(t *testing.T) {
 	type Foo struct {
-		X Integer `json:"x"`
-		Y Integer `json:"y"`
+		X Boolean `json:"x"`
+		Y Boolean `json:"y"`
 	}
-	x := NewInteger(2)
-	y := NewNullableInteger(nil)
-	s := `{"x":2,"y":null}`
+	x := NewBoolean(true)
+	y := NewNullableBoolean(nil)
+	s := `{"x":true,"y":null}`
 
 	f1 := Foo{X: x, Y: y}
 	b, err := json.Marshal(f1)

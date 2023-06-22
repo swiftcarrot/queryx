@@ -193,8 +193,8 @@ func (q *{{ $.model.Name }}Query) Preload{{ pascal $b.Name }}() *{{ $.model.Name
 func (q *{{ $.model.Name }}Query) preload{{ pascal $b.Name }}(rows []*{{ $.model.Name }}) error {
 	ids := []int64{}
 	for _, r := range rows {
-		if !r.{{ $b.ModelName }}ID.Null {
-			ids = append(ids, r.{{ $b.ModelName }}ID.Val)
+		if !r.{{ $b.ForeignKey | pascal }}.Null {
+			ids = append(ids, r.{{ $b.ForeignKey | pascal }}.Val)
 		}
 	}
 	rows1, err := q.queries.Query{{ $b.ModelName }}().Where(q.schema.{{ $b.ModelName }}ID.In(ids)).All()
@@ -207,8 +207,8 @@ func (q *{{ $.model.Name }}Query) preload{{ pascal $b.Name }}(rows []*{{ $.model
 		m[r.ID] = r
 	}
 	for _, r := range rows {
-		if !r.{{ $b.ModelName }}ID.Null {
-			r.{{ $b.ModelName }} = m[r.{{ $b.ModelName }}ID.Val]
+		if !r.{{ $b.ForeignKey | pascal }}.Null {
+			r.{{ $b.Name | pascal }} = m[r.{{ $b.ForeignKey | pascal }}.Val]
 		}
 	}
 
@@ -240,7 +240,11 @@ func (q *{{ $.model.Name }}Query) preload{{ pascal $h.Name }}(rows []*{{ $.model
 		m1[r.{{ $.model.Name }}ID.Val] = append(m1[r.{{ $.model.Name }}ID.Val], r)
 	}
 	for _, r := range rows {
-		r.{{ $h.Through | pascal }} = m1[r.ID]
+		if m1[r.ID] != nil {
+			r.{{ $h.Through | pascal }} = m1[r.ID]
+		} else {
+			r.{{ $h.Through | pascal }} = make([]*{{ $m }}, 0)
+		}
 	}
 
 	ids1 := []int64{}
@@ -264,7 +268,11 @@ func (q *{{ $.model.Name }}Query) preload{{ pascal $h.Name }}(rows []*{{ $.model
 		m3[r.{{ $.model.Name }}ID.Val] = append(m3[r.{{ $.model.Name }}ID.Val], r.{{ $h.ModelName }})
 	}
 	for _, r := range rows {
-		r.{{ $h.Name | pascal }} = m3[r.ID]
+		if m3[r.ID] != nil {
+			r.{{ $h.Name | pascal }} = m3[r.ID]
+		} else {
+			r.{{ $h.Name | pascal }} = make([]*{{ $h.ModelName }},0)
+		}
 	}
 	{{- else }}
 	rows1, err := q.queries.Query{{ $h.ModelName }}().Where(q.schema.{{ $h.ModelName }}{{ $.model.Name }}ID.In(ids)).All()
@@ -277,7 +285,11 @@ func (q *{{ $.model.Name }}Query) preload{{ pascal $h.Name }}(rows []*{{ $.model
 		m[r.{{ $.model.Name }}ID.Val] = append(m[r.{{ $.model.Name }}ID.Val], r)
 	}
 	for _, r := range rows {
-		r.{{ $h.Name | pascal }} = m[r.ID]
+		if m[r.ID] != nil {
+			r.{{ $h.Name | pascal }} = m[r.ID]
+		} else {
+			r.{{ $h.Name | pascal }} = make([]*{{ $h.ModelName }}, 0)
+		}
 	}
 	{{- end }}
 
@@ -320,7 +332,7 @@ func (q *{{.model.Name}}Query) All() ([]*{{.model.Name}}, error) {
   }
   var rows []{{ $.model.Name }}
 	{{- $var1 := $.model.Name | camel | plural }}
-	var {{ $var1 }} []*{{ $.model.Name }}
+	{{ $var1 }} := make([]*{{ $.model.Name }}, 0)
   query, args := q.selectStatement.ToSQL()
   err := q.adapter.Query(query, args...).Scan(&rows)
 	if err != nil {
@@ -328,7 +340,7 @@ func (q *{{.model.Name}}Query) All() ([]*{{.model.Name}}, error) {
 	}
 
 	if len(rows) == 0 {
-		return nil, err
+		return {{ $var1 }}, nil
 	}
 
 	for i := range rows {

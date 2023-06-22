@@ -28,3 +28,11 @@ func (c *UUIDColumn) EQ(v string) *Clause {
 		args:     []interface{}{v},
 	}
 }
+
+func (c *UUIDColumn) Asc() string {
+	return fmt.Sprintf("%s.%s ASC", c.Table.Name, c.Name)
+}
+
+func (c *UUIDColumn) Desc() string {
+	return fmt.Sprintf("%s.%s DESC", c.Table.Name, c.Name)
+}

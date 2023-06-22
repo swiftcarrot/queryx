@@ -29,3 +29,11 @@ func (c *BooleanColumn) NE(v bool) *Clause {
 		args:     []interface{}{v},
 	}
 }
+
+func (b *BooleanColumn) Asc() string {
+	return fmt.Sprintf("%s.%s ASC", b.Table.Name, b.Name)
+}
+
+func (b *BooleanColumn) Desc() string {
+	return fmt.Sprintf("%s.%s DESC", b.Table.Name, b.Name)
+}

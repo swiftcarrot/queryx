@@ -41,6 +41,7 @@ func (u UUID) Value() (driver.Value, error) {
 	return u.Val, nil
 }
 
+// MarshalJSON implements the json.Marshaler interface.
 func (u UUID) MarshalJSON() ([]byte, error) {
 	if u.Null {
 		return json.Marshal(nil)
@@ -48,6 +49,14 @@ func (u UUID) MarshalJSON() ([]byte, error) {
 	return json.Marshal(u.Val)
 }
 
-func (u *UUID) UnmarshalJSON(text []byte) error {
+// UnmarshalJSON implements the json.Unmarshaler interface.
+func (u *UUID) UnmarshalJSON(data []byte) error {
+	if string(data) == "null" {
+		u.Null = true
+		return nil
+	}
+	if err := json.Unmarshal(data, &u.Val); err != nil {
+		return err
+	}
 	return nil
 }

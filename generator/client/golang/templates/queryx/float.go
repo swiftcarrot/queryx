@@ -3,7 +3,9 @@
 package queryx
 
 import (
+	"database/sql"
 	"database/sql/driver"
+	"encoding/json"
 )
 
 type Float struct {
@@ -25,7 +27,10 @@ func NewNullableFloat(v *float64) Float {
 
 // Scan implements the Scanner interface.
 func (f *Float) Scan(value interface{}) error {
-	return nil
+	ns := sql.NullFloat64{Float64: f.Val}
+	err := ns.Scan(value)
+	f.Val, f.Null = ns.Float64, !ns.Valid
+	return err
 }
 
 // Value implements the driver Valuer interface.
@@ -34,4 +39,24 @@ func (f Float) Value() (driver.Value, error) {
 		return nil, nil
 	}
 	return float64(f.Val), nil
+}
+
+// MarshalJSON implements the json.Marshaler interface.
+func (f Float) MarshalJSON() ([]byte, error) {
+	if f.Null {
+		return json.Marshal(nil)
+	}
+	return json.Marshal(f.Val)
+}
+
+// UnmarshalJSON implements the json.Unmarshaler interface.
+func (f *Float) UnmarshalJSON(data []byte) error {
+	if string(data) == "null" {
+		f.Null = true
+		return nil
+	}
+	if err := json.Unmarshal(data, &f.Val); err != nil {
+		return err
+	}
+	return nil
 }

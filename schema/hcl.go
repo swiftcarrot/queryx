@@ -113,6 +113,13 @@ var hclHasOne = &hcl.BodySchema{
 	},
 }
 
+var hclBelongsTo = &hcl.BodySchema{
+	Attributes: []hcl.AttributeSchema{
+		{Name: "model_name"},
+		{Name: "foreign_key"},
+	},
+}
+
 func (s *Schema) databaseFromBlock(block *hcl.Block, ctx *hcl.EvalContext) (*Database, error) {
 	name := block.Labels[0]
 	database := s.NewDatabase(name)
@@ -348,7 +355,7 @@ func indexFromBlock(block *hcl.Block, ctx *hcl.EvalContext) (*Index, error) {
 func primaryKeyFromBlock(block *hcl.Block, ctx *hcl.EvalContext) (*PrimaryKey, error) {
 	primaryKey := &PrimaryKey{}
 
-	content, d := block.Body.Content(hclIndex)
+	content, d := block.Body.Content(hclPrimaryKey)
 	if d.HasErrors() {
 		return nil, d.Errs()[0]
 	}
@@ -372,7 +379,26 @@ func belongsToFromBlock(block *hcl.Block, ctx *hcl.EvalContext) (*BelongsTo, err
 	belongsTo := &BelongsTo{
 		Name: block.Labels[0],
 	}
-	belongsTo.ModelName = inflect.Pascal(inflect.Singular(belongsTo.Name))
+
+	content, d := block.Body.Content(hclBelongsTo)
+	if d.HasErrors() {
+		return nil, d.Errs()[0]
+	}
+
+	for name, attr := range content.Attributes {
+		value, d := attr.Expr.Value(ctx)
+		if d.HasErrors() {
+			return nil, d.Errs()[0]
+		}
+
+		switch name {
+		case "model_name":
+			belongsTo.ModelName = value.AsString()
+		case "foreign_key":
+			belongsTo.ForeignKey = value.AsString()
+		}
+	}
+
 	return belongsTo, nil
 }
 

@@ -109,13 +109,19 @@ func (m *Model) AddHasOne(hasOne *HasOne) {
 }
 
 func (m *Model) AddBelongsTo(belongsTo *BelongsTo) {
+	if belongsTo.ModelName == "" {
+		belongsTo.ModelName = inflect.Pascal(inflect.Singular(belongsTo.Name))
+	}
+	if belongsTo.ForeignKey == "" {
+		belongsTo.ForeignKey = fmt.Sprintf("%s_id", belongsTo.Name)
+	}
+
 	m.BelongsTo = append(m.BelongsTo, belongsTo)
 
-	// TODO: support foreign key, not null
 	col := &Column{
-		Name: fmt.Sprintf("%s_id", belongsTo.Name),
+		Name: belongsTo.ForeignKey,
 		Type: "bigint",
-		Null: true,
+		Null: true, // TODO: support not null
 	}
 	m.Columns = append(m.Columns, col)
 }

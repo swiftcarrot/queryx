@@ -89,3 +89,11 @@ func (c *TimeColumn) EQ(v string) *Clause {
 		err:      err,
 	}
 }
+
+func (c *TimeColumn) Asc() string {
+	return fmt.Sprintf("%s.%s ASC", c.Table.Name, c.Name)
+}
+
+func (c *TimeColumn) Desc() string {
+	return fmt.Sprintf("%s.%s DESC", c.Table.Name, c.Name)
+}
