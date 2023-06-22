@@ -10,8 +10,8 @@ import (
 )
 
 func TestNewDate(t *testing.T) {
-	d1 := NewDate("2012-12-12")
-	require.Equal(t, "2012-12-12", d1.Val.Format("2006-01-02"))
+	d1 := NewDate("2012-11-10")
+	require.Equal(t, "2012-11-10", d1.Val.Format("2006-01-02"))
 	require.Equal(t, false, d1.Null)
 
 	d2 := NewNullableDate(nil)
@@ -23,9 +23,9 @@ func TestDateJSON(t *testing.T) {
 		X Date `json:"x"`
 		Y Date `json:"y"`
 	}
-	x := NewDate("2012-12-12")
+	x := NewDate("2012-11-10")
 	y := NewNullableDate(nil)
-	s := `{"x":"2012-12-12","y":null}`
+	s := `{"x":"2012-11-10","y":null}`
 
 	f1 := Foo{X: x, Y: y}
 	b, err := json.Marshal(f1)

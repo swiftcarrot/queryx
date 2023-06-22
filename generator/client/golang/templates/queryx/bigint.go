@@ -44,6 +44,7 @@ func (bi BigInt) Value() (driver.Value, error) {
 	return bi.Val, nil
 }
 
+// MarshalJSON implements the json.Marshaler interface.
 func (bi BigInt) MarshalJSON() ([]byte, error) {
 	if bi.Null {
 		return json.Marshal(nil)
@@ -51,12 +52,13 @@ func (bi BigInt) MarshalJSON() ([]byte, error) {
 	return json.Marshal(bi.Val)
 }
 
-func (bi *BigInt) UnmarshalJSON(b []byte) error {
-	if string(b) == "null" {
+// UnmarshalJSON implements the json.Unmarshaler interface.
+func (bi *BigInt) UnmarshalJSON(data []byte) error {
+	if string(data) == "null" {
 		bi.Null = true
 		return nil
 	}
-	if err := json.Unmarshal(b, &bi.Val); err != nil {
+	if err := json.Unmarshal(data, &bi.Val); err != nil {
 		return err
 	}
 	return nil

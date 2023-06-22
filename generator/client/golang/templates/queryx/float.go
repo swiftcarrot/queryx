@@ -41,6 +41,7 @@ func (f Float) Value() (driver.Value, error) {
 	return float64(f.Val), nil
 }
 
+// MarshalJSON implements the json.Marshaler interface.
 func (f Float) MarshalJSON() ([]byte, error) {
 	if f.Null {
 		return json.Marshal(nil)
@@ -48,12 +49,13 @@ func (f Float) MarshalJSON() ([]byte, error) {
 	return json.Marshal(f.Val)
 }
 
-func (f *Float) UnmarshalJSON(b []byte) error {
-	if string(b) == "null" {
+// UnmarshalJSON implements the json.Unmarshaler interface.
+func (f *Float) UnmarshalJSON(data []byte) error {
+	if string(data) == "null" {
 		f.Null = true
 		return nil
 	}
-	if err := json.Unmarshal(b, &f.Val); err != nil {
+	if err := json.Unmarshal(data, &f.Val); err != nil {
 		return err
 	}
 	return nil

@@ -3,48 +3,38 @@
 package queryx
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
 
 func TestNewInteger(t *testing.T) {
-	i := NewInteger(2)
-	require.Equal(t, int32(2), i.Val)
-	require.Equal(t, false, i.Null)
+	i1 := NewInteger(2)
+	require.Equal(t, int32(2), i1.Val)
+	require.Equal(t, false, i1.Null)
+
+	i2 := NewNullableInteger(nil)
+	require.Equal(t, true, i2.Null)
 }
 
-func TestNewNullableInteger(t *testing.T) {
-	i := NewNullableInteger(nil)
-	require.Equal(t, true, i.Null)
-}
+func TestIntegerJSON(t *testing.T) {
+	type Foo struct {
+		X Integer `json:"x"`
+		Y Integer `json:"y"`
+	}
+	x := NewInteger(2)
+	y := NewNullableInteger(nil)
+	s := `{"x":2,"y":null}`
 
-func TestIntegerScan(t *testing.T) {
-	i := NewInteger(2)
-	err := i.Scan(3)
+	f1 := Foo{X: x, Y: y}
+	b, err := json.Marshal(f1)
 	require.NoError(t, err)
-	require.Equal(t, int32(3), i.Val)
-}
+	require.Equal(t, s, string(b))
 
-func TestIntegerValue(t *testing.T) {
-	i := NewInteger(2)
-	value, err := i.Value()
+	var f2 Foo
+	err = json.Unmarshal([]byte(s), &f2)
 	require.NoError(t, err)
-	require.Equal(t, int64(2), value)
-}
-
-func TestIntegerMarshalJSON(t *testing.T) {
-	i := NewInteger(2)
-	_, err := i.MarshalJSON()
-	require.NoError(t, err)
-}
-
-func TestIntegerUnmarshalJSON(t *testing.T) {
-	i := NewInteger(2)
-	bytes, _ := i.MarshalJSON()
-	b := NewInteger(3)
-	err := b.UnmarshalJSON(bytes)
-	require.NoError(t, err)
-	require.Equal(t, int32(2), i.Val)
-	require.Equal(t, false, b.Null)
+	require.Equal(t, x, f2.X)
+	require.Equal(t, y, f2.Y)
 }

@@ -43,6 +43,7 @@ func (j JSON) Value() (driver.Value, error) {
 	return json.Marshal(j.Val)
 }
 
+// MarshalJSON implements the json.Marshaler interface.
 func (j JSON) MarshalJSON() ([]byte, error) {
 	if j.Null {
 		return json.Marshal(nil)
@@ -50,14 +51,15 @@ func (j JSON) MarshalJSON() ([]byte, error) {
 	return json.Marshal(j.Val)
 }
 
-func (j *JSON) UnmarshalJSON(b []byte) error {
-	s := string(b)
-	if s == "{}" {
+// UnmarshalJSON implements the json.Unmarshaler interface.
+func (j *JSON) UnmarshalJSON(data []byte) error {
+	s := string(data)
+	if s == "{}" || s == "null" {
 		j.Null = true
 		return nil
 	}
 	m := map[string]interface{}{}
-	err := json.Unmarshal(b, &m)
+	err := json.Unmarshal(data, &m)
 	if err != nil {
 		return err
 	}

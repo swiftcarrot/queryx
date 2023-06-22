@@ -3,48 +3,38 @@
 package queryx
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
 
 func TestNewUUID(t *testing.T) {
-	i := NewUUID("a81e44c5-7e18-4dfe-b9b3-d9280629d2ef")
-	require.Equal(t, "a81e44c5-7e18-4dfe-b9b3-d9280629d2ef", i.Val)
-	require.Equal(t, false, i.Null)
+	u1 := NewUUID("a81e44c5-7e18-4dfe-b9b3-d9280629d2ef")
+	require.Equal(t, "a81e44c5-7e18-4dfe-b9b3-d9280629d2ef", u1.Val)
+	require.Equal(t, false, u1.Null)
+
+	u2 := NewNullableUUID(nil)
+	require.Equal(t, true, u2.Null)
 }
 
-func TestNewNullableUUID(t *testing.T) {
-	i := NewNullableUUID(nil)
-	require.Equal(t, true, i.Null)
-}
+func TestUUIDJSON(t *testing.T) {
+	type Foo struct {
+		X UUID `json:"x"`
+		Y UUID `json:"y"`
+	}
+	x := NewUUID("a81e44c5-7e18-4dfe-b9b3-d9280629d2ef")
+	y := NewNullableUUID(nil)
+	s := `{"x":"a81e44c5-7e18-4dfe-b9b3-d9280629d2ef","y":null}`
 
-func TestUUIDMarshalJSON(t *testing.T) {
-	i := NewUUID("a81e44c5-7e18-4dfe-b9b3-d9280629d2ef")
-	_, err := i.MarshalJSON()
+	f1 := Foo{X: x, Y: y}
+	b, err := json.Marshal(f1)
 	require.NoError(t, err)
-}
+	require.Equal(t, s, string(b))
 
-func TestUUIDUnmarshalJSON(t *testing.T) {
-	i := NewUUID("a81e44c5-7e18-4dfe-b9b3-d9280629d2ef")
-	bytes, _ := i.MarshalJSON()
-	u := NewUUID("")
-	err := u.UnmarshalJSON(bytes)
+	var f2 Foo
+	err = json.Unmarshal([]byte(s), &f2)
 	require.NoError(t, err)
-	require.Equal(t, "a81e44c5-7e18-4dfe-b9b3-d9280629d2ef", u.Val)
-	require.Equal(t, false, u.Null)
-}
-
-func TestUUIDScan(t *testing.T) {
-	i := NewUUID("a81e44c5-7e18-4dfe-b9b3-d9280629d2ef")
-	err := i.Scan("a81e44c5-7e18-4dfe-b9b3-d9280629dfff")
-	require.NoError(t, err)
-	require.Equal(t, "a81e44c5-7e18-4dfe-b9b3-d9280629dfff", i.Val)
-}
-
-func TestUUIDValue(t *testing.T) {
-	i := NewUUID("a81e44c5-7e18-4dfe-b9b3-d9280629d2ef")
-	value, err := i.Value()
-	require.NoError(t, err)
-	require.Equal(t, "a81e44c5-7e18-4dfe-b9b3-d9280629d2ef", value)
+	require.Equal(t, x, f2.X)
+	require.Equal(t, y, f2.Y)
 }

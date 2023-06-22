@@ -62,26 +62,28 @@ func (d Date) Value() (driver.Value, error) {
 	return d.Val, nil
 }
 
+// MarshalJSON implements the json.Marshaler interface.
 func (d Date) MarshalJSON() ([]byte, error) {
 	if d.Null {
 		return json.Marshal(nil)
 	}
-	return json.Marshal(d.Val)
+	return json.Marshal(d.Val.Format("2006-01-02"))
 }
 
-func (d *Date) UnmarshalJSON(b []byte) error {
-	s := string(b)
+// UnmarshalJSON implements the json.Unmarshaler interface.
+func (d *Date) UnmarshalJSON(data []byte) error {
+	s := string(data)
 	if s == "null" || s == "" {
 		d.Null = true
 		return nil
 	}
 
-	t := time.Time{}
-	err := t.UnmarshalJSON(b)
+	s = s[len(`"`) : len(s)-len(`"`)]
+	t, err := parseDate(s)
 	if err != nil {
 		return err
 	}
-	d.Val = t
 
+	d.Val = *t
 	return nil
 }
