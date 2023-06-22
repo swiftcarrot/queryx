@@ -75,7 +75,7 @@ func (d Datetime) MarshalJSON() ([]byte, error) {
 	if d.Null {
 		return json.Marshal(nil)
 	}
-	return json.Marshal(d.Val)
+	return json.Marshal(d.Val.UTC())
 }
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
@@ -91,7 +91,12 @@ func (d *Datetime) UnmarshalJSON(data []byte) error {
 	if err != nil {
 		return err
 	}
-	d.Val = t
+
+	location, err := loadLocation()
+	if err != nil {
+		return err
+	}
+	d.Val = t.In(location)
 
 	return nil
 }

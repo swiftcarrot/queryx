@@ -1,5 +1,6 @@
 database "db" {
   adapter = "postgresql"
+  time_zone = "Asia/Shanghai"
 
   config "test" {
     url = "postgres://postgres:postgres@localhost:5432/queryx_test?sslmode=disable"
