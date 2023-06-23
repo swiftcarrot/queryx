@@ -38,7 +38,7 @@ jobs:
       - name: go test
         run: |
           cd internal/integration
-          go test ./...
+          go test -v ./...
 
       # - name: mysql-test
       #   env:
