@@ -18,8 +18,9 @@ func (c *Clause) Err() error {
 }
 
 func (c *Clause) And(clauses ...*Clause) *Clause {
-	fragments := []string{c.fragment}
-	args := c.args
+	var fragments []string
+	var args []interface{}
+	clauses = append([]*Clause{c}, clauses...)
 	for _, clause := range clauses {
 		fragments = append(fragments, fmt.Sprintf("(%s)", clause.fragment))
 		args = append(args, clause.args...)
@@ -32,8 +33,9 @@ func (c *Clause) And(clauses ...*Clause) *Clause {
 }
 
 func (c *Clause) Or(clauses ...*Clause) *Clause {
-	fragments := []string{c.fragment}
-	args := c.args
+	var fragments []string
+	var args []interface{}
+	clauses = append([]*Clause{c}, clauses...)
 	for _, clause := range clauses {
 		fragments = append(fragments, fmt.Sprintf("(%s)", clause.fragment))
 		args = append(args, clause.args...)
