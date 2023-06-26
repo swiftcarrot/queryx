@@ -74,9 +74,9 @@ func TestDate(t *testing.T) {
 }
 
 func TestDatetime(t *testing.T) {
-	user, err := c.QueryUser().Create(c.ChangeUser().SetDatetime("2012-12-12 12:12:12"))
+	user, err := c.QueryUser().Create(c.ChangeUser().SetDatetime("2012-12-12 12:12:12.192"))
 	require.NoError(t, err)
-	require.Equal(t, "2012-12-12 12:12:12", user.Datetime.Val.Format("2006-01-02 15:04:05"))
+	require.Equal(t, "2012-12-12 12:12:12.192", user.Datetime.Val.Format("2006-01-02 15:04:05.000"))
 }
 
 func TestUUID(t *testing.T) {
