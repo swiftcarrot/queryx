@@ -15,14 +15,14 @@ type String struct {
 }
 
 func NewString(v string) String {
-	return String{Val: v}
+	return String{Val: v, Set: true}
 }
 
 func NewNullableString(v *string) String {
 	if v != nil {
 		return NewString(*v)
 	}
-	return String{Null: true}
+	return String{Null: true, Set: true}
 }
 
 // Scan implements the Scanner interface.
@@ -51,6 +51,7 @@ func (s String) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
 func (s *String) UnmarshalJSON(data []byte) error {
+	s.Set = true
 	if string(data) == "null" {
 		s.Null = true
 		return nil

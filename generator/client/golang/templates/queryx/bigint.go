@@ -15,14 +15,14 @@ type BigInt struct {
 }
 
 func NewBigInt(v int64) BigInt {
-	return BigInt{Val: v}
+	return BigInt{Val: v, Set: true}
 }
 
 func NewNullableBigInt(v *int64) BigInt {
 	if v != nil {
 		return NewBigInt(*v)
 	}
-	return BigInt{Null: true}
+	return BigInt{Null: true, Set: true}
 }
 
 // Scan implements the Scanner interface.
@@ -54,6 +54,7 @@ func (b BigInt) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
 func (b *BigInt) UnmarshalJSON(data []byte) error {
+	b.Set = true
 	if string(data) == "null" {
 		b.Null = true
 		return nil

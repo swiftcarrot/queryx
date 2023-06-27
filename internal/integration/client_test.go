@@ -1,8 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 	"github.com/swiftcarrot/queryx/internal/integration/db"
@@ -74,9 +76,33 @@ func TestDate(t *testing.T) {
 }
 
 func TestDatetime(t *testing.T) {
-	user, err := c.QueryUser().Create(c.ChangeUser().SetDatetime("2012-12-12 12:12:12"))
+	s1 := "2012-11-10 09:08:07"
+	user, err := c.QueryUser().Create(c.ChangeUser().SetDatetime(s1))
 	require.NoError(t, err)
-	require.Equal(t, "2012-12-12 12:12:12", user.Datetime.Val.Format("2006-01-02 15:04:05"))
+	require.Equal(t, s1, user.Datetime.Val.Format("2006-01-02 15:04:05"))
+
+	user, err = c.QueryUser().Where(c.UserID.EQ(user.ID).And(c.UserDatetime.GE(s1)).And(c.UserDatetime.LE(s1))).First()
+	require.NoError(t, err)
+	require.Equal(t, s1, user.Datetime.Val.Format("2006-01-02 15:04:05"))
+
+	s2 := "2012-11-10 09:08:07.654"
+	user, err = c.QueryUser().Create(c.ChangeUser().SetDatetime(s2))
+	require.NoError(t, err)
+	require.Equal(t, s2, user.Datetime.Val.Format("2006-01-02 15:04:05.000"))
+}
+
+func TestTimestamps(t *testing.T) {
+	user, err := c.QueryUser().Create(c.ChangeUser())
+	require.NoError(t, err)
+	require.False(t, user.CreatedAt.Null)
+	require.False(t, user.UpdatedAt.Null)
+	require.True(t, user.CreatedAt.Val.Equal(user.UpdatedAt.Val))
+
+	time.Sleep(time.Millisecond)
+
+	err = user.Update(c.ChangeUser().SetName("new name"))
+	require.NoError(t, err)
+	require.True(t, user.UpdatedAt.Val.After(user.CreatedAt.Val))
 }
 
 func TestUUID(t *testing.T) {
@@ -285,6 +311,19 @@ func TestTx(t *testing.T) {
 
 	tag1, _ = c.QueryTag().Find(tag1.ID)
 	require.Equal(t, "tag1-updated", tag1.Name.Val)
+}
+
+func TestChangeJSON(t *testing.T) {
+	s := `{"name":"user name","isAdmin":false}`
+
+	userChange := c.ChangeUser()
+	err := json.Unmarshal([]byte(s), userChange)
+	require.NoError(t, err)
+	require.Equal(t, "user name", userChange.Name.Val)
+	require.False(t, userChange.IsAdmin.Val)
+	require.True(t, userChange.Name.Set)
+	require.True(t, userChange.IsAdmin.Set)
+	require.False(t, userChange.Age.Set)
 }
 
 func init() {

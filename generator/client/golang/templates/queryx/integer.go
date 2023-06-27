@@ -16,14 +16,14 @@ type Integer struct {
 }
 
 func NewInteger(v int32) Integer {
-	return Integer{Val: v}
+	return Integer{Val: v, Set: true}
 }
 
 func NewNullableInteger(v *int32) Integer {
 	if v != nil {
 		return NewInteger(*v)
 	}
-	return Integer{Null: true}
+	return Integer{Null: true, Set: true}
 }
 
 // Scan implements the Scanner interface.
@@ -55,6 +55,7 @@ func (i Integer) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
 func (i *Integer) UnmarshalJSON(data []byte) error {
+	i.Set = true
 	s := string(data)
 	if s == "null" {
 		i.Null = true

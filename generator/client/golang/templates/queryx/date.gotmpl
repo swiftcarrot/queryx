@@ -30,17 +30,17 @@ func parseDate(s string) (*time.Time, error) {
 func NewDate(v string) Date {
 	t, err := parseDate(v)
 	if err != nil {
-		return Date{Null: true}
+		return Date{Null: true, Set: true}
 	}
 
-	return Date{Val: *t}
+	return Date{Val: *t, Set: true}
 }
 
 func NewNullableDate(v *string) Date {
 	if v != nil {
 		return NewDate(*v)
 	}
-	return Date{Null: true}
+	return Date{Null: true, Set: true}
 }
 
 // Scan implements the Scanner interface.
@@ -72,6 +72,7 @@ func (d Date) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
 func (d *Date) UnmarshalJSON(data []byte) error {
+	d.Set = true
 	s := string(data)
 	if s == "null" || s == "" {
 		d.Null = true

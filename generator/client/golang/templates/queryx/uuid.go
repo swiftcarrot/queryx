@@ -15,14 +15,14 @@ type UUID struct {
 }
 
 func NewUUID(v string) UUID {
-	return UUID{Val: v}
+	return UUID{Val: v, Set: true}
 }
 
 func NewNullableUUID(v *string) UUID {
 	if v != nil {
-		return UUID{Val: *v}
+		return UUID{Val: *v, Set: true}
 	}
-	return UUID{Null: true}
+	return UUID{Null: true, Set: true}
 }
 
 // Scan implements the Scanner interface.
@@ -51,6 +51,7 @@ func (u UUID) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
 func (u *UUID) UnmarshalJSON(data []byte) error {
+	u.Set = true
 	if string(data) == "null" {
 		u.Null = true
 		return nil
