@@ -49,15 +49,16 @@ func (q *{{ $.model.Name }}Query) Create(change *queryx.{{ $.model.Name }}Change
 	if q.err != nil {
  		return nil, q.err
  	}
- 	columns, values := change.Changes()
 	{{- if eq $.model.Timestamps true }}
- 	now := time.Now().UTC().Format("2006-01-02 15:04:05")
-  	columns = append(columns, "created_at")
-  	values = append(values, now)
-  	columns = append(columns, "updated_at")
-  	values = append(values, now)
+	now := time.Now().UTC().Format("2006-01-02 15:04:05.000")
+	if !change.CreatedAt.Set {
+		change.SetCreatedAt(now)
+	}
+	if !change.UpdatedAt.Set {
+		change.SetUpdatedAt(now)
+	}
 	{{- end }}
-
+ 	columns, values := change.Changes()
 	query, args := queryx.NewInsert().
 		Into("{{ $.model.TableName }}").
 		Columns(columns...).
@@ -475,10 +476,14 @@ func (q *{{ $.model.Name }}Query) UpdateAll(change *queryx.{{ $.model.Name }}Cha
 	if q.err != nil {
 		return 0, q.err
 	}
+
+	{{- if $.model.Timestamps }}
+	now := time.Now().UTC().Format("2006-01-02 15:04:05.000")
+	if !change.UpdatedAt.Set {
+		change.SetUpdatedAt(now)
+	}
+	{{- end }}
  	columns, values := change.Changes()
- 	now := time.Now().UTC().Format("2006-01-02 15:04:05")
-	columns = append(columns, "updated_at")
-	values = append(values, now)
 	query, args := q.selectStatement.Update().Columns(columns...).Values(values...).ToSQL()
 	result, err := q.adapter.Exec(query, args...)
 	if err != nil {

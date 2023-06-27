@@ -74,15 +74,32 @@ func TestDate(t *testing.T) {
 }
 
 func TestDatetime(t *testing.T) {
-	user, err := c.QueryUser().Create(c.ChangeUser().SetDatetime("2012-12-12 12:12:12"))
+	s1 := "2012-11-10 09:08:07"
+	user, err := c.QueryUser().Create(c.ChangeUser().SetDatetime(s1))
 	require.NoError(t, err)
-	require.Equal(t, "2012-12-12 12:12:12", user.Datetime.Val.Format("2006-01-02 15:04:05"))
+	require.Equal(t, s1, user.Datetime.Val.Format("2006-01-02 15:04:05"))
+
+	user, err = c.QueryUser().Where(c.UserID.EQ(user.ID).And(c.UserDatetime.GE(s1)).And(c.UserDatetime.LE(s1))).First()
+	require.NoError(t, err)
+	require.Equal(t, s1, user.Datetime.Val.Format("2006-01-02 15:04:05"))
+
+	s2 := "2012-11-10 09:08:07.654"
+	user, err = c.QueryUser().Create(c.ChangeUser().SetDatetime(s2))
+	require.NoError(t, err)
+	require.Equal(t, s2, user.Datetime.Val.Format("2006-01-02 15:04:05.000"))
 }
 
-func TestDatetimeWithMillisecond(t *testing.T) {
-	user, err := c.QueryUser().Create(c.ChangeUser().SetDatetime("2012-12-12 12:12:12.192"))
+func TestTimestamps(t *testing.T) {
+	user, err := c.QueryUser().Create(c.ChangeUser())
 	require.NoError(t, err)
-	require.Equal(t, "2012-12-12 12:12:12.192", user.Datetime.Val.Format("2006-01-02 15:04:05.000"))
+	require.False(t, user.CreatedAt.Null)
+	require.False(t, user.UpdatedAt.Null)
+	require.True(t, user.CreatedAt.Val.Equal(user.UpdatedAt.Val))
+
+	err = user.Update(c.ChangeUser().SetName("new name"))
+	log.Println(user.CreatedAt, user.UpdatedAt)
+	require.NoError(t, err)
+	require.True(t, user.UpdatedAt.Val.After(user.CreatedAt.Val))
 }
 
 func TestUUID(t *testing.T) {
