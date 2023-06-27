@@ -30,17 +30,17 @@ func parseTime(s string) (*time.Time, error) {
 func NewTime(v string) Time {
 	t, err := parseTime(v)
 	if err != nil {
-		return Time{Null: true}
+		return Time{Null: true, Set: true}
 	}
 
-	return Time{Val: *t}
+	return Time{Val: *t, Set: true}
 }
 
 func NewNullableTime(v *string) Time {
 	if v != nil {
 		return NewTime(*v)
 	}
-	return Time{Null: true}
+	return Time{Null: true, Set: true}
 }
 
 // Scan implements the Scanner interface.
@@ -72,6 +72,7 @@ func (t Time) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
 func (t *Time) UnmarshalJSON(data []byte) error {
+	t.Set = true
 	s := string(data)
 	if s == "null" || s == "" {
 		t.Null = true

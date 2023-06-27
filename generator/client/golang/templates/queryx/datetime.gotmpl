@@ -34,16 +34,16 @@ func parseDatetime(s string) (*time.Time, error) {
 func NewDatetime(v string) Datetime {
 	t, err := parseDatetime(v)
 	if err != nil {
-		return Datetime{Null: true}
+		return Datetime{Null: true, Set: true}
 	}
-	return Datetime{Val: *t}
+	return Datetime{Val: *t, Set: true}
 }
 
 func NewNullableDatetime(v *string) Datetime {
 	if v != nil {
 		return NewDatetime(*v)
 	}
-	return Datetime{Null: true}
+	return Datetime{Null: true, Set: true}
 }
 
 // Scan implements the Scanner interface.
@@ -80,6 +80,7 @@ func (d Datetime) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
 func (d *Datetime) UnmarshalJSON(data []byte) error {
+	d.Set = true
 	s := string(data)
 	if s == "null" || s == "" {
 		d.Null = true

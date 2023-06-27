@@ -15,14 +15,14 @@ type Boolean struct {
 }
 
 func NewBoolean(v bool) Boolean {
-	return Boolean{Val: v}
+	return Boolean{Val: v, Set: true}
 }
 
 func NewNullableBoolean(v *bool) Boolean {
 	if v != nil {
 		return NewBoolean(*v)
 	}
-	return Boolean{Null: true}
+	return Boolean{Null: true, Set: true}
 }
 
 // Scan implements the Scanner interface.
@@ -54,6 +54,7 @@ func (b Boolean) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
 func (b *Boolean) UnmarshalJSON(data []byte) error {
+	b.Set = true
 	if string(data) == "null" {
 		b.Null = true
 		return nil

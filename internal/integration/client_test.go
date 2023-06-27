@@ -1,8 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 	"github.com/swiftcarrot/queryx/internal/integration/db"
@@ -96,8 +98,9 @@ func TestTimestamps(t *testing.T) {
 	require.False(t, user.UpdatedAt.Null)
 	require.True(t, user.CreatedAt.Val.Equal(user.UpdatedAt.Val))
 
+	time.Sleep(time.Millisecond)
+
 	err = user.Update(c.ChangeUser().SetName("new name"))
-	log.Println(user.CreatedAt, user.UpdatedAt)
 	require.NoError(t, err)
 	require.True(t, user.UpdatedAt.Val.After(user.CreatedAt.Val))
 }
@@ -308,6 +311,19 @@ func TestTx(t *testing.T) {
 
 	tag1, _ = c.QueryTag().Find(tag1.ID)
 	require.Equal(t, "tag1-updated", tag1.Name.Val)
+}
+
+func TestChangeJSON(t *testing.T) {
+	s := `{"name":"user name","isAdmin":false}`
+
+	userChange := c.ChangeUser()
+	err := json.Unmarshal([]byte(s), userChange)
+	require.NoError(t, err)
+	require.Equal(t, "user name", userChange.Name.Val)
+	require.False(t, userChange.IsAdmin.Val)
+	require.True(t, userChange.Name.Set)
+	require.True(t, userChange.IsAdmin.Set)
+	require.False(t, userChange.Age.Set)
 }
 
 func init() {

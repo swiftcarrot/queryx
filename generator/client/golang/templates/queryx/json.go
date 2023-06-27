@@ -15,14 +15,14 @@ type JSON struct {
 }
 
 func NewJSON(v map[string]interface{}) JSON {
-	return JSON{Val: v}
+	return JSON{Val: v, Set: true}
 }
 
 func NewNullableJSON(v interface{}) JSON {
 	if v != nil {
 		return NewJSON(v.(map[string]interface{}))
 	}
-	return JSON{Null: true}
+	return JSON{Null: true, Set: true}
 }
 
 // Scan implements the Scanner interface.
@@ -53,6 +53,7 @@ func (j JSON) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
 func (j *JSON) UnmarshalJSON(data []byte) error {
+	j.Set = true
 	s := string(data)
 	if s == "{}" || s == "null" {
 		j.Null = true

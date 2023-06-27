@@ -15,14 +15,14 @@ type Float struct {
 }
 
 func NewFloat(v float64) Float {
-	return Float{Val: v}
+	return Float{Val: v, Set: true}
 }
 
 func NewNullableFloat(v *float64) Float {
 	if v != nil {
 		return NewFloat(*v)
 	}
-	return Float{Null: true}
+	return Float{Null: true, Set: true}
 }
 
 // Scan implements the Scanner interface.
@@ -51,6 +51,7 @@ func (f Float) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
 func (f *Float) UnmarshalJSON(data []byte) error {
+	f.Set = true
 	if string(data) == "null" {
 		f.Null = true
 		return nil
