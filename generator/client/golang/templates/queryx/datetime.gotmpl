@@ -31,6 +31,11 @@ func parseDatetime(s string) (*time.Time, error) {
 	return &t, nil
 }
 
+func Now(layout string) string {
+	loc, _ := loadLocation()
+	return time.Now().In(loc).Format(layout)
+}
+
 func NewDatetime(v string) Datetime {
 	t, err := parseDatetime(v)
 	if err != nil {
