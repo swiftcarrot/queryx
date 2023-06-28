@@ -11,6 +11,7 @@ import (
 
 func (d *Database) CreateSQLiteSchema(dbName string) *schema.Schema {
 	public := schema.New(dbName)
+
 	for _, model := range d.Models {
 		columnMap := map[string]*schema.Column{}
 

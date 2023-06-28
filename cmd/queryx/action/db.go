@@ -11,6 +11,7 @@ import (
 	"ariga.io/atlas/sql/mysql"
 	"ariga.io/atlas/sql/postgres"
 	sqlschema "ariga.io/atlas/sql/schema"
+	"ariga.io/atlas/sql/sqlite"
 	"github.com/spf13/cobra"
 	"github.com/swiftcarrot/queryx/adapter"
 	"github.com/swiftcarrot/queryx/schema"
@@ -70,6 +71,18 @@ func findSchemaChanges(a string, db adapter.Adapter, database *schema.Database) 
 			return nil, err
 		}
 		desired = database.CreateMySQLSchema(dbName)
+	} else if a == "sqlite" {
+		driver, err = sqlite.Open(db)
+		if err != nil {
+			return nil, err
+		}
+		from, err = driver.InspectSchema(ctx, dbName, &sqlschema.InspectOptions{
+			Tables: database.Tables(),
+		})
+		if err != nil {
+			return nil, err
+		}
+		desired = database.CreateSQLiteSchema(dbName)
 	}
 
 	changes, err := driver.SchemaDiff(from, desired)

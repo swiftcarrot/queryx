@@ -78,27 +78,27 @@ jobs:
           cd internal/integration
           go test -v ./...
 
-  # sqlite:
-  #   runs-on: ubuntu-latest
-  #   if: ${{success()}}
-  #   needs: [golangci-lint]
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Set up Go
-  #       uses: actions/setup-go@v3
-  #       with:
-  #         go-version: 1.19
-  #     - name: download
-  #       run: go mod download
-  #     - name: Build
-  #       run: go build -o /usr/local/bin/queryx cmd/queryx/main.go
-  #     - name: blog-sqlite
-  #       env:
-  #         QUERYX_ENV: test
-  #       run: |
-  #         echo "echo sqlite......"
-  #         cd internal/integration
-  #         rm -f test.sqlite3 && touch test.sqlite3
-  #         queryx generate --schema sqlite.hcl
-  #         queryx db:migrate --schema sqlite.hcl
-  #         go test -v ./...
+  sqlite:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+      - name: Build Queryx
+        run: go build -o /usr/local/bin/queryx cmd/queryx/main.go
+      - name: Queryx Generate
+        env:
+          QUERYX_ENV: test
+        run: |
+          cd internal/integration
+          queryx db:migrate --schema sqlite.hcl
+          queryx generate --schema sqlite.hcl
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          working-directory: internal/integration/db
+      - name: go test
+        run: |
+          cd internal/integration
+          go test -v ./...

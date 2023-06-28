@@ -32,21 +32,9 @@ test-mysql: install
 	cd internal/integration && go test ./...
 
 test-sqlite: install
-	rm -rf internal/integration/db/migrations/* && rm -rf internal/integration/db/builder && rm -rf internal/integration/db/*.go &&  rm -rf internal/integration/*.db
-	cd internal/integration && rm -f test.sqlite3 && touch test.sqlite3
-	cd internal/integration && QUERYX_ENV=test DATABASE_URL=test.sqlite3 queryx db:migrate --schema sqlite.hcl
-	cd internal/integration && QUERYX_ENV=test DATABASE_URL=test.sqlite3 queryx generate --schema sqlite.hcl
-	cd internal/integration && go test -v ./...
-
-sqlite: install
-	cd internal/integration && rm -rf db/*.go db/builder && queryx generate --schema sqlite.hcl && rm -f /opt/data.db && touch /opt/data.db
-	cd internal/integration && QUERYX_ENV=test DATABASE_URL=/opt/data.db  go test -v ./...
-
-test: test-pg test-mysql test-sqlite
-
-pg-drop:
-	cd internal/integration && QUERYX_ENV=test queryx db:drop --schema postgresql.hcl
-
-mysql-drop:
-	cd internal/integration && QUERYX_ENV=test queryx db:drop --schema mysql.hcl
-
+	rm -rf internal/integration/db
+	cd internal/integration && QUERYX_ENV=test queryx db:drop --schema sqlite.hcl
+	cd internal/integration && QUERYX_ENV=test queryx db:create --schema sqlite.hcl
+	cd internal/integration && QUERYX_ENV=test queryx db:migrate --schema sqlite.hcl
+	cd internal/integration && QUERYX_ENV=test queryx generate --schema sqlite.hcl
+	cd internal/integration && go test ./...
