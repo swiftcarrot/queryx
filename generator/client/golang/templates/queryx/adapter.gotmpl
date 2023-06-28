@@ -6,7 +6,11 @@ import (
 	"database/sql"
 	"regexp"
 
+	{{- if eq $.client.Adapter "postgresql" }}
 	_ "github.com/lib/pq"
+	{{- else if eq $.client.Adapter "mysql" }}
+	_ "github.com/go-sql-driver/mysql"
+	{{- end }}
 )
 
 type DB interface {
