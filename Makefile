@@ -23,12 +23,13 @@ test-postgresql: install
 	cd internal/integration && go test ./...
 	# cd internal/integration && QUERYX_ENV=test queryx db:drop --schema postgresql.hcl
 
-test-mysql: install mysql-drop
-	rm -rf internal/integration/db/migrations/* && rm -rf internal/integration/db/builder && rm -rf internal/integration/db/*.go
-	cd internal/integration && QUERYX_ENV=test queryx generate --schema mysql.hcl
+test-mysql: install
+	rm -rf internal/integration/db
+	cd internal/integration && QUERYX_ENV=test queryx db:drop --schema mysql.hcl
 	cd internal/integration && QUERYX_ENV=test queryx db:create --schema mysql.hcl
 	cd internal/integration && QUERYX_ENV=test queryx db:migrate --schema mysql.hcl
-	cd internal/integration && go test -v ./...
+	cd internal/integration && QUERYX_ENV=test queryx generate --schema mysql.hcl
+	cd internal/integration && go test ./...
 
 test-sqlite: install
 	rm -rf internal/integration/db/migrations/* && rm -rf internal/integration/db/builder && rm -rf internal/integration/db/*.go &&  rm -rf internal/integration/*.db

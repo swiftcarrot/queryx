@@ -39,115 +39,45 @@ jobs:
         run: |
           cd internal/integration
           go test -v ./...
-
-      # - name: mysql-test
-      #   env:
-      #     QUERYX_ENV: test
-      #   run: |
-      #     echo "test mysql......"
-      #     cd internal/integration
-      #     mkdir -p db/migrations
-      #     echo "run queryx db:migrate:generate......"
-      #     queryx db:migrate:generate --schema mysql.hcl
-      #     rm -rf db/migrations/*
-      #     echo "run db:migrate......"
-      #     queryx db:migrate --schema mysql.hcl
-      #     echo "run generate......"
-      #     queryx generate --schema mysql.hcl
-      #     golangci-lint run
-      #     queryx db:drop --schema mysql.hcl
-      # - name: sqlite-test
-      #   env:
-      #     QUERYX_ENV: test
-      #   run: |
-      #     echo "echo sqlite......"
-      #     cd internal/integration
-      #     rm -rf db/migrations/*
-      #     echo "run queryx db:migrate:generate......"
-      #     queryx db:migrate:generate --schema sqlite.hcl
-      #     rm -rf db/migrations/*
-      #     rm -f test.sqlite3 && touch test.sqlite3
-      #     queryx generate --schema sqlite.hcl
-      #     queryx db:migrate --schema sqlite.hcl
-      #     golangci-lint run
-      #     rm -rf test.sqlite3
-
-  # postgresql:
-  #   runs-on: ubuntu-latest
-  #   if: ${{success()}}
-  #   needs: [golangci-lint]
-  #   services:
-  #     postgres:
-  #       image: postgres:14.2
-  #       env:
-  #         POSTGRES_PASSWORD: postgres
-  #         POSTGRES_USER: postgres
-  #         POSTGRES_DB: queryx_test
-  #       ports:
-  #         - 5432:5432
-  #       options: >-
-  #         --health-cmd pg_isready
-  #         --health-interval 10s
-  #         --health-timeout 5s
-  #         --health-retries 5
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Set up Go
-  #       uses: actions/setup-go@v3
-  #       with:
-  #         go-version: 1.19
-  #     - name: download
-  #       run: go mod download
-  #     - name: Build
-  #       run: go build -o /usr/local/bin/queryx cmd/queryx/main.go
-  #     - name: blog-postgres
-  #       env:
-  #         QUERYX_ENV: test
-  #       run: |
-  #         echo "download glangci-lint"
-  #         cd internal/integration
-  #         queryx db:migrate --schema postgresql.hcl
-  #         queryx generate --schema postgresql.hcl
-  #         go test -v ./...
-  # mysql:
-  #   runs-on: ubuntu-latest
-  #   if: ${{success()}}
-  #   needs: [golangci-lint]
-  #   services:
-  #     mysql:
-  #       image: mysql:8.0.32
-  #       env:
-  #         MYSQL_DATABASE: queryx_test
-  #         MYSQL_USER: mysql
-  #         MYSQL_PASSWORD: mysql
-  #         MYSQL_RANDOM_ROOT_PASSWORD: "yes"
-  #       ports:
-  #         - 3306:3306
-  #       options: >-
-  #         --health-cmd "mysqladmin ping -uuser_test -pqueryx_test"
-  #         --health-interval 10s
-  #         --health-start-period 10s
-  #         --health-timeout 5s
-  #         --health-retries 10
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Set up Go
-  #       uses: actions/setup-go@v3
-  #       with:
-  #         go-version: 1.19
-  #     - name: download
-  #       run: go mod download
-  #     - name: Build
-  #       run: go build -o /usr/local/bin/queryx cmd/queryx/main.go
-  #     - name: blog-mysql
-  #       env:
-  #         QUERYX_ENV: test
-  #       run: |
-  #         echo "echo mysql......"
-  #         cd internal/integration
-  #         queryx generate --schema mysql.hcl
-  #         queryx db:migrate --schema mysql.hcl
-  #         go test -v ./...
+  mysql:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0.32
+        env:
+          MYSQL_DATABASE: queryx_test
+          MYSQL_USER: mysql
+          MYSQL_PASSWORD: mysql
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping -uuser_test -pqueryx_test"
+          --health-interval 10s
+          --health-start-period 10s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+      - name: Build Queryx
+        run: go build -o /usr/local/bin/queryx cmd/queryx/main.go
+      - name: Queryx Generate
+        env:
+          QUERYX_ENV: test
+        run: |
+          cd internal/integration
+          queryx db:migrate --schema mysql.hcl
+          queryx generate --schema mysql.hcl
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          working-directory: internal/integration/db
+      - name: go test
+        run: |
+          cd internal/integration
+          go test -v ./...
 
   # sqlite:
   #   runs-on: ubuntu-latest
