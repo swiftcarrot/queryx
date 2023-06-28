@@ -9,14 +9,14 @@ import (
 	"ariga.io/atlas/sql/schema"
 )
 
-// convert a postgresql database schema to an atlas sql schema
-func (d *Database) CreateSQLSchema() *schema.Schema {
+// convert a postgresql queryx database schema to an atlas sql schema
+func (d *Database) CreatePostgreSQLSchema(dbName string) *schema.Schema {
 	public := schema.New("public")
 
 	for _, model := range d.Models {
 		t := schema.NewTable(model.TableName)
-
 		columnMap := map[string]*schema.Column{}
+
 		for _, c := range model.Columns {
 			col := schema.NewColumn(c.Name)
 

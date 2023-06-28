@@ -11,7 +11,6 @@ import (
 	"ariga.io/atlas/sql/mysql"
 	"ariga.io/atlas/sql/postgres"
 	sqlschema "ariga.io/atlas/sql/schema"
-	"ariga.io/atlas/sql/sqlite"
 	"github.com/spf13/cobra"
 	"github.com/swiftcarrot/queryx/adapter"
 	"github.com/swiftcarrot/queryx/schema"
@@ -32,69 +31,47 @@ func newAdapter() (adapter.Adapter, error) {
 }
 
 // TODO: should check unapplied migrations
-func findSchemaChanges(adapter adapter.Adapter, database *schema.Database) ([]*migrate.Change, error) {
+func findSchemaChanges(a string, db adapter.Adapter, database *schema.Database) ([]*migrate.Change, error) {
 	ctx := context.Background()
 
-	// TODO: support other drivers in atlas
-	driver, err := postgres.Open(adapter)
-	if err != nil {
-		return nil, err
-	}
+	var driver migrate.Driver
+	var err error
+	var from *sqlschema.Schema
+	var desired *sqlschema.Schema
 
-	// TODO: multiple schema support
-	from, err := driver.InspectSchema(ctx, "public", &sqlschema.InspectOptions{
-		Tables: database.Tables(),
-	})
-	if err != nil {
-		return nil, err
-	}
-	desired := database.CreateSQLSchema()
-	changes, err := driver.SchemaDiff(from, desired)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, c := range changes {
-		if d, ok := c.(*sqlschema.DropTable); ok {
-			d.Extra = append(d.Extra, &sqlschema.IfExists{})
-		}
-	}
-
-	plan, err := driver.PlanChanges(ctx, "plan", changes)
-	if err != nil {
-		return nil, err
-	}
-
-	// TODO: warning for falsy plan.Reversible?
-
-	return plan.Changes, nil
-}
-
-// TODO: should check unapplied migrations
-func findMYSQLSchemaChanges(adapter adapter.Adapter, database *schema.Database) ([]*migrate.Change, error) {
-	ctx := context.Background()
-
-	// TODO: support other drivers in atlas
-	driver, err := mysql.Open(adapter)
-	if err != nil {
-		return nil, err
-	}
 	environment := os.Getenv("QUERYX_ENV")
 	if environment == "" {
 		environment = "development"
 	}
 	config := database.LoadConfig(environment)
 	dbName := config.GetDatabaseName()
-	if dbName == "" {
-		return nil, fmt.Errorf("the database no exists")
+
+	if a == "postgresql" {
+		driver, err = postgres.Open(db)
+		if err != nil {
+			return nil, err
+		}
+		from, err = driver.InspectSchema(ctx, "public", &sqlschema.InspectOptions{
+			Tables: database.Tables(),
+		})
+		if err != nil {
+			return nil, err
+		}
+		desired = database.CreatePostgreSQLSchema(dbName)
+	} else if a == "mysql" {
+		driver, err = mysql.Open(db)
+		if err != nil {
+			return nil, err
+		}
+		from, err = driver.InspectSchema(ctx, dbName, &sqlschema.InspectOptions{
+			Tables: database.Tables(),
+		})
+		if err != nil {
+			return nil, err
+		}
+		desired = database.CreateMySQLSchema(dbName)
 	}
-	from, err := driver.InspectSchema(ctx, dbName, &sqlschema.InspectOptions{
-		Tables: database.Tables(),
-	})
-	if err != nil {
-		return nil, err
-	}
-	desired := database.CreateMYSQLSchema(dbName)
+
 	changes, err := driver.SchemaDiff(from, desired)
 	if err != nil {
 		return nil, err
@@ -110,44 +87,6 @@ func findMYSQLSchemaChanges(adapter adapter.Adapter, database *schema.Database) 
 	if err != nil {
 		return nil, err
 	}
-
-	// TODO: warning for falsy plan.Reversible?
-
-	return plan.Changes, nil
-}
-
-func findSQLiteSchemaChanges(adapter adapter.Adapter, database *schema.Database) ([]*migrate.Change, error) {
-	ctx := context.Background()
-
-	// TODO: support other drivers in atlas
-	driver, err := sqlite.Open(adapter)
-	if err != nil {
-		return nil, err
-	}
-	from, err := driver.InspectSchema(ctx, "main", &sqlschema.InspectOptions{
-		Tables: database.Tables(),
-	})
-	if err != nil {
-		return nil, err
-	}
-	desired := database.CreateSQLiteSchema("main")
-	changes, err := driver.SchemaDiff(from, desired)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, c := range changes {
-		if d, ok := c.(*sqlschema.DropTable); ok {
-			d.Extra = append(d.Extra, &sqlschema.IfExists{})
-		}
-	}
-
-	plan, err := driver.PlanChanges(ctx, "plan", changes)
-	if err != nil {
-		return nil, err
-	}
-
-	// TODO: warning for falsy plan.Reversible?
 
 	return plan.Changes, nil
 }
@@ -235,22 +174,9 @@ func dbMigrateGenerate() error {
 	}
 
 	database := sch.Databases[0]
-	var changes []*migrate.Change
-	if sch.Databases[0].Adapter == "postgresql" {
-		changes, err = findSchemaChanges(adapter, database)
-		if err != nil {
-			return err
-		}
-	} else if sch.Databases[0].Adapter == "mysql" {
-		changes, err = findMYSQLSchemaChanges(adapter, database)
-		if err != nil {
-			return err
-		}
-	} else if sch.Databases[0].Adapter == "sqlite" {
-		changes, err = findSQLiteSchemaChanges(adapter, database)
-		if err != nil {
-			return err
-		}
+	changes, err := findSchemaChanges(sch.Databases[0].Adapter, adapter, database)
+	if err != nil {
+		return err
 	}
 
 	if len(changes) == 0 {

@@ -61,14 +61,15 @@ func (c *Config) GetDatabaseName() string {
 	} else if c.URL.Value != "" {
 		rawURL = c.URL.Value
 	}
-	u, _ := url.Parse(rawURL)
-	if c.Adapter == "mysql" {
-		i := strings.LastIndexAny(rawURL, "/")
-		i2 := strings.Index(rawURL, "?")
-		c.Database = rawURL[i+1 : i2]
-	} else {
+
+	if c.Adapter == "postgresql" {
+		u, _ := url.Parse(rawURL)
 		c.Database = u.Path[1:]
-		u.Path = ""
+	} else if c.Adapter == "mysql" {
+		parts := strings.Split(rawURL, "/")
+		c.Database = strings.Split(parts[1], "?")[0]
+	} else if c.Adapter == "sqlite" {
 	}
+
 	return c.Database
 }
