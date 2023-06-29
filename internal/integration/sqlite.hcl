@@ -1,5 +1,5 @@
 database "db" {
-  adapter = "sqlite"
+  adapter   = "sqlite"
   time_zone = "Asia/Shanghai"
 
   config "test" {

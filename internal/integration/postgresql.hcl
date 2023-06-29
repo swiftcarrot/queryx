@@ -1,5 +1,5 @@
 database "db" {
-  adapter = "postgresql"
+  adapter   = "postgresql"
   time_zone = "Asia/Shanghai"
 
   config "test" {

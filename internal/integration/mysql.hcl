@@ -1,5 +1,5 @@
 database "db" {
-  adapter = "mysql"
+  adapter   = "mysql"
   time_zone = "Asia/Shanghai"
 
   config "test" {

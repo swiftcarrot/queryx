@@ -25,11 +25,11 @@ func (d *Database) CreateMySQLSchema(dbName string) *schema.Schema {
 					col.AddAttrs(&mysql.AutoIncrement{})
 				}
 			case "string":
-				col.SetType(&schema.StringType{T: mysql.TypeVarchar, Size: 256})
+				col.SetType(&schema.StringType{T: mysql.TypeVarchar, Size: 255})
 			case "text":
-				col.SetType(&schema.StringType{T: "text", Size: 0})
+				col.SetType(&schema.StringType{T: mysql.TypeText})
 			case "integer":
-				col.SetType(&schema.IntegerType{T: "integer"})
+				col.SetType(&schema.IntegerType{T: mysql.TypeInt})
 			case "float":
 				col.SetType(&schema.FloatType{T: mysql.TypeFloat})
 			case "boolean":
@@ -39,13 +39,13 @@ func (d *Database) CreateMySQLSchema(dbName string) *schema.Schema {
 			case "date":
 				col.SetType(&schema.TimeType{T: mysql.TypeDate})
 			case "time":
-				col.SetType(&schema.TimeType{T: mysql.TypeDateTime})
+				col.SetType(&schema.TimeType{T: mysql.TypeTime})
 			case "datetime":
 				col.SetType(&schema.TimeType{T: mysql.TypeDateTime})
 			case "json", "jsonb":
 				col.SetType(&schema.JSONType{T: mysql.TypeJSON})
 			case "uuid":
-				col.SetType(&schema.StringType{T: mysql.TypeVarchar, Size: 256})
+				col.SetType(&schema.StringType{T: mysql.TypeVarchar, Size: 36})
 			}
 
 			col.SetNull(c.Null)

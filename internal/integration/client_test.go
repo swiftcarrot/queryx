@@ -328,6 +328,9 @@ func TestChangeJSON(t *testing.T) {
 }
 
 func TestModelStringer(t *testing.T) {
+	_, err := c.QueryCode().DeleteAll()
+	require.NoError(t, err)
+
 	code, err := c.QueryCode().Create(c.ChangeCode().SetKey("code key").SetType("code type"))
 	require.NoError(t, err)
 
