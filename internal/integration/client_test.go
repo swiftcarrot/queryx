@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"testing"
 	"time"
@@ -324,6 +325,14 @@ func TestChangeJSON(t *testing.T) {
 	require.True(t, userChange.Name.Set)
 	require.True(t, userChange.IsAdmin.Set)
 	require.False(t, userChange.Age.Set)
+}
+
+func TestModelStringer(t *testing.T) {
+	code, err := c.QueryCode().Create(c.ChangeCode().SetKey("code key").SetType("code type"))
+	require.NoError(t, err)
+
+	s := fmt.Sprintf(`(Code type: "%s", key: "%s")`, code.Type, code.Key)
+	require.Equal(t, s, code.String())
 }
 
 func init() {

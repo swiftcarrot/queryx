@@ -28,6 +28,7 @@ type {{ $.model.Name }} struct {
 
 {{- $m := firstLetterLower $.model.Name }}
 
+// String implements the stringer interface.
 func ({{ $m }} *{{.model.Name}}) String() string {
 	var b strings.Builder
 	b.WriteString("{{ $.model.Name }}(")
