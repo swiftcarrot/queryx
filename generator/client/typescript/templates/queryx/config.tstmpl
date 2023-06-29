@@ -1,0 +1,22 @@
+export type Env = {{ range $i, $c := $.client.Configs }}{{ if $i }}|{{ end }}"{{ $c.Environment }}"{{ end }};
+
+export class Config {
+  url: string;
+
+  constructor(url: string) {
+    this.url = url;
+  }
+}
+
+export const getenv = (key: string) => {
+  return process.env[key];
+}
+
+export const newConfig = (env: Env) => {
+  switch (env) {
+	{{- range $c := $.client.Configs }}
+		case "{{ $c.Environment }}":
+			return new Config({{if $c.URL.EnvKey}}getenv("{{$c.URL.EnvKey}}"){{else}}"{{$c.URL.Value}}"{{end}})
+	{{- end }}
+  }
+};

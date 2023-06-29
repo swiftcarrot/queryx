@@ -5,6 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/swiftcarrot/queryx/generator/client/golang"
+	"github.com/swiftcarrot/queryx/generator/client/typescript"
 )
 
 var generateCmd = &cobra.Command{
@@ -26,10 +27,9 @@ var generateCmd = &cobra.Command{
 					return err
 				}
 			case "client-typescript":
-			// gen := &typescript.Generator{}
-			// if err := gen.Generate(sch, args); err != nil {
-			// 	return err
-			// }
+				if err := typescript.Run(sch, args); err != nil {
+					return err
+				}
 			default:
 				return fmt.Errorf("only supports generator.Name: %s , %s", "client-golang", "client-typescript")
 			}

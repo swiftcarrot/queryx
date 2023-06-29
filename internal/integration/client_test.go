@@ -283,7 +283,7 @@ func TestPreload(t *testing.T) {
 	require.Equal(t, userPost1.ID, post.UserPosts[0].ID)
 }
 
-func TestTx(t *testing.T) {
+func TestTransaction(t *testing.T) {
 	tag1, _ := c.QueryTag().Create(c.ChangeTag().SetName("tag1"))
 	require.Equal(t, "tag1", tag1.Name.Val)
 

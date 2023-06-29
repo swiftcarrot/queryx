@@ -102,3 +102,41 @@ jobs:
         run: |
           cd internal/integration
           go test -v ./...
+  typescript-postgresql:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14.2
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: queryx_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: yarn install
+        run: |
+          cd internal/integration
+          yarn install
+      - name: Build Queryx
+        run: go build -o /usr/local/bin/queryx cmd/queryx/main.go
+      - name: Queryx Generate
+        env:
+          QUERYX_ENV: test
+        run: |
+          cd internal/integration
+          queryx db:migrate --schema postgresql.hcl
+          queryx generate --schema postgresql.hcl
+      - name: test
+        run: |
+          cd internal/integration
+          yarn test

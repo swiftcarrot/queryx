@@ -2,7 +2,7 @@
 
 package queryx
 
-type {{ .model.Name }}Change struct {
+type {{ $.model.Name }}Change struct {
 	{{- range $c := .model.Columns }}
 	{{ $c.Name | pascal }} {{ goType $c.Type }}
 	{{- end }}
@@ -19,7 +19,7 @@ func (c *{{.model.Name}}Change) Changes() (columns []string, values []interface{
 	return columns, values
 }
 
-{{- range $c := .model.Columns }}
+{{- range $c := $.model.Columns }}
 {{- $f := $c.Name | pascal }}
 {{- $t := $c.Type | goChangeSetType }}
 {{- $a := $c.Name | camel | goKeywordFix }}

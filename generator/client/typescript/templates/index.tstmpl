@@ -1,0 +1,4 @@
+export * from "./queryx";
+{{- range $m := $.client.Models }}
+export * from "./{{$m.Name | snake}}";
+{{- end }}

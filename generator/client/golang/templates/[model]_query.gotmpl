@@ -49,7 +49,7 @@ func (q *{{ $.model.Name }}Query) Create(change *queryx.{{ $.model.Name }}Change
 	if q.err != nil {
  		return nil, q.err
  	}
-	{{- if eq $.model.Timestamps true }}
+	{{- if $.model.Timestamps }}
 	now := queryx.Now("2006-01-02 15:04:05.000")
 	if !change.CreatedAt.Set {
 		change.SetCreatedAt(now)

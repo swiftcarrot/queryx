@@ -36,6 +36,8 @@ var TemplateFunctions = template.FuncMap{
 	"goChangeSetType": goChangeSetType,
 	"goKeywordFix":    goKeywordFix,
 	"goModelType":     goModelType,
+
+	"tsType": tsType,
 }
 
 type Database struct {

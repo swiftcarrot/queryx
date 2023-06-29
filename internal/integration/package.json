@@ -1,0 +1,13 @@
+{
+  "name": "integration",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "pg": "^8.11.1",
+    "typescript": "^5.1.6",
+    "vitest": "^0.32.2"
+  }
+}
