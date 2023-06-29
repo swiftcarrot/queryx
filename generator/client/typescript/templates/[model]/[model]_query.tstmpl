@@ -18,10 +18,10 @@ export class {{ $.model.Name }}Query {
     let change = new {{ $.model.Name }}Change(input);
     {{- if $.model.Timestamps }}
     const now = new Date().toISOString();
-    if(typeof change.createdAt !== "undefined") {
+    if(change.createdAt === undefined) {
       change.setCreatedAt(now);
     }
-    if (typeof change.updatedAt !== "undefined") {
+    if (change.updatedAt === undefined) {
       change.setUpdatedAt(now);
     }
     {{- end }}
@@ -35,7 +35,7 @@ export class {{ $.model.Name }}Query {
       .toSQL();
 
     let row = await this.client.queryOne(query, ...args);
-    let record = new User(this.client);
+    let record = new {{ $.model.Name }}(this.client);
 
     {{- range $c := $.model.Columns }}
     record.{{ $c.Name | camel }} = row.{{ $c.Name }};

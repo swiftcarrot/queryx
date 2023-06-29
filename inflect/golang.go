@@ -96,7 +96,7 @@ func goType(t string) string {
 	case "json", "jsonb":
 		return "JSON"
 	default:
-		return "" // TODO: raise error
+		return ""
 	}
 }
 
@@ -126,7 +126,7 @@ func goChangeSetType(t string) string {
 	case "json", "jsonb":
 		return "map[string]interface{}"
 	default:
-		log.Fatal("unknown type in goChangeSetType", t) // TODO: error handling
+		log.Fatal("unknown type in goChangeSetType", t)
 		return ""
 	}
 }

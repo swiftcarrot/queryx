@@ -23,6 +23,25 @@ func tsType(t string) string {
 	case "json", "jsonb":
 		return "object"
 	default:
-		return "" // TODO: raise error
+		return ""
+	}
+}
+
+func tsChangeSetType(t string) string {
+	switch t {
+	case "bigint", "integer", "float":
+		return "number"
+	case "uuid":
+		return "string"
+	case "string", "text":
+		return "string"
+	case "datetime", "date", "time":
+		return "string"
+	case "boolean":
+		return "boolean"
+	case "json", "jsonb":
+		return "object"
+	default:
+		return ""
 	}
 }

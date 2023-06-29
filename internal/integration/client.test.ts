@@ -21,27 +21,27 @@ test("queryOne", async () => {
 test("query", async () => {
   let user1 = await c.queryUser().create({ name: "test1" });
   let user2 = await c.queryUser().create({ name: "test2" });
-  let rows = await c.query("select name as user_name from users where in (?)", [
-    user1.id,
-    user2.id,
-  ]);
+  let rows = await c.query(
+    "select name as user_name from users where id in (?)",
+    [user1.id, user2.id]
+  );
   expect(rows).toEqual([{ user_name: "test1" }, { user_name: "test2" }]);
 });
 
 test("exec", async () => {
-  let user = c.queryUser().create({ name: "test" });
-  let updated = c.exec(
-    "udpate users set name = ? where id = ?",
+  let user = await c.queryUser().create({ name: "test" });
+  let updated = await c.exec(
+    "update users set name = ? where id = ?",
     "test1",
     user.id
   );
   expect(updated).toEqual(1);
-  let deleted = c.exec("delete users where id = ?", user.id);
+  let deleted = await c.exec("delete from users where id = ?", user.id);
   expect(deleted).toEqual(1);
 });
 
 test("create", async () => {
-  let user = c.queryUser().create({ name: "test", type: "admin" });
+  let user = await c.queryUser().create({ name: "test", type: "admin" });
   expect(user.name).toEqual("test");
   expect(user.type).toEqual("admin");
   expect(user.id).toBeGreaterThan(0);

@@ -9,6 +9,7 @@ import { Table, BigIntColumn, IntegerColumn, FloatColumn, BooleanColumn, StringC
 
 export class QXClient {
   private db: Pool;
+  public config: Config;
 	{{- range $m := $.client.Models }}
 	public {{ $m.Name }}: Table;
 	{{- range .Columns }}
@@ -17,6 +18,7 @@ export class QXClient {
 	{{- end}}
 
   constructor(config: Config) {
+    this.config = config;
     this.db = new Pool({
       connectionString: config.url,
     });
@@ -32,18 +34,24 @@ export class QXClient {
     return this.db.connect();
   }
 
+  private _query(query: string, args: any[]) {
+    let [query1, args1] = rebind(query, args);
+    console.log(query1, args1);
+    return this.db.query(query1, args1);
+  }
+
   async query(query: string, ...args: any[]) {
-    const res = await this.db.query(rebind("dollar", query), args);
+    const res = await this._query(query, args);
     return res.rows;
   }
 
   async queryOne(query: string, ...args: any[]) {
-    const res = await this.db.query(rebind("dollar", query), args);
+    const res = await this._query(query, args);
     return res.rows[0];
   }
 
   async exec(query: string, ...args: any[]) {
-    const res = await this.db.query(rebind("dollar", query), args);
+    const res = await this._query(query, args);
     return res;
   }
 
@@ -58,15 +66,15 @@ export class QXClient {
   {{- end }}
 
   async tx() {
-    const tx = new Tx();
+    const tx = new Tx(this.config);
     await tx.exec("BEGIN");
     return tx;
   }
 }
 
 export class Tx extends QXClient {
-  constructor() {
-    super();
+  constructor(config) {
+    super(config);
   }
 
   commit() {
@@ -89,39 +97,27 @@ export const newClientWithEnv = async (env: Env) => {
   return client;
 };
 
-type BindType = "question" | "unknown" | "dollar" | "named" | "at";
-
-export function rebind(bindType: BindType, query: string): string {
-  switch (bindType) {
-    case "question":
-    case "unknown":
-      return query;
-  }
-
-  let rqb = "";
-  let i,
-    j = 0;
+export function rebind(query: string, args: any[]) {
+  let str = "";
+  let i = 0;
+  let j = 1;
+  let args1: any[] = [];
 
   for (i = query.indexOf("?"); i !== -1; i = query.indexOf("?")) {
-    rqb += query.substring(0, i);
+    str += query.substring(0, i);
 
-    switch (bindType) {
-      case "dollar":
-        rqb += "$";
-        break;
-      case "named":
-        rqb += ":arg";
-        break;
-      case "at":
-        rqb += "@p";
-        break;
+    if (Array.isArray(args[j - 1])) {
+      args1 = args1.concat(args[j - 1]);
+      str += args[j - 1].map((_, i) => "$" + (j + i)).join(", ");
+      j += args.length;
+    } else {
+      args1.push(args[j - 1]);
+      str += "$" + j;
+      j++;
     }
-
-    j++;
-    rqb += j.toString();
 
     query = query.substring(i + 1);
   }
 
-  return rqb + query;
+  return [str + query, args1];
 }

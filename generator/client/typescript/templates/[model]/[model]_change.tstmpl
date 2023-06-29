@@ -2,17 +2,27 @@
 
 export interface {{ $.model.Name }}ChangeInput {
   {{- range $c := .model.Columns }}
-  {{ $c.Name | camel }}?: {{ tsType $c.Type }};
+  {{ $c.Name | camel }}?: {{ tsType $c.Type }}{{ if $c.Null}} | null{{ end }};
   {{- end }}
 }
 
 export class {{ $.model.Name }}Change {
   {{- range $c := .model.Columns }}
-  private {{ $c.Name | camel }}?: {{ tsType $c.Type }};
+  public {{ $c.Name | camel }}?: {{ tsType $c.Type }}{{ if $c.Null}} | null{{ end }};
   {{- end }}
 
+  constructor(input: {{ $.model.Name }}ChangeInput) {
+    {{- range $c := .model.Columns }}
+    if (input.{{ $c.Name | camel }} !== undefined) {
+      this.{{ $c.Name | camel }} = input.{{ $c.Name | camel }};
+    }
+    {{- end }}
+  }
+
   {{- range $c := .model.Columns }}
-  set{{ $c.Name | pascal }}({{ $c.Name | camel}}: {{ tsType $c.Type }}) {
+
+  set{{ $c.Name | pascal }}({{ $c.Name | camel}}: {{ tsChangeSetType $c.Type }}) {
+    this.{{ $c.Name | camel }} = {{ $c.Name | camel}};
     return this;
   }
   {{- end }}
