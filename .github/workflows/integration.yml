@@ -44,8 +44,8 @@ jobs:
           QUERYX_ENV: test
         run: |
           cd internal/integration
-          queryx db:migrate --schema postgresql.hcl
-          queryx generate --schema postgresql.hcl
+          /usr/local/bin/queryx db:migrate --schema postgresql.hcl
+          /usr/local/bin/queryx generate --schema postgresql.hcl
       - name: yarn install
         run: |
           cd internal/integration
