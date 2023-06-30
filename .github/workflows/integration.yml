@@ -39,6 +39,8 @@ jobs:
         with:
           name: bin
           path: /usr/local/bin/queryx
+      - run: ls -R
+        working-directory: /usr/local/bin
       - name: generate
         env:
           QUERYX_ENV: test
