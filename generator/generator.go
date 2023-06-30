@@ -18,6 +18,15 @@ type Generator struct {
 	Adapter   string
 	template  *template.Template
 	Templates map[string]*template.Template
+	Schema    *schema.Schema
+	created   []string
+}
+
+func NewGenerator(schema *schema.Schema) *Generator {
+	return &Generator{
+		Schema:  schema,
+		created: make([]string, 0),
+	}
 }
 
 // load template files from go embed
@@ -84,10 +93,9 @@ func stringInSlice(str string, list []string) bool {
 	return false
 }
 
-func (g *Generator) Generate(schema *schema.Schema) error {
-	database := schema.Databases[0]
+func (g *Generator) Generate() error {
+	database := g.Schema.Databases[0]
 	dir := database.Name
-	created := []string{}
 
 	for _, tpl := range g.template.Templates() {
 		name := tpl.Name()
@@ -99,7 +107,7 @@ func (g *Generator) Generate(schema *schema.Schema) error {
 			for _, model := range database.Models {
 				n := strings.ReplaceAll(name, "[model]", inflect.Snake(model.Name))
 				f := path.Join(dir, strings.TrimSuffix(n, "tmpl"))
-				created = append(created, f)
+				g.created = append(g.created, f)
 
 				data := map[string]interface{}{
 					"packageName": dir,
@@ -112,7 +120,7 @@ func (g *Generator) Generate(schema *schema.Schema) error {
 			}
 		} else {
 			f := path.Join(dir, strings.TrimSuffix(name, "tmpl"))
-			created = append(created, f)
+			g.created = append(g.created, f)
 			data := map[string]interface{}{
 				"packageName": dir,
 				"client":      database,
@@ -123,6 +131,13 @@ func (g *Generator) Generate(schema *schema.Schema) error {
 		}
 	}
 
+	return nil
+}
+
+func (g *Generator) Clean() error {
+	database := g.Schema.Databases[0]
+	dir := database.Name
+
 	deleted := []string{}
 	files, err := readDir(dir)
 
@@ -130,7 +145,7 @@ func (g *Generator) Generate(schema *schema.Schema) error {
 		return err
 	}
 	for _, f := range files {
-		if !stringInSlice(f, created) {
+		if !stringInSlice(f, g.created) {
 			deleted = append(deleted, f)
 		}
 	}
@@ -138,7 +153,6 @@ func (g *Generator) Generate(schema *schema.Schema) error {
 		os.Remove(f)
 		fmt.Println("Deleted", f)
 	}
-
 	return nil
 }
 

@@ -10,7 +10,7 @@ database "db" {
     url = env("DATABASE_URL")
   }
 
-  // generator "client-golang" {}
+  generator "client-golang" {}
   generator "client-typescript" {}
 
   model "User" {
