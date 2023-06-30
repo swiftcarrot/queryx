@@ -63,17 +63,17 @@ test("transaction", async () => {
   let total2 = await c.queryTag().count();
   expect(total2).toEqual(total1);
 
-  let total3 = await c.queryTag().count();
-  expect(total3).toEqual(total1 + 2);
+  let total3 = await tx.queryTag().count();
+  expect(total3).toEqual(total1 + 2n);
 
-  tag1 = c.queryTag().find(tag1.id);
+  tag1 = await c.queryTag().find(tag1.id);
   expect(tag1.name).toEqual("tag1");
 
   await tx.commit();
 
-  let total4 = c.queryTag().count();
-  expect(total4).toEqual(total1 + 2);
+  let total4 = await c.queryTag().count();
+  expect(total4).toEqual(total1 + 2n);
 
-  tag1 = c.queryTag().find(tag1.id);
+  tag1 = await c.queryTag().find(tag1.id);
   expect(tag1.name).toEqual("tag1-updated");
 });

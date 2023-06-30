@@ -3,23 +3,15 @@ package inflect
 func tsType(t string) string {
 	switch t {
 	case "bigint":
-		return "number"
-	case "uuid":
+		return "BigInt"
+	case "uuid", "string", "text":
 		return "string"
-	case "string", "text":
-		return "string"
-	case "datetime":
+	case "datetime", "date", "time":
 		return "Date"
-	case "date":
-		return "Date"
-	case "time":
-		return "Date"
-	case "integer":
+	case "integer", "float":
 		return "number"
 	case "boolean":
 		return "boolean"
-	case "float":
-		return "number"
 	case "json", "jsonb":
 		return "object"
 	default:
