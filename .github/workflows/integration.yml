@@ -38,6 +38,7 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: bin
+          path: /usr/local/bin/queryx
       - name: generate
         env:
           QUERYX_ENV: test
@@ -83,6 +84,7 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: bin
+          path: /usr/local/bin/queryx
       - name: generate
         env:
           QUERYX_ENV: test
@@ -106,6 +108,7 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: bin
+          path: /usr/local/bin/queryx
       - name: generate
         env:
           QUERYX_ENV: test
