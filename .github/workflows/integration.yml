@@ -1,7 +1,19 @@
 name: integration
 on: push
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+      - name: Test
+        run: go test -v github.com/swiftcarrot/queryx/schema
+      - name: Build
+        run: go build -o /usr/local/bin/queryx cmd/queryx/main.go
   postgresql:
+    needs: [build]
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -19,29 +31,13 @@ jobs:
           --health-retries 5
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-go@v3
-        with:
-          go-version: 1.19
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16
-      - name: Build Queryx
-        run: go build -o /usr/local/bin/queryx cmd/queryx/main.go
-      - name: Queryx Generate
+      - name: generate
         env:
           QUERYX_ENV: test
         run: |
           cd internal/integration
           queryx db:migrate --schema postgresql.hcl
           queryx generate --schema postgresql.hcl
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v3
-        with:
-          working-directory: internal/integration/db
-      - name: go test
-        run: |
-          cd internal/integration
-          go test -v ./...
       - name: yarn install
         run: |
           cd internal/integration
@@ -50,8 +46,16 @@ jobs:
         run: |
           cd internal/integration
           yarn test
-
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          working-directory: internal/integration/db
+      - name: go test
+        run: |
+          cd internal/integration
+          go test -v ./...
   mysql:
+    needs: [build]
     runs-on: ubuntu-latest
     services:
       mysql:
@@ -69,12 +73,7 @@ jobs:
           --health-retries 10
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-go@v3
-        with:
-          go-version: 1.19
-      - name: Build Queryx
-        run: go build -o /usr/local/bin/queryx cmd/queryx/main.go
-      - name: Queryx Generate
+      - name: generate
         env:
           QUERYX_ENV: test
         run: |
@@ -89,17 +88,12 @@ jobs:
         run: |
           cd internal/integration
           go test -v ./...
-
   sqlite:
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-go@v3
-        with:
-          go-version: 1.19
-      - name: Build Queryx
-        run: go build -o /usr/local/bin/queryx cmd/queryx/main.go
-      - name: Queryx Generate
+      - name: generate
         env:
           QUERYX_ENV: test
         run: |
