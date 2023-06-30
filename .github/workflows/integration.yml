@@ -38,7 +38,7 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: bin
-          path: /usr/local/bin/queryx
+          path: /usr/local/bin
       - run: ls -R
         working-directory: /usr/local/bin
       - name: generate
@@ -46,8 +46,8 @@ jobs:
           QUERYX_ENV: test
         run: |
           cd internal/integration
-          /usr/local/bin/queryx db:migrate --schema postgresql.hcl
-          /usr/local/bin/queryx generate --schema postgresql.hcl
+          queryx db:migrate --schema postgresql.hcl
+          queryx generate --schema postgresql.hcl
       - name: yarn install
         run: |
           cd internal/integration
@@ -86,7 +86,7 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: bin
-          path: /usr/local/bin/queryx
+          path: /usr/local/bin
       - name: generate
         env:
           QUERYX_ENV: test
@@ -110,7 +110,7 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: bin
-          path: /usr/local/bin/queryx
+          path: /usr/local/bin
       - name: generate
         env:
           QUERYX_ENV: test
