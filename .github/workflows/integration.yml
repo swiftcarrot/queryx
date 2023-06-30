@@ -12,6 +12,10 @@ jobs:
         run: go test -v github.com/swiftcarrot/queryx/schema
       - name: Build
         run: go build -o /usr/local/bin/queryx cmd/queryx/main.go
+      - uses: actions/upload-artifact@v3
+        with:
+          name: bin
+          path: /usr/local/bin/queryx
   postgresql:
     needs: [build]
     runs-on: ubuntu-latest
@@ -31,6 +35,9 @@ jobs:
           --health-retries 5
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: bin
       - name: generate
         env:
           QUERYX_ENV: test
@@ -73,6 +80,9 @@ jobs:
           --health-retries 10
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: bin
       - name: generate
         env:
           QUERYX_ENV: test
@@ -93,6 +103,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: bin
       - name: generate
         env:
           QUERYX_ENV: test
