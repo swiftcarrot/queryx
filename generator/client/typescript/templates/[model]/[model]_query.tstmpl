@@ -44,6 +44,12 @@ export class {{ $.model.Name }}Query {
     return record;
   }
 
+  async delete(id: number | BigInt) {
+    let filter = this._client.{{ $.model.Name | camel }}ID.eq(this.id);
+    let [query, args] = newDelete("{{ $.model.TableName }}").where(filter).toSQL();
+    return await this.client.exec(query, ...args);
+  }
+
   async find(id: number | BigInt) {
     let record = new {{ $.model.Name }}(this.client);
     let row = await this.where(this.client.{{ $.model.Name | camel }}ID.eq(id)).first();
@@ -80,15 +86,21 @@ export class {{ $.model.Name }}Query {
   order() {}
 
   {{- range $b := $.model.BelongsTo }}
-  preload{{ pascal $b.Name }}() {}
+  preload{{ pascal $b.Name }}() {
+    return this;
+  }
   {{- end }}
 
   {{- range $h := $.model.HasMany }}
-  preload{{ pascal $h.Name }}() {}
+  preload{{ pascal $h.Name }}() {
+    return this;
+  }
   {{- end }}
 
   {{- range $h := $.model.HasOne }}
-  preload{{ pascal $h.Name }}() {}
+  preload{{ pascal $h.Name }}() {
+    return this;
+  }
   {{- end }}
 
   async all() {

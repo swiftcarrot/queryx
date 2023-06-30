@@ -65,9 +65,10 @@ func TestCreate(t *testing.T) {
 }
 
 func TestTime(t *testing.T) {
-	user, err := c.QueryUser().Create(c.ChangeUser().SetTime("12:12:12"))
+	s := "12:10:09"
+	user, err := c.QueryUser().Create(c.ChangeUser().SetTime(s))
 	require.NoError(t, err)
-	require.Equal(t, "12:12:12", user.Time.Val.Format("15:04:05"))
+	require.Equal(t, s, user.Time.Val.Format("15:04:05"))
 }
 
 func TestDate(t *testing.T) {
@@ -214,7 +215,7 @@ func TestAllEmpty(t *testing.T) {
 	require.Equal(t, 0, len(users))
 }
 
-func TestInEmptySlice(t *testing.T) {
+func TestInEmpty(t *testing.T) {
 	_, err := c.QueryUser().DeleteAll()
 	require.NoError(t, err)
 	users, err := c.QueryUser().Where(c.UserID.In([]int64{})).All()
@@ -248,7 +249,7 @@ func TestHasManyEmpty(t *testing.T) {
 }
 
 func TestHasOne(t *testing.T) {
-	user, err := c.QueryUser().Create(c.ChangeUser().SetName("has_one"))
+	user, err := c.QueryUser().Create(c.ChangeUser().SetName("user"))
 	require.NoError(t, err)
 	account, err := c.QueryAccount().Create(c.ChangeAccount().SetName("account").SetUserID(user.ID))
 	require.NoError(t, err)
