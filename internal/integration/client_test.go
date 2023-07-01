@@ -65,16 +65,15 @@ func TestCreate(t *testing.T) {
 }
 
 func TestTime(t *testing.T) {
-	s := "12:10:09"
-	user, err := c.QueryUser().Create(c.ChangeUser().SetTime(s))
+	user, err := c.QueryUser().Create(c.ChangeUser().SetTime("12:10:09"))
 	require.NoError(t, err)
-	require.Equal(t, s, user.Time.Val.Format("15:04:05"))
+	require.Equal(t, "12:10:09", user.Time.Val.Format("15:04:05"))
 }
 
 func TestDate(t *testing.T) {
-	user, err := c.QueryUser().Create(c.ChangeUser().SetDate("2012-12-12"))
+	user, err := c.QueryUser().Create(c.ChangeUser().SetDate("2012-11-10"))
 	require.NoError(t, err)
-	require.Equal(t, "2012-12-12", user.Date.Val.Format("2006-01-02"))
+	require.Equal(t, "2012-11-10", user.Date.Val.Format("2006-01-02"))
 }
 
 func TestDatetime(t *testing.T) {

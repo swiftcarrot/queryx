@@ -1,5 +1,5 @@
 import { test, expect, beforeAll } from "vitest";
-import { newClientWithEnv, QXClient } from "./db";
+import { newClientWithEnv, QXClient, UserChange } from "./db";
 
 let c: QXClient;
 
@@ -47,11 +47,33 @@ test("create", async () => {
   expect(user.id).toBeGreaterThan(0);
 });
 
-test("time", async () => {});
+test("time", async () => {
+  let user = await c.queryUser().create({ time: "12:10:09" });
+  expect(user.time).toEqual("12:10:09");
+});
 
-test("date", async () => {});
+test("date", async () => {
+  let user = await c.queryUser().create({ date: "2012-11-10" });
+  expect(user.date).toEqual("2012-11-10");
+});
 
-test("datetime", async () => {});
+test("datetime", async () => {
+  let s1 = "2012-11-10 09:08:07";
+  let user = await c.queryUser().create({ datetime: s1 });
+  expect(user.datetime).toEqual(s1);
+
+  user = await c
+    .queryUser()
+    .where(
+      c.userID.eq(user.id).and(c.userDatetime.ge(s1)).and(c.userDatetime.le(s1))
+    )
+    .first();
+  expect(user.datetime).toEqual(s1);
+
+  let s2 = "2012-11-10 09:08:07.654";
+  user = c.queryUser().create({ datetime: s2 });
+  expect(user.datetime).toEqual(s2);
+});
 
 test("timestamps", async () => {
   let user = await c.queryUser().create({});
@@ -63,7 +85,21 @@ test("timestamps", async () => {
   expect(user.updatedAt).toBeGreaterThan(user.createdAt);
 });
 
-test("uuid", async () => {});
+test("uuid", async () => {
+  let user = await c.queryUser().create({});
+  expect(user.uuid).toBeNull();
+
+  let uuid1 = "c7e5b9af-0499-4eca-a7e6-77e10d56987b";
+  await user.update({ uuid: uuid1 });
+  expect(user.uuid).toEqual(uuid1);
+
+  let uuid2 = "a81e44c5-7e18-4dfe-b9b3-d9280629d2ef";
+  let device = await c.queryDevice().create({ id: uuid2 });
+  expect(device.id).toEqual(uuid2);
+
+  device = await c.queryDevice().find(uuid2);
+  expect(device.id).toEqual(uuid2);
+});
 
 test("null", async () => {
   let user = await c.queryUser().create({ name: null });
@@ -73,7 +109,17 @@ test("null", async () => {
   expect(user.name).toBeNull();
 });
 
-test("json", async () => {});
+test("json", async () => {
+  let payload = {
+    theme: "dark",
+    height: 170,
+    weight: 65,
+  };
+  let user = await c.queryUser().create({ payload });
+  expect(user.payload.theme).toEqual(payload.theme);
+  expect(user.payload.height).toEqual(payload.height);
+  expect(user.payload.weight).toEqual(payload.weight);
+});
 
 test("primaryKey", async () => {
   await c.queryCode().deleteAll();
@@ -220,6 +266,22 @@ test("transaction", async () => {
   expect(tag1.name).toEqual("tag1-updated");
 });
 
-test("changeJSON", async () => {});
+test("changeJSON", async () => {
+  let userChange = new UserChange({
+    name: "user name",
+    isAdmin: false,
+  });
+  expect(userChange.name).toEqual("user name");
+  expect(userChange.isAdmin).toBe(false);
+});
 
-test("modelString", async () => {});
+test("modelString", async () => {
+  await c.queryCode().deleteAll();
+  let code = await c.queryCode().create({
+    type: "code type",
+    key: "code key",
+  });
+  expect(code.toString()).toEqual(
+    `(Code type: "${code.type}", key: "${code.key}")`
+  );
+});

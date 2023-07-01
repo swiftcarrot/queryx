@@ -17,13 +17,13 @@ export class {{ $.model.Name }} {
   public {{ $c.Name | camel }}: {{ tsType $c.Type }}{{ if $c.Null }} | null{{ end }};
   {{- end }}
 	{{- range $b := $.model.BelongsTo }}
-  public {{ $b.Name | camel }}: {{ $b.ModelName }};
+  public {{ $b.Name | camel }}: {{ $b.ModelName }} | null;
   {{- end }}
 	{{- range $h := $.model.HasMany }}
-	public {{ $h.Name | camel }}: {{ $h.ModelName }}[];
+	public {{ $h.Name | camel }}: {{ $h.ModelName }}[] | null;
 	{{- end }}
 	{{- range $h := $.model.HasOne }}
-	public {{ $h.Name | camel }}: {{ $h.ModelName }};
+	public {{ $h.Name | camel }}: {{ $h.ModelName }} | null;
 	{{- end }}
   private _client: QXClient;
 
