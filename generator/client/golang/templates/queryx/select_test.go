@@ -15,4 +15,9 @@ func TestSelect(t *testing.T) {
 	sql, args = s.Update().Columns("name", "email").Values("test", "test@example.com").ToSQL()
 	require.Equal(t, `UPDATE users SET name = ?, email = ?`, sql)
 	require.Equal(t, []interface{}{"test", "test@example.com"}, args)
+
+	s1 := s.Limit(1)
+	sql, args = s1.ToSQL()
+	require.Equal(t, `SELECT users.* FROM users LIMIT ?`, sql)
+	require.Equal(t, []interface{}{1}, args)
 }
