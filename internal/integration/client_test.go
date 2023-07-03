@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -62,6 +63,38 @@ func TestCreate(t *testing.T) {
 	require.Equal(t, "admin", user.Type.Val)
 	require.False(t, user.Type.Null)
 	require.True(t, user.ID > 0)
+}
+
+func TestFind(t *testing.T) {
+	tag, err := c.QueryTag().Create(c.ChangeTag().SetName("test"))
+	require.NoError(t, err)
+	tag, err = c.QueryTag().Find(tag.ID)
+	require.NoError(t, err)
+	require.Equal(t, "test", tag.Name.Val)
+
+	tag, err = c.QueryTag().Find(tag.ID + 1)
+	require.Error(t, err)
+	require.ErrorIs(t, err, sql.ErrNoRows)
+	require.Nil(t, tag)
+}
+
+func TestFirst(t *testing.T) {
+	_, err := c.QueryTag().DeleteAll()
+	require.NoError(t, err)
+
+	tag1, err := c.QueryTag().Create(c.ChangeTag().SetName("test"))
+	require.NoError(t, err)
+	tag2, err := c.QueryTag().First()
+	require.NoError(t, err)
+	require.Equal(t, "test", tag2.Name.Val)
+	require.Equal(t, tag1.ID, tag2.ID)
+
+	_, err = c.QueryTag().DeleteAll()
+	require.NoError(t, err)
+
+	tag3, err := c.QueryTag().First()
+	require.NoError(t, err)
+	require.Nil(t, tag3)
 }
 
 func TestTime(t *testing.T) {
