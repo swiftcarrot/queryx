@@ -3,8 +3,9 @@
 package {{.packageName}}
 
 import (
-  "fmt"
-  "time"
+	"database/sql"
+	"fmt"
+	"time"
 )
 
 {{ define "primary_key_params" }}
@@ -107,7 +108,7 @@ func (q *{{.model.Name}}Query) BulkCreate(changes []*queryx.{{.model.Name}}Chang
 }
 
 func (q *{{ $.model.Name }}Query) Delete({{ template "primary_key_params" $.model.PrimaryKey }}) (int64, error) {
-  query, args := queryx.NewDelete().From("{{.model.TableName}}").Where({{ template "primary_key_where" $.model }}).ToSQL()
+	query, args := queryx.NewDelete().From("{{.model.TableName}}").Where({{ template "primary_key_where" $.model }}).ToSQL()
 	result, err := q.adapter.Exec(query, args...)
 	if err != nil {
 		return 0, err
@@ -117,11 +118,11 @@ func (q *{{ $.model.Name }}Query) Delete({{ template "primary_key_params" $.mode
 
 func (q *{{.model.Name}}Query) Find({{ template "primary_key_params" $.model.PrimaryKey }}) (*{{.model.Name}}, error) {
 	res, err := q.Where({{ template "primary_key_where" $.model }}).First()
-  	if err != nil {
-		return res, err
+	if err != nil {
+		return nil, err
 	}
 	if res == nil {
-		return &{{.model.Name}}{}, fmt.Errorf("nothing found")
+		return nil, sql.ErrNoRows
 	}
 	res.schema = q.schema
 	res.queries = q.queries
@@ -328,14 +329,14 @@ func (q *{{ $.model.Name }}Query) preload{{ pascal $h.Name }}(rows []*{{ $.model
 {{- end }}
 
 func (q *{{.model.Name}}Query) All() ([]*{{.model.Name}}, error) {
-  if q.err != nil{
+	if q.err != nil{
 		return nil, q.err
-  }
-  var rows []{{ $.model.Name }}
+	}
+	var rows []{{ $.model.Name }}
 	{{- $var1 := $.model.Name | camel | plural }}
 	{{ $var1 }} := make([]*{{ $.model.Name }}, 0)
-  query, args := q.selectStatement.ToSQL()
-  err := q.adapter.Query(query, args...).Scan(&rows)
+	query, args := q.selectStatement.ToSQL()
+	err := q.adapter.Query(query, args...).Scan(&rows)
 	if err != nil {
 		return nil, err
 	}
@@ -374,7 +375,7 @@ func (q *{{.model.Name}}Query) All() ([]*{{.model.Name}}, error) {
 	}
 	{{- end }}
 
-  return {{ $var1 }}, nil
+	return {{ $var1 }}, nil
 }
 
 func (q *{{ $.model.Name }}Query) First() (*{{.model.Name}}, error) {
@@ -385,7 +386,7 @@ func (q *{{ $.model.Name }}Query) First() (*{{.model.Name}}, error) {
 	}
 	if len(results) > 0 {
 		return results[0], nil
-  }
+	}
 
 	return nil, nil
 }
@@ -400,7 +401,7 @@ func (q *{{ $.model.Name }}Query) Count() (int64, error) {
 	return 0, err
 	}
 
-  return res.Count, nil
+	return res.Count, nil
 }
 
 func (q *{{ $.model.Name }}Query) Avg(v string) (float64, error) {
@@ -456,20 +457,20 @@ func (q *{{ $.model.Name }}Query) Min(v string) (float64, error) {
 }
 
 func (q *{{ $.model.Name }}Query) Exists() (bool, error) {
-	q.selectStatement.Select("1 AS one").Limit(1)
-  	// select 1 as one from users limit 1
-  	query, args := q.selectStatement.ToSQL()
-  	var res struct {
-		One int64 `db:"one"`
-  	}
-  	if err := q.adapter.QueryOne(query, args...).Scan(&res); err != nil {
-   		if err.Error() == "no rows"{
-			return false,nil
+		q.selectStatement.Select("1 AS one").Limit(1)
+		// select 1 as one from users limit 1
+		query, args := q.selectStatement.ToSQL()
+		var res struct {
+			One int64 `db:"one"`
 		}
-		return false, err
-  	}
+		if err := q.adapter.QueryOne(query, args...).Scan(&res); err != nil {
+	 		if err.Error() == "no rows" {
+				return false, nil
+			}
+			return false, err
+		}
 
-  	return res.One == 1, nil
+		return res.One == 1, nil
 }
 
 func (q *{{ $.model.Name }}Query) UpdateAll(change *queryx.{{ $.model.Name }}Change) (int64, error) {
@@ -494,9 +495,9 @@ func (q *{{ $.model.Name }}Query) UpdateAll(change *queryx.{{ $.model.Name }}Cha
 
 func (q *{{ $.model.Name }}Query) DeleteAll() (int64, error) {
 	query, args := q.selectStatement.Delete().ToSQL()
-  result, err := q.adapter.Exec(query, args...)
-  if err != nil {
+	result, err := q.adapter.Exec(query, args...)
+	if err != nil {
 		return 0, err
-  }
-  return result, err
+	}
+	return result, err
 }

@@ -48,7 +48,7 @@ func (s *InsertStatement) ToSQL() (string, []interface{}) {
 	sql := fmt.Sprintf("INSERT INTO %s", s.into)
 
 	if len(s.columns) > 0 {
-		sql = fmt.Sprintf("%s (%s)", sql, strings.Join(s.columns, ", "))
+		sql = fmt.Sprintf("%s(%s)", sql, strings.Join(s.columns, ", "))
 	}
 
 	values := []string{}
