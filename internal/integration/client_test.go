@@ -327,6 +327,14 @@ func TestChangeJSON(t *testing.T) {
 	require.False(t, userChange.Age.Set)
 }
 
+func TestModelJSON(t *testing.T) {
+	tag, err := c.QueryTag().Create(c.ChangeTag().SetName("test"))
+	require.NoError(t, err)
+	b, err := json.Marshal(tag)
+	require.NoError(t, err)
+	require.Equal(t, fmt.Sprintf(`{"id":%d,"name":"test"}`, tag.ID), string(b))
+}
+
 func TestModelStringer(t *testing.T) {
 	_, err := c.QueryCode().DeleteAll()
 	require.NoError(t, err)

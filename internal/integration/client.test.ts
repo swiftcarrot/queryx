@@ -4,7 +4,7 @@ import { newClientWithEnv, QXClient, UserChange } from "./db";
 let c: QXClient;
 
 beforeAll(async () => {
-  c = await newClientWithEnv("test");
+  c = newClientWithEnv("test");
 });
 
 test("queryOne", async () => {
@@ -273,6 +273,11 @@ test("changeJSON", async () => {
   });
   expect(userChange.name).toEqual("user name");
   expect(userChange.isAdmin).toBe(false);
+});
+
+test("modelJSON", async () => {
+  let tag = await c.queryTag().create({ name: "test" });
+  expect(JSON.stringify(tag)).toEqual(`{"id":${tag.id},"name":"test"}`);
 });
 
 test("modelString", async () => {

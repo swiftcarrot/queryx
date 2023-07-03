@@ -104,6 +104,8 @@ database "db" {
   }
 
   model "Tag" {
+    timestamps = false
+
     column "name" {
       type = string
     }

@@ -32,10 +32,6 @@ export class QXClient {
     {{- end}}
   }
 
-  connect() {
-    return this.db.connect();
-  }
-
   private _query(query: string, args: any[]) {
     let [query1, args1] = rebind(query, args);
     console.log(query1, args1);
@@ -61,10 +57,6 @@ export class QXClient {
   query{{ $m.Name }}() {
     return new {{ $m.Name }}Query(this);
   }
-
-  change{{ $m.Name }}() {
-    return new {{$m.Name}}Change();
-  }
   {{- end }}
 
   async tx() {
@@ -88,14 +80,13 @@ export class Tx extends QXClient {
 }
 
 export const newClient = () => {
-  let env = getenv("QUERYX_ENV");
+  let env = getenv("QUERYX_ENV") || "development";
   return newClientWithEnv(env);
 };
 
-export const newClientWithEnv = async (env: Env) => {
+export const newClientWithEnv = (env: Env) => {
   let config = newConfig(env);
   let client = new QXClient(config);
-  await client.connect();
   return client;
 };
 
