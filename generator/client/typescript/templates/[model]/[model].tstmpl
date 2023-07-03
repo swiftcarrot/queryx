@@ -29,6 +29,15 @@ export class {{ $.model.Name }} {
 
   constructor(client: QXClient) {
     this._client = client;
+    {{- range $b := $.model.BelongsTo }}
+    this.{{ $b.Name | camel }} = null;
+    {{- end }}
+    {{- range $h := $.model.HasMany }}
+    this.{{ $h.Name | camel }} = null;
+    {{- end }}
+    {{- range $h := $.model.HasOne }}
+    this.{{ $h.Name | camel }} = null;
+    {{- end }}
   }
 
   applyChange(input: {{ $.model.Name }}ChangeInput) {
@@ -66,6 +75,15 @@ export class {{ $.model.Name }} {
       {{- else }}
       {{ $c.Name | camel }}: this.{{ $c.Name | camel }},
       {{- end }}
+    {{- end }}
+    {{- range $b := $.model.BelongsTo }}
+      {{ $b.Name | camel }}: this.{{ $b.Name | camel }},
+    {{- end }}
+    {{- range $h := $.model.HasMany }}
+      {{ $h.Name | camel }}: this.{{ $h.Name | camel }},
+    {{- end }}
+    {{- range $h := $.model.HasOne }}
+      {{ $h.Name | camel }}: this.{{ $h.Name | camel }},
     {{- end }}
     };
   }

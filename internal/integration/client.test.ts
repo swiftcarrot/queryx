@@ -47,6 +47,16 @@ test("create", async () => {
   expect(user.id).toBeGreaterThan(0);
 });
 
+test("find", async () => {
+  let tag = await c.queryTag().create({ name: "test" });
+  tag = await c.queryTag().find(tag.id);
+  expect(tag.name).toEqual("test");
+
+  await expect(async () => {
+    await c.queryTag().find(Number(tag.id) + 1);
+  }).rejects.toThrowError("Record not found");
+});
+
 test("time", async () => {
   let user = await c.queryUser().create({ time: "12:10:09" });
   expect(user.time).toEqual("12:10:09");

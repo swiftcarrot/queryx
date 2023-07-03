@@ -5,15 +5,26 @@ import { SelectStatement, newInsert, newDelete } from "../queryx";
 import type { {{ $.model.Name }}ChangeInput } from "./{{ $.model.Name | snake }}_change";
 import { {{ $.model.Name }}Change } from "./{{ $.model.Name | snake }}_change";
 import { {{ $.model.Name }} } from "./{{ $.model.Name | snake }}";
+{{- range $b := $.model.BelongsTo }}
+import type { {{ pascal $b.ModelName }} } from "../{{ snake $b.ModelName }}";
+{{- end }}
+{{- range $h := $.model.HasMany }}
+import type { {{ pascal $h.ModelName }} } from "../{{ snake $h.ModelName }}";
+{{- end }}
+{{- range $h := $.model.HasOne }}
+import type { {{ pascal $h.ModelName }} } from "../{{ snake $h.ModelName }}";
+{{- end }}
 
 export class {{ $.model.Name }}Query {
   private client: QXClient;
   private selectStatement: SelectStatement;
+  private preload: { [key: string]: boolean };
 
   constructor(client: QXClient) {
     this.client = client;
     this.selectStatement = new SelectStatement();
     this.selectStatement.select("{{ $.model.TableName }}.*").from("{{ $.model.TableName }}");
+    this.preload = {};
   }
 
   async create(input: {{ $.model.Name }}ChangeInput) {
@@ -87,20 +98,136 @@ export class {{ $.model.Name }}Query {
   order() {}
 
   {{- range $b := $.model.BelongsTo }}
+
   preload{{ pascal $b.Name }}() {
+    this.preload["{{ $b.Name}}"] = true;
     return this;
+  }
+
+  private async _preload{{ pascal $b.Name }}(records: {{ $b.ModelName }}[]) {
+    let ids = records.map((record) => record.{{ $b.ForeignKey | camel }});
+    let rows1 = await this.client
+      .query{{ $b.ModelName }}()
+      .where(this.client.{{ camel $b.ModelName }}ID.in(ids))
+      .all();
+
+    let m: { [key: number]: {{ $b.ModelName }} } = {};
+    for (let row of rows1) {
+      m[Number(row.id)] = row
+    }
+
+    for (let record of records) {
+      record.{{ camel $b.Name }} = m[Number(record.{{ $b.ForeignKey | camel }})];
+    }
   }
   {{- end }}
 
   {{- range $h := $.model.HasMany }}
+
   preload{{ pascal $h.Name }}() {
+    this.preload["{{ $h.Name }}"] = true;
     return this;
+  }
+
+  private async _preload{{ pascal $h.Name }}(records: {{ $.model.Name }}[]) {
+    let ids = records.map((record) => record.id);
+
+	  {{- if $h.Through }}
+	  {{- $m := $h.Through | singular | pascal }}
+    let rows1 = await this.client
+      .query{{ $m }}()
+      .where(this.client.{{ camel $m }}{{ $.model.Name }}ID.in(ids))
+      .all();
+
+    let m1: { [key: number]: {{ $m }}[] } = {};
+    for (let row of rows1) {
+      if (!m1[Number(row.{{ camel $.model.Name }}ID)]) {
+        m1[Number(row.{{ camel $.model.Name }}ID)] = [];
+      }
+      m1[Number(row.{{ camel $.model.Name }}ID)].push(row);
+    }
+
+    for (let record of records) {
+      if (m1[Number(record.id)] && m1[Number(record.id)].length) {
+        record.{{ camel $h.Through }} = m1[Number(record.id)];
+      } else {
+        record.{{ camel $h.Through }} = [];
+      }
+    }
+
+    let ids1 = rows1.map(row => row.{{ $h.ModelName | camel }}ID);
+    let rows2 = await this.client
+      .query{{ $h.ModelName }}()
+      .where(this.client.{{ $h.ModelName | camel }}ID.in(ids1))
+      .all();
+    let m2: { [key: number]: {{ $h.ModelName }} } = {};
+    for (let row of rows2) {
+      m2[Number(row.id)] = row;
+    }
+    for (let row of rows1) {
+      row.{{ $h.ModelName | camel }} = m2[Number(row.{{ $h.ModelName | camel }}ID)];
+    }
+    let m3: { [key: number]: {{ $h.ModelName }}[] } = {};
+    for (let row of rows1) {
+      if (!m3[Number(row.{{ camel $.model.Name }}ID)]) {
+        m3[Number(row.{{ camel $.model.Name }}ID)] = [];
+      }
+      m3[Number(row.{{ camel $.model.Name }}ID)].push(row.{{ camel $h.ModelName }});
+    }
+    for (let record of records) {
+      if (m3[Number(record.id)] && m3[Number(record.id)].length) {
+        record.{{ camel $h.Name }} = m3[Number(record.id)];
+      } else {
+        record.{{ camel $h.Name }} = [];
+      }
+    }
+    {{- else }}
+    let rows1 = await this.client
+      .query{{ $h.ModelName }}()
+      .where(this.client.{{ camel $h.ModelName }}{{ $.model.Name }}ID.in(ids))
+      .all();
+
+    let m: { [key: number]: {{ $h.ModelName }} } = {};
+    for (let r of rows1) {
+      if (!m[Number(r.{{ camel $.model.Name }}ID)]) {
+        m[Number(r.{{ camel $.model.Name }}ID)] = [];
+      }
+      m[Number(r.{{ camel $.model.Name }}ID)].push(r);
+    }
+
+    for (let record of records) {
+      if (m[Number(record.id)] && m[Number(record.id)].length) {
+        record.{{ camel $h.Name }} = m[Number(record.id)];
+      } else {
+        record.{{ camel $h.Name }} = [];
+      }
+    }
+    {{- end }}
   }
   {{- end }}
 
   {{- range $h := $.model.HasOne }}
+
   preload{{ pascal $h.Name }}() {
+    this.preload["{{ $h.Name }}"] = true;
     return this;
+  }
+
+  private async _preload{{ pascal $h.Name }}(records: {{ $h.ModelName }}[]) {
+    let ids = records.map((record) => record.id);
+    let rows1 = await this.client
+      .query{{ $h.ModelName }}()
+      .where(this.client.{{ camel $h.ModelName }}{{ $.model.Name }}ID.in(ids))
+      .all();
+
+    let m: { [key: number]: {{ $h.ModelName }} } = {};
+    for (let r of rows1) {
+      m[Number(r.{{ camel $.model.Name }}ID)] = r
+    }
+
+    for (let record of records) {
+      record.{{ camel $h.Name }} = m[Number(record.id)];
+    }
   }
   {{- end }}
 
@@ -115,6 +242,23 @@ export class {{ $.model.Name }}Query {
       {{- end }}
       records.push(record);
     }
+
+    {{- range $b := $.model.BelongsTo }}
+    if (this.preload["{{ $b.Name }}"]) {
+      await this._preload{{ pascal $b.Name }}(records);
+    }
+    {{- end }}
+    {{- range $h := $.model.HasMany }}
+    if (this.preload["{{ $h.Name }}"]) {
+      await this._preload{{ pascal $h.Name }}(records);
+    }
+    {{- end }}
+    {{- range $h := $.model.HasOne }}
+    if (this.preload["{{ $h.Name }}"]) {
+      await this._preload{{ pascal $h.Name }}(records);
+    }
+    {{- end }}
+
     return records;
   }
 

@@ -69,6 +69,12 @@ class NumberColumn extends Column {
   eq(v: number): Clause {
     return new Clause(`${this.table.name}.${this.name} = ?`, [v]);
   }
+  in(v: number[]): Clause {
+    if (!v.length) {
+      return new Clause("1=0", []);
+    }
+    return new Clause(`${this.table.name}.${this.name} in (?)`, [v]);
+  }
 }
 export class BigIntColumn extends NumberColumn {}
 export class IntegerColumn extends NumberColumn {}
