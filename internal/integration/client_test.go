@@ -78,6 +78,18 @@ func TestFind(t *testing.T) {
 	require.Nil(t, tag)
 }
 
+func TestOrder(t *testing.T) {
+	_, err := c.QueryTag().DeleteAll()
+	require.NoError(t, err)
+	tag1, err := c.QueryTag().Create(c.ChangeTag().SetName("tag1"))
+	require.NoError(t, err)
+	tag2, err := c.QueryTag().Create(c.ChangeTag().SetName("tag2"))
+	require.NoError(t, err)
+	tags, err := c.QueryTag().Order("id desc").All()
+	require.NoError(t, err)
+	require.Equal(t, []*db.Tag{tag2, tag1}, tags)
+}
+
 func TestFirst(t *testing.T) {
 	_, err := c.QueryTag().DeleteAll()
 	require.NoError(t, err)

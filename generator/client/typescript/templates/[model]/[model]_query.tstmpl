@@ -95,7 +95,10 @@ export class {{ $.model.Name }}Query {
 
   joins() {}
 
-  order() {}
+  order(order: string) {
+    this.selectStatement.order(order);
+    return this;
+  }
 
   {{- range $b := $.model.BelongsTo }}
 

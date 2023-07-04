@@ -57,6 +57,15 @@ test("find", async () => {
   }).rejects.toThrowError("Record not found");
 });
 
+test("order", async () => {
+  await c.queryTag().deleteAll();
+  let tag1 = await c.queryTag().create({ name: "tag1" });
+  let tag2 = await c.queryTag().create({ name: "tag2" });
+
+  let tags = await c.queryTag().order("id desc").all();
+  expect(tags).toEqual([tag2, tag1]);
+});
+
 test("time", async () => {
   let user = await c.queryUser().create({ time: "12:10:09" });
   expect(user.time).toEqual("12:10:09");
