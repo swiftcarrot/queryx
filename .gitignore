@@ -4,3 +4,4 @@ node_modules
 .idea
 *.sqlite3
 *.out
+node_modules

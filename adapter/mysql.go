@@ -16,7 +16,7 @@ type MySQLAdapter struct {
 	Config *schema.Config
 }
 
-func NewMysqlAdapter(config *schema.Config) *MySQLAdapter {
+func NewMySQLAdapter(config *schema.Config) *MySQLAdapter {
 	return &MySQLAdapter{
 		Config: config,
 	}

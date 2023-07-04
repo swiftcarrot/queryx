@@ -28,9 +28,20 @@ func TestNewModel(t *testing.T) {
 	require.Equal(t, "updated_at", user.Columns[2].Name)
 
 	post := database.NewModel("Post")
-	post.AddBelongsTo(&BelongsTo{
-		Name: "user",
-	})
+	b := &BelongsTo{Name: "user"}
+	post.AddBelongsTo(b)
 	require.Equal(t, 1, len(post.Columns))
 	require.Equal(t, "user_id", post.Columns[0].Name)
+	require.Equal(t, []*BelongsTo{
+		{Name: "user", ModelName: "User", ForeignKey: "user_id"},
+	}, post.BelongsTo)
+
+	user.AddHasMany(&HasMany{Name: "posts"})
+	user.AddHasOne(&HasOne{Name: "account"})
+	require.Equal(t, []*HasMany{
+		{Name: "posts", ModelName: "Post", ForeignKey: "user_id", BelongsTo: b},
+	}, user.HasMany)
+	require.Equal(t, []*HasOne{
+		{Name: "account", ModelName: "Account", ForeignKey: "user_id"},
+	}, user.HasOne)
 }

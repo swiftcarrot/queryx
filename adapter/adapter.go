@@ -23,7 +23,7 @@ func NewAdapter(config *schema.Config) (Adapter, error) {
 	if config.Adapter == "postgresql" {
 		return NewPostgreSQLAdapter(config), nil
 	} else if config.Adapter == "mysql" {
-		return NewMysqlAdapter(config), nil
+		return NewMySQLAdapter(config), nil
 	} else if config.Adapter == "sqlite" {
 		return NewSQLiteAdapter(config), nil
 	}

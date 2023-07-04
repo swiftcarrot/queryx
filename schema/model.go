@@ -5,6 +5,7 @@ import (
 )
 
 type Model struct {
+	Database *Database
 	// model name in camel case
 	Name       string
 	TableName  string
@@ -75,6 +76,7 @@ type HasMany struct {
 	Through    string
 	ForeignKey string
 	Source     string
+	BelongsTo  *BelongsTo
 }
 
 type HasOne struct {
@@ -82,6 +84,7 @@ type HasOne struct {
 	ModelName  string
 	Through    string
 	ForeignKey string
+	BelongsTo  *BelongsTo
 }
 
 type BelongsTo struct {
@@ -90,6 +93,9 @@ type BelongsTo struct {
 	ForeignKey  string
 	ForeignType string
 	PrimaryKey  string
+	Type        string
+	Index       bool
+	Null        bool
 	Dependent   string
 	Optional    bool
 	Required    bool

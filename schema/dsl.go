@@ -19,6 +19,7 @@ func (s *Schema) NewDatabase(name string) *Database {
 		Configs:    make([]*Config, 0),
 		Generators: make([]*Generator, 0),
 		Models:     make([]*Model, 0),
+		models:     make(map[string]*Model),
 	}
 }
 
@@ -32,6 +33,7 @@ func (d *Database) NewConfig(environment string) *Config {
 // initialize new model with defaults
 func (d *Database) NewModel(name string) *Model {
 	m := &Model{
+		Database:   d,
 		Name:       name,
 		TableName:  inflect.Tableize(name),
 		Columns:    make([]*Column, 0),
@@ -39,6 +41,7 @@ func (d *Database) NewModel(name string) *Model {
 	}
 
 	d.Models = append(d.Models, m)
+	d.models[m.Name] = m
 
 	return m
 }
@@ -101,11 +104,35 @@ func (m *Model) NewColumn(name string, colType string) *Column {
 }
 
 func (m *Model) AddHasMany(hasMany *HasMany) {
+	if hasMany.ModelName == "" {
+		hasMany.ModelName = inflect.Pascal(inflect.Singular(hasMany.Name))
+	}
+	if hasMany.ForeignKey == "" {
+		hasMany.ForeignKey = fmt.Sprintf("%s_id", inflect.Snake(m.Name))
+	}
 	m.HasMany = append(m.HasMany, hasMany)
+	m.Database.buildAssociation()
 }
 
 func (m *Model) AddHasOne(hasOne *HasOne) {
+	if hasOne.ModelName == "" {
+		hasOne.ModelName = inflect.Pascal(inflect.Singular(hasOne.Name))
+	}
+	if hasOne.ForeignKey == "" {
+		hasOne.ForeignKey = fmt.Sprintf("%s_id", inflect.Snake(m.Name))
+	}
 	m.HasOne = append(m.HasOne, hasOne)
+	m.Database.buildAssociation()
+}
+
+func NewBelongsTo(name string) *BelongsTo {
+	belongsTo := &BelongsTo{
+		Name:  name,
+		Type:  "bigint", // TODO: support other types such as integer?
+		Null:  true,
+		Index: false,
+	}
+	return belongsTo
 }
 
 func (m *Model) AddBelongsTo(belongsTo *BelongsTo) {
@@ -120,10 +147,18 @@ func (m *Model) AddBelongsTo(belongsTo *BelongsTo) {
 
 	col := &Column{
 		Name: belongsTo.ForeignKey,
-		Type: "bigint",
-		Null: true, // TODO: support not null
+		Type: belongsTo.Type,
+		Null: belongsTo.Null,
 	}
 	m.Columns = append(m.Columns, col)
+
+	if belongsTo.Index {
+		m.AddIndex(&Index{
+			ColumnNames: []string{belongsTo.ForeignKey},
+		})
+	}
+
+	m.Database.buildAssociation()
 }
 
 func (m *Model) AddIndex(index *Index) {
