@@ -18,43 +18,33 @@ database "db" {
     column "name" {
       type = string
     }
-
     column "type" {
       type = string
     }
-
     column "email" {
       type = string
     }
-
     column "age" {
       type = integer
     }
-
     column "is_admin" {
       type = boolean
     }
-
     column "payload" {
       type = jsonb
     }
-
     column "weight" {
       type = float
     }
-
     column "date" {
       type = date
     }
-
     column "datetime" {
       type = datetime
     }
-
     column "time" {
       type = time
     }
-
     column "uuid" {
       type = uuid
     }
@@ -88,7 +78,10 @@ database "db" {
   }
 
   model "Account" {
-    belongs_to "user" {}
+    belongs_to "user" {
+      index = true
+      null  = false
+    }
 
     column "name" {
       type = string
@@ -113,7 +106,6 @@ database "db" {
       type = string
       null = false
     }
-
     column "key" {
       type = string
       null = false
