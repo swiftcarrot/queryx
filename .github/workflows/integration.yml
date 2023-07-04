@@ -9,7 +9,9 @@ jobs:
         with:
           go-version: 1.19
       - name: Test
-        run: go test -v github.com/swiftcarrot/queryx/schema
+        run: |
+          go test -v github.com/swiftcarrot/queryx/schema
+          go test -v github.com/swiftcarrot/queryx/inflect
       - name: Build
         run: go build -o /usr/local/bin/queryx cmd/queryx/main.go
       - uses: actions/upload-artifact@v3
