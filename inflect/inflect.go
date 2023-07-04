@@ -18,14 +18,13 @@ var TemplateFunctions = template.FuncMap{
 	"lower":                 strings.ToLower,
 	"upper":                 strings.ToUpper,
 	"pascal":                Pascal,
-	"plural":                plural,
+	"plural":                Plural,
 	"singular":              rules.Singularize,
 	"snake":                 Snake,
 	"join":                  strings.Join,
-	"camel":                 camel,
+	"camel":                 Camel,
 	"firstWordUpperCamel":   firstWordUpperCamel,
 	"firstWordLowerCamel":   firstWordLowerCamel,
-	"firstLetterLower":      firstLetterLower,
 	"sub":                   sub,
 	"add":                   add,
 	"addStr":                addStr,
@@ -36,6 +35,7 @@ var TemplateFunctions = template.FuncMap{
 	"goChangeSetType": goChangeSetType,
 	"goKeywordFix":    goKeywordFix,
 	"goModelType":     goModelType,
+	"goReceiver":      GoReceiver,
 
 	"tsType":          tsType,
 	"tsChangeSetType": tsChangeSetType,
@@ -148,21 +148,13 @@ func getTableNameOfHasMany(hasMany interface{}, model interface{}) string {
 	return m[h.ModelName].TableName
 }
 
-func camel(s string) string {
+func Camel(s string) string {
 	words := strings.FieldsFunc(s, isSeparator)
 	if len(words) == 1 {
 		w := strings.ToLower(words[0])
 		return w
 	}
 	return strings.ToLower(words[0]) + pascalWords(words[1:])
-}
-
-func firstLetterLower(s string) string {
-	s = strings.Replace(s, " ", "", -1)
-	if len(s) <= 0 {
-		return ""
-	}
-	return strings.ToLower(s[0:1])
 }
 
 func firstWordUpperCamel(s string) string {
@@ -172,6 +164,7 @@ func firstWordUpperCamel(s string) string {
 	}
 	return pascalWords(words[0:])
 }
+
 func firstWordLowerCamel(s string) string {
 	s = firstWordUpperCamel(s)
 	if s == "ID" {
@@ -242,7 +235,7 @@ func Pascal(s string) string {
 	return pascalWords(words)
 }
 
-func plural(name string) string {
+func Plural(name string) string {
 	p := rules.Pluralize(name)
 	if p == name {
 		p += "Slice"

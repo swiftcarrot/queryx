@@ -2,7 +2,14 @@ package inflect
 
 import (
 	"log"
+	"strings"
 )
+
+// type abbreviation used for a method's receiver variable
+// https://github.com/golang/go/wiki/CodeReviewComments#receiver-names
+func GoReceiver(typ string) string {
+	return strings.ToLower(typ[0:1])
+}
 
 // avoid go keyword with syntax error
 func goKeywordFix(s string) string {
