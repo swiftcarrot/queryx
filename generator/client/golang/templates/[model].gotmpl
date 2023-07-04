@@ -13,8 +13,8 @@ type {{ $.model.Name }} struct {
 	{{ pascal $c.Name }} {{ goModelType $c.Type $c.Null }} `json:"{{ camel $c.Name }}" db:"{{ $c.Name }}"`
 	{{- end }}
 	{{- range $b := $.model.BelongsTo}}
-    {{ $b.Name | pascal }} *{{ $b.ModelName }} `json:"{{ camel $b.Name }}"`
-  {{- end }}
+		{{ $b.Name | pascal }} *{{ $b.ModelName }} `json:"{{ camel $b.Name }}"`
+	{{- end }}
 	{{- range $h := $.model.HasMany }}
 		{{ $h.Name | pascal }} []*{{ $h.ModelName }} `json:"{{ $h.Name | camel }}"`
 	{{- end }}
@@ -52,7 +52,7 @@ func ({{ $m }} *{{.model.Name}}) applyChange(change *queryx.{{.model.Name}}Chang
 		{{ $m }}.{{ pascal $c.Name}} = change.{{ $f }}.Val
 		{{- end }}
 	}
-  {{- end }}
+	{{- end }}
 	return nil
 }
 
