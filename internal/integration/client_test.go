@@ -228,13 +228,20 @@ func TestExists(t *testing.T) {
 }
 
 func TestBelongsTo(t *testing.T) {
-	author, err := c.QueryUser().Create(c.ChangeUser().SetName("author"))
+	user, err := c.QueryUser().Create(c.ChangeUser())
 	require.NoError(t, err)
-	post, err := c.QueryPost().Create(c.ChangePost().SetTitle("post title").SetAuthorID(author.ID))
+	post, err := c.QueryPost().Create(c.ChangePost().SetAuthorID(user.ID))
 	require.NoError(t, err)
+	account, err := c.QueryAccount().Create(c.ChangeAccount().SetUserID(user.ID))
+	require.NoError(t, err)
+
 	post, err = c.QueryPost().PreloadAuthor().Find(post.ID)
 	require.NoError(t, err)
-	require.Equal(t, author.ID, post.Author.ID)
+	require.Equal(t, user, post.Author)
+
+	account, err = c.QueryAccount().PreloadUser().Find(account.ID)
+	require.NoError(t, err)
+	require.Equal(t, user, account.User)
 }
 
 func TestAllEmpty(t *testing.T) {
@@ -281,14 +288,14 @@ func TestHasManyEmpty(t *testing.T) {
 }
 
 func TestHasOne(t *testing.T) {
-	user, err := c.QueryUser().Create(c.ChangeUser().SetName("has_one"))
+	user, err := c.QueryUser().Create(c.ChangeUser())
 	require.NoError(t, err)
-	account, err := c.QueryAccount().Create(c.ChangeAccount().SetName("account").SetUserID(user.ID))
+	account, err := c.QueryAccount().Create(c.ChangeAccount().SetUserID(user.ID))
 	require.NoError(t, err)
 
 	user, err = c.QueryUser().PreloadAccount().Find(user.ID)
 	require.NoError(t, err)
-	require.Equal(t, account.Name, user.Account.Name)
+	require.Equal(t, account, user.Account)
 }
 
 func TestPreload(t *testing.T) {

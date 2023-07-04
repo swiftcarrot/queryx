@@ -88,7 +88,10 @@ database "db" {
   }
 
   model "Account" {
-    belongs_to "user" {}
+    belongs_to "user" {
+      index = true
+      null  = false
+    }
 
     column "name" {
       type = string
