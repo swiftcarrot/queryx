@@ -33,8 +33,7 @@ func ScanOne(rows *sql.Rows, v interface{}) error {
 	}
 
 	if !rows.Next() {
-		// TODO: improve this error
-		return fmt.Errorf("no rows")
+		return sql.ErrNoRows
 	}
 
 	indexes := make(map[int]int, typ.NumField())

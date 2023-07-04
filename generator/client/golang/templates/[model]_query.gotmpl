@@ -4,6 +4,7 @@ package {{.packageName}}
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 )
@@ -469,20 +470,20 @@ func (q *{{ $.model.Name }}Query) Min(v string) (float64, error) {
 }
 
 func (q *{{ $.model.Name }}Query) Exists() (bool, error) {
-		q.selectStatement.Select("1 AS one").Limit(1)
-		// select 1 as one from users limit 1
-		query, args := q.selectStatement.ToSQL()
-		var res struct {
-			One int64 `db:"one"`
+	q.selectStatement.Select("1 AS one").Limit(1)
+	// select 1 as one from users limit 1
+	query, args := q.selectStatement.ToSQL()
+	var res struct {
+		One int64 `db:"one"`
+	}
+	if err := q.adapter.QueryOne(query, args...).Scan(&res); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return false, nil
 		}
-		if err := q.adapter.QueryOne(query, args...).Scan(&res); err != nil {
-	 		if err.Error() == "no rows" {
-				return false, nil
-			}
-			return false, err
-		}
+		return false, err
+	}
 
-		return res.One == 1, nil
+	return res.One == 1, nil
 }
 
 func (q *{{ $.model.Name }}Query) UpdateAll(change *queryx.{{ $.model.Name }}Change) (int64, error) {

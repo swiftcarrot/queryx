@@ -65,6 +65,18 @@ func TestCreate(t *testing.T) {
 	require.True(t, user.ID > 0)
 }
 
+func TestCreateEmpty(t *testing.T) {
+	tag, err := c.QueryTag().Create(nil)
+	require.NoError(t, err)
+	require.True(t, tag.ID > 0)
+	require.True(t, tag.Name.Null)
+
+	tag, err = c.QueryTag().Create(c.ChangeTag())
+	require.NoError(t, err)
+	require.True(t, tag.ID > 0)
+	require.True(t, tag.Name.Null)
+}
+
 func TestFind(t *testing.T) {
 	tag, err := c.QueryTag().Create(c.ChangeTag().SetName("test"))
 	require.NoError(t, err)
@@ -233,7 +245,8 @@ func TestExists(t *testing.T) {
 	require.NoError(t, err)
 	require.False(t, exists)
 
-	_, _ = c.QueryClient().Create(c.ChangeClient().SetName("client"))
+	_, err = c.QueryClient().Create(c.ChangeClient().SetName("client"))
+	require.NoError(t, err)
 	exists, err = c.QueryClient().Exists()
 	require.NoError(t, err)
 	require.True(t, exists)
