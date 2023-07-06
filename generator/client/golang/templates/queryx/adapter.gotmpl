@@ -147,7 +147,7 @@ func (r *Row) Scan(v interface{}) error {
 			return err
 		}
 	}
-	{{- if eq $.client.Adapter "postgresql" }}
+    {{- if eq $.client.Adapter "postgresql" }}
     rows, err := r.adapter.db.Query(rebind(DOLLAR, query), args...)
     {{- else if eq $.client.Adapter "mysql" }}
     rows, err := r.adapter.db.Query(query, args...)

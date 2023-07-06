@@ -155,7 +155,7 @@ func (q *{{.model.Name}}Query) BulkCreate(changes []*queryx.{{.model.Name}}Chang
 	if err != nil {
 		return rows, err
 	}
-	{{- else if eq .client.Adapter "mysql"}}
+    {{- else if eq .client.Adapter "mysql"}}
     res, err := q.adapter.Exec(query, args...)
     if err != nil {
     	return 0, err
@@ -174,10 +174,10 @@ func (q *{{ $.model.Name }}Query) Delete({{ template "primary_key_params" $.mode
 	if err != nil {
 		return 0, err
 	}
-	{{- if eq .client.Adapter "postgresql"}}
-	return result, err
-	{{- else if eq .client.Adapter "mysql"}}
-	rows, err := result.RowsAffected()
+    {{- if eq .client.Adapter "postgresql"}}
+    return result, err
+    {{- else if eq .client.Adapter "mysql"}}
+    rows, err := result.RowsAffected()
     if err != nil {
     	return 0, err
     }
@@ -572,7 +572,7 @@ func (q *{{ $.model.Name }}Query) UpdateAll(change *queryx.{{ $.model.Name }}Cha
 	if err != nil {
 		return 0, err
 	}
-	{{- if eq .client.Adapter "postgresql"}}
+    {{- if eq .client.Adapter "postgresql"}}
     return result, err
     {{- else if eq .client.Adapter "mysql"}}
     rows, err := result.RowsAffected()
@@ -589,7 +589,7 @@ func (q *{{ $.model.Name }}Query) DeleteAll() (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	{{- if eq .client.Adapter "postgresql"}}
+    {{- if eq .client.Adapter "postgresql"}}
     return result, err
     {{- else if eq .client.Adapter "mysql"}}
     rows, err := result.RowsAffected()
