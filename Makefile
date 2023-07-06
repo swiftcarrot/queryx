@@ -33,8 +33,8 @@ test-mysql: install
 
 test-sqlite: install
 	rm -rf internal/integration/db
-	cd internal/integration && QUERYX_ENV=test queryx db:drop --schema sqlite.hcl
-	cd internal/integration && QUERYX_ENV=test queryx db:create --schema sqlite.hcl
+	rm -rf internal/integration/test.sqlite3
+	cd internal/integration && touch test.sqlite3
 	cd internal/integration && QUERYX_ENV=test queryx db:migrate --schema sqlite.hcl
 	cd internal/integration && QUERYX_ENV=test queryx generate --schema sqlite.hcl
 	cd internal/integration && go test ./...

@@ -50,7 +50,7 @@ func (a *Adapter) Exec(query string, args ...interface{}) (int64, error) {
 	}
 	return result.RowsAffected()
 }
-{{- else if eq $.client.Adapter "mysql" }}
+{{- else if or (eq $.client.Adapter "mysql") (eq $.client.Adapter "sqlite") }}
 func (a *Adapter) Exec(query string, args ...interface{}) (sql.Result, error) {
 	matched1, err := regexp.MatchString(`.* IN (.*?)`, query)
 	if err != nil {
@@ -112,7 +112,7 @@ func (r *Rows) Scan(v interface{}) error {
 	}
 	{{- if eq $.client.Adapter "postgresql" }}
 	rows, err := r.adapter.db.Query(rebind(DOLLAR, query), args...)
-	{{- else if eq $.client.Adapter "mysql" }}
+	{{- else if or (eq $.client.Adapter "mysql") (eq $.client.Adapter "sqlite") }}
 	rows, err := r.adapter.db.Query(query, args...)
 	{{- end}}
 	if err != nil {
@@ -149,7 +149,7 @@ func (r *Row) Scan(v interface{}) error {
 	}
     {{- if eq $.client.Adapter "postgresql" }}
     rows, err := r.adapter.db.Query(rebind(DOLLAR, query), args...)
-    {{- else if eq $.client.Adapter "mysql" }}
+    {{- else if or (eq $.client.Adapter "mysql") (eq $.client.Adapter "sqlite") }}
     rows, err := r.adapter.db.Query(query, args...)
     {{- end}}
 	if err != nil {
