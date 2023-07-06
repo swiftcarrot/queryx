@@ -32,7 +32,7 @@ func (d *Database) CreateSQLiteSchema(dbName string) *schema.Schema {
 			switch c.Type {
 			case "id":
 				col.SetType(&schema.IntegerType{T: "INTEGER"})
-			case "string":
+			case "string", "uuid":
 				col.SetType(&schema.StringType{T: "varchar", Size: 0})
 				if c.Default != nil {
 					d, ok := c.Default.(string)
@@ -43,6 +43,15 @@ func (d *Database) CreateSQLiteSchema(dbName string) *schema.Schema {
 			case "text":
 				col.SetType(&schema.StringType{T: "text", Size: 0})
 			case "integer":
+				if c.Default != nil {
+					d, ok := c.Default.(int)
+					if ok {
+						col.SetType(&schema.IntegerType{T: "integer"}).SetDefault(&schema.RawExpr{X: strconv.Itoa(d)})
+					}
+				} else {
+					col.SetType(&schema.IntegerType{T: "integer"})
+				}
+			case "bigint":
 				if c.Default != nil {
 					d, ok := c.Default.(int)
 					if ok {
@@ -77,6 +86,9 @@ func (d *Database) CreateSQLiteSchema(dbName string) *schema.Schema {
 				col.SetType(&schema.TimeType{T: "datetime"})
 			case "jsonb":
 				col.SetType(&schema.JSONType{T: "jsonb"})
+			default:
+				fmt.Printf("This type is not supported:%+v", col.Type)
+
 			}
 
 			col.SetNull(c.Null)
@@ -100,6 +112,7 @@ func (d *Database) CreateSQLiteSchema(dbName string) *schema.Schema {
 		}
 
 		public.AddTables(t)
+		public.Name = "main"
 	}
 
 	return public
