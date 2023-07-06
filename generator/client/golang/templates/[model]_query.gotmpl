@@ -88,7 +88,7 @@ func (q *{{ $.model.Name }}Query) Create(change *queryx.{{ $.model.Name }}Change
 		return nil, err
 	}
 
-	{{- else if eq .client.Adapter "mysql"}}
+    {{- else if eq .client.Adapter "mysql"}}
     query, args := queryx.NewInsert().
     	Into("{{ $.model.TableName }}").
     	Columns(columns...).
