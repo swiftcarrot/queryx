@@ -27,6 +27,21 @@ import (
 	{{- end -}}
 {{ end }}
 
+{{ define "mysql_primary_key_custom" }}
+	{{- if gt (len $.PrimaryKey.Columns) 0 -}}
+		q.schema.And(
+		{{- range $i, $c := index $.PrimaryKey.Columns -}}
+			{{ if $i }}, {{ end }}q.schema.{{ $.Name }}{{ $c.Name | pascal }}.EQ(change.{{ $c.Name | pascal | goKeywordFix }}.Val)
+		{{- end -}})
+	{{- end -}}
+{{ end }}
+
+
+{{ define "mysql_primary_key_default" }}
+	{{- $c := index $.PrimaryKey.Columns 0 -}}
+	q.schema.{{ .Name }}{{ $c.Name | pascal }}.EQ({{ $c.Name | camel | goKeywordFix }})
+{{- end }}
+
 type {{ $.model.Name }}Query struct {
 	adapter *queryx.Adapter
 	schema *queryx.Schema
@@ -61,16 +76,49 @@ func (q *{{ $.model.Name }}Query) Create(change *queryx.{{ $.model.Name }}Change
 	}
 	{{- end }}
  	columns, values := change.Changes()
+    var row {{ $.model.Name }}
+ 	{{- if eq .client.Adapter "postgresql"}}
 	query, args := queryx.NewInsert().
 		Into("{{ $.model.TableName }}").
 		Columns(columns...).
 		Values(values...).
 		Returning("{{range $i, $e := .model.Columns}}{{if $i}},{{end}}{{.Name}}{{end}}").ToSQL()
-	var row {{ $.model.Name }}
 	err := q.adapter.QueryOne(query, args...).Scan(&row)
 	if err != nil {
 		return nil, err
 	}
+
+	{{- else if eq .client.Adapter "mysql"}}
+    query, args := queryx.NewInsert().
+    	Into("{{ $.model.TableName }}").
+    	Columns(columns...).
+    	Values(values...).ToSQL()
+    result, err := q.adapter.Exec(query, args...)
+    if err != nil {
+    	return nil, err
+    }
+    {{- if eq $.model.DefaultPrimaryKey false }}
+    affected, err := result.RowsAffected()
+    if affected==0 || err!=nil{
+    	return nil, fmt.Errorf("insert fail:%+v, or affected rows equal to 0",err)
+    }
+    u, err := q.Where({{ template "mysql_primary_key_custom" $.model }}).First()
+    if err != nil {
+    	return nil,err
+    }
+    {{- else}}
+    id, err := result.LastInsertId()
+    if err != nil {
+    	return nil, fmt.Errorf("insert fail:%+v", err)
+    }
+    u, err := q.Where({{ template "mysql_primary_key_default" $.model }}).First()
+    if err != nil {
+    	return nil,err
+    }
+    {{ end}}
+
+    row=*u
+	{{- end }}
 
 	row.schema = q.schema
 	row.queries = q.queries
@@ -101,11 +149,23 @@ func (q *{{.model.Name}}Query) BulkCreate(changes []*queryx.{{.model.Name}}Chang
 		insert = insert.Values(values...)
 	}
 	query, args:=insert.ToSQL()
+
+	{{- if eq .client.Adapter "postgresql"}}
 	rows, err := q.adapter.Exec(query,args...)
 	if err != nil {
 		return rows, err
 	}
-	return rows, nil
+	{{- else if eq .client.Adapter "mysql"}}
+    res, err := q.adapter.Exec(query, args...)
+    if err != nil {
+    	return 0, err
+    }
+    rows, err := res.RowsAffected()
+    if err != nil {
+    	return 0,err
+    }
+	{{- end}}
+    return rows, nil
 }
 
 func (q *{{ $.model.Name }}Query) Delete({{ template "primary_key_params" $.model.PrimaryKey }}) (int64, error) {
@@ -114,7 +174,16 @@ func (q *{{ $.model.Name }}Query) Delete({{ template "primary_key_params" $.mode
 	if err != nil {
 		return 0, err
 	}
+	{{- if eq .client.Adapter "postgresql"}}
 	return result, err
+	{{- else if eq .client.Adapter "mysql"}}
+	rows, err := result.RowsAffected()
+    if err != nil {
+    	return 0, err
+    }
+    return rows, err
+	{{- end}}
+
 }
 
 func (q *{{.model.Name}}Query) Find({{ template "primary_key_params" $.model.PrimaryKey }}) (*{{.model.Name}}, error) {
@@ -503,7 +572,15 @@ func (q *{{ $.model.Name }}Query) UpdateAll(change *queryx.{{ $.model.Name }}Cha
 	if err != nil {
 		return 0, err
 	}
-	return result, err
+	{{- if eq .client.Adapter "postgresql"}}
+    return result, err
+    {{- else if eq .client.Adapter "mysql"}}
+    rows, err := result.RowsAffected()
+    if err != nil {
+    	return 0, err
+    }
+    return rows, err
+    {{- end}}
 }
 
 func (q *{{ $.model.Name }}Query) DeleteAll() (int64, error) {
@@ -512,5 +589,13 @@ func (q *{{ $.model.Name }}Query) DeleteAll() (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	return result, err
+	{{- if eq .client.Adapter "postgresql"}}
+    return result, err
+    {{- else if eq .client.Adapter "mysql"}}
+    rows, err := result.RowsAffected()
+    if err != nil {
+    	return 0, err
+    }
+    return rows, err
+    {{- end}}
 }

@@ -10,6 +10,8 @@ import (
 	_ "github.com/lib/pq"
 	{{- else if eq $.client.Adapter "mysql" }}
 	_ "github.com/go-sql-driver/mysql"
+	{{- else if eq $.client.Adapter "sqlite"  }}
+	_ "github.com/mattn/go-sqlite3"
 	{{- end }}
 )
 
@@ -26,6 +28,7 @@ func NewAdapter(db DB) *Adapter {
 	return &Adapter{db: db}
 }
 
+{{- if eq $.client.Adapter "postgresql" }}
 func (a *Adapter) Exec(query string, args ...interface{}) (int64, error) {
 	matched1, err := regexp.MatchString(`.* IN (.*?)`, query)
 	if err != nil {
@@ -47,6 +50,30 @@ func (a *Adapter) Exec(query string, args ...interface{}) (int64, error) {
 	}
 	return result.RowsAffected()
 }
+{{- else if eq $.client.Adapter "mysql" }}
+func (a *Adapter) Exec(query string, args ...interface{}) (sql.Result, error) {
+	matched1, err := regexp.MatchString(`.* IN (.*?)`, query)
+	if err != nil {
+		return nil, err
+	}
+	matched2, err := regexp.MatchString(`.* in (.*?)`, query)
+	if err != nil {
+		return nil, err
+	}
+	if matched1 || matched2 {
+		query, args, err = In(query, args...)
+		if err != nil {
+			return nil, err
+		}
+	}
+	result, err := a.db.Exec(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	return result, err
+}
+{{- end}}
+
 
 func (a *Adapter) Query(query string, args ...interface{}) *Rows {
 	return &Rows{
@@ -83,7 +110,11 @@ func (r *Rows) Scan(v interface{}) error {
 			return err
 		}
 	}
+	{{- if eq $.client.Adapter "postgresql" }}
 	rows, err := r.adapter.db.Query(rebind(DOLLAR, query), args...)
+	{{- else if eq $.client.Adapter "mysql" }}
+	rows, err := r.adapter.db.Query(query, args...)
+	{{- end}}
 	if err != nil {
 		return err
 	}
@@ -116,7 +147,11 @@ func (r *Row) Scan(v interface{}) error {
 			return err
 		}
 	}
-	rows, err := r.adapter.db.Query(rebind(DOLLAR, query), args...)
+	{{- if eq $.client.Adapter "postgresql" }}
+    rows, err := r.adapter.db.Query(rebind(DOLLAR, query), args...)
+    {{- else if eq $.client.Adapter "mysql" }}
+    rows, err := r.adapter.db.Query(query, args...)
+    {{- end}}
 	if err != nil {
 		return err
 	}
