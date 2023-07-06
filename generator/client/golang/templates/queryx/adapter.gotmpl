@@ -28,7 +28,7 @@ func NewAdapter(db DB) *Adapter {
 	return &Adapter{db: db}
 }
 
-{{- if eq $.client.Adapter "postgresql" }}
+{{- if or (eq $.client.Adapter "postgresql") (eq $.client.Adapter "sqlite") }}
 func (a *Adapter) Exec(query string, args ...interface{}) (int64, error) {
 	matched1, err := regexp.MatchString(`.* IN (.*?)`, query)
 	if err != nil {
@@ -50,7 +50,7 @@ func (a *Adapter) Exec(query string, args ...interface{}) (int64, error) {
 	}
 	return result.RowsAffected()
 }
-{{- else if or (eq $.client.Adapter "mysql") (eq $.client.Adapter "sqlite") }}
+{{- else if eq $.client.Adapter "mysql" }}
 func (a *Adapter) Exec(query string, args ...interface{}) (sql.Result, error) {
 	matched1, err := regexp.MatchString(`.* IN (.*?)`, query)
 	if err != nil {

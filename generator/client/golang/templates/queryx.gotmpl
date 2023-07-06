@@ -40,6 +40,8 @@ func NewClientWithEnv(env string) (*QXClient, error) {
 	db, err := sql.Open("postgres", config.URL)
 	{{- else if eq $.client.Adapter "mysql" }}
 	db, err := sql.Open("mysql", config.URL)
+    {{- else if eq $.client.Adapter "sqlite" }}
+    db, err := sql.Open("sqlite3", config.URL)
 	{{- end }}
 	if err != nil {
 		return nil, err

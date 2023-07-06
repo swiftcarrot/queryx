@@ -10,7 +10,7 @@ require (
 	github.com/google/go-cmp v0.5.8 // indirect
 	github.com/hashicorp/hcl/v2 v2.13.0
 	github.com/lib/pq v1.10.5
-	github.com/mattn/go-sqlite3 v1.14.16
+	github.com/mattn/go-sqlite3 v1.14.17
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 	github.com/spf13/cobra v1.4.0
 	github.com/stretchr/testify v1.8.1
