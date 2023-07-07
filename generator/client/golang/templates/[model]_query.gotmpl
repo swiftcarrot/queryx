@@ -66,6 +66,10 @@ func (q *{{ $.model.Name }}Query) Create(change *queryx.{{ $.model.Name }}Change
 	if q.err != nil {
  		return nil, q.err
  	}
+ 	var row {{ $.model.Name }}
+    var query string
+    var args []interface{}
+
 	{{- if eq $.model.Timestamps true }}
 	now := queryx.Now("2006-01-02 15:04:05.000")
 	if !change.CreatedAt.Set {
@@ -75,28 +79,41 @@ func (q *{{ $.model.Name }}Query) Create(change *queryx.{{ $.model.Name }}Change
 		change.SetUpdatedAt(now)
 	}
 	{{- end }}
- 	columns, values := change.Changes()
-    var row {{ $.model.Name }}
+
  	{{- if or (eq .client.Adapter "postgresql") (eq $.client.Adapter "sqlite") }}
-	query, args := queryx.NewInsert().
-		Into("{{ $.model.TableName }}").
-		Columns(columns...).
-		Values(values...).
-		Returning("{{range $i, $e := .model.Columns}}{{if $i}},{{end}}{{.Name}}{{end}}").ToSQL()
+ 	if change ==nil {
+ 	query, args = queryx.NewInsert().Into("{{ $.model.TableName }}").Returning("{{range $i, $e := .model.Columns}}{{if $i}},{{end}}{{.Name}}{{end}}").ToSQL()
+
+	} else if change != nil {
+	    if !change.IsSet() {
+	     	query, args = queryx.NewInsert().Into("{{ $.model.TableName }}").Returning("{{range $i, $e := .model.Columns}}{{if $i}},{{end}}{{.Name}}{{end}}").ToSQL()
+	    } else {
+	    columns, values := change.Changes()
+        query, args = queryx.NewInsert().Into("{{ $.model.TableName }}").Columns(columns...).Values(values...).Returning("{{range $i, $e := .model.Columns}}{{if $i}},{{end}}{{.Name}}{{end}}").ToSQL()
+	    }
+	}
 	err := q.adapter.QueryOne(query, args...).Scan(&row)
 	if err != nil {
 		return nil, err
 	}
 
     {{- else if eq .client.Adapter "mysql"}}
-    query, args := queryx.NewInsert().
-    	Into("{{ $.model.TableName }}").
-    	Columns(columns...).
-    	Values(values...).ToSQL()
+    if change ==nil {
+    query, args = queryx.NewInsert().Into("{{ $.model.TableName }}").Values().ToSQL()
+    } else if change != nil {
+        if !change.IsSet() {
+            query, args = queryx.NewInsert().Into("{{ $.model.TableName }}").Values().ToSQL()
+        } else {
+        columns, values := change.Changes()
+        query, args = queryx.NewInsert().Into("{{ $.model.TableName }}").Columns(columns...).Values(values...).ToSQL()
+        }
+    }
+
     result, err := q.adapter.ExecInternal(query, args...)
     if err != nil {
     	return nil, err
     }
+
     {{- if eq $.model.DefaultPrimaryKey false }}
     affected, err := result.RowsAffected()
     if affected==0 || err!=nil{
@@ -106,6 +123,7 @@ func (q *{{ $.model.Name }}Query) Create(change *queryx.{{ $.model.Name }}Change
     if err != nil {
     	return nil,err
     }
+
     {{- else}}
     id, err := result.LastInsertId()
     if err != nil {
@@ -115,6 +133,7 @@ func (q *{{ $.model.Name }}Query) Create(change *queryx.{{ $.model.Name }}Change
     if err != nil {
     	return nil,err
     }
+
     {{ end}}
 
     row=*u
