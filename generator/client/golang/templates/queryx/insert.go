@@ -49,6 +49,8 @@ func (s *InsertStatement) ToSQL() (string, []interface{}) {
 
 	if len(s.columns) > 0 {
 		sql = fmt.Sprintf("%s(%s)", sql, strings.Join(s.columns, ", "))
+	} else {
+		sql = fmt.Sprintf("%s DEFAULT VALUES", sql)
 	}
 
 	values := []string{}
@@ -59,7 +61,9 @@ func (s *InsertStatement) ToSQL() (string, []interface{}) {
 		}
 		values = append(values, fmt.Sprintf("(%s)", strings.Join(ss, ", ")))
 	}
-	sql = fmt.Sprintf("%s VALUES %s", sql, strings.Join(values, ", "))
+	if len(values) > 0 {
+		sql = fmt.Sprintf("%s VALUES %s", sql, strings.Join(values, ", "))
+	}
 
 	if len(s.returning) > 0 {
 		sql = fmt.Sprintf("%s RETURNING %s", sql, strings.Join(s.returning, ", "))

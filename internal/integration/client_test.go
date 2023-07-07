@@ -65,17 +65,17 @@ func TestCreate(t *testing.T) {
 	require.True(t, user.ID > 0)
 }
 
-//func TestCreateEmpty(t *testing.T) {
-//	tag, err := c.QueryTag().Create(nil)
-//	require.NoError(t, err)
-//	require.True(t, tag.ID > 0)
-//	require.True(t, tag.Name.Null)
-//
-//	tag, err = c.QueryTag().Create(c.ChangeTag())
-//	require.NoError(t, err)
-//	require.True(t, tag.ID > 0)
-//	require.True(t, tag.Name.Null)
-//}
+func TestCreateEmpty(t *testing.T) {
+	tag, err := c.QueryTag().Create(nil)
+	require.NoError(t, err)
+	require.True(t, tag.ID > 0)
+	require.True(t, tag.Name.Null)
+
+	tag, err = c.QueryTag().Create(c.ChangeTag())
+	require.NoError(t, err)
+	require.True(t, tag.ID > 0)
+	require.True(t, tag.Name.Null)
+}
 
 func TestFind(t *testing.T) {
 	tag, err := c.QueryTag().Create(c.ChangeTag().SetName("test"))
