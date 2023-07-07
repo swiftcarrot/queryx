@@ -38,3 +38,5 @@ test-sqlite: install
 	cd internal/integration && QUERYX_ENV=test queryx db:migrate --schema sqlite.hcl
 	cd internal/integration && QUERYX_ENV=test queryx generate --schema sqlite.hcl
 	cd internal/integration && go test ./...
+
+test: test-postgresql test-sqlite test-mysql

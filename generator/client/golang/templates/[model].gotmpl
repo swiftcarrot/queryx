@@ -31,10 +31,13 @@ type {{ $.model.Name }} struct {
 // String implements the stringer interface.
 func ({{ $m }} *{{.model.Name}}) String() string {
 	var b strings.Builder
-	b.WriteString("{{ $.model.Name }}(")
+	b.WriteString("({{ $.model.Name }} ")
 	{{- range $i, $c := $.model.Columns }}
-	b.WriteString(fmt.Sprintf("{{ $c.Name }}=%v", {{ $m }}.{{ pascal $c.Name }}))
+	b.WriteString(fmt.Sprintf("{{ $c.Name }}: \"%+v\"", {{ $m }}.{{ pascal $c.Name }}))
+	{{$l := len $.model.Columns}}
+	{{if ne $i (sub $l 1)}}
 	b.WriteString(", ")
+	{{- end}}
 	{{- end }}
 	b.WriteString(")")
 	return b.String()

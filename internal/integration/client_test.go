@@ -387,7 +387,7 @@ func TestModelStringer(t *testing.T) {
 	code, err := c.QueryCode().Create(c.ChangeCode().SetKey("code key").SetType("code type"))
 	require.NoError(t, err)
 
-	s := fmt.Sprintf(`Code(type=%+v, key=%+v, )`, code.Type, code.Key)
+	s := fmt.Sprintf(`(Code type: "%s", key: "%s")`, code.Type, code.Key)
 	require.Equal(t, s, code.String())
 }
 
