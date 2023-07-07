@@ -48,11 +48,11 @@ func (s *InsertStatement) ToSQL() (string, []interface{}) {
 	sql := fmt.Sprintf("INSERT INTO %s", s.into)
 
 	if len(s.columns) > 0 {
-	    {{- if eq .client.Adapter "mysql"}}
-	    sql = fmt.Sprintf("%s(`%s`)", sql, strings.Join(s.columns, "`, `"))
-	    {{- else}}
-	    sql = fmt.Sprintf("%s(%s)", sql, strings.Join(s.columns, ", "))
-	    {{- end}}
+		{{- if eq .client.Adapter "mysql"}}
+		sql = fmt.Sprintf("%s(`%s`)", sql, strings.Join(s.columns, "`, `"))
+		{{- else}}
+		sql = fmt.Sprintf("%s(%s)", sql, strings.Join(s.columns, ", "))
+		{{- end}}
 	} {{- if ne .client.Adapter "mysql"}} else {
 		sql = fmt.Sprintf("%s DEFAULT VALUES", sql)
 	}
