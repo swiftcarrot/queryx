@@ -52,7 +52,7 @@ func (s *InsertStatement) ToSQL() (string, []interface{}) {
 	} {{- if ne .client.Adapter "mysql"}} else {
 		sql = fmt.Sprintf("%s DEFAULT VALUES", sql)
 	}
-    {{- end}}
+	{{- end}}
 	values := []string{}
 	for _, v := range s.values {
 		ss := []string{}

@@ -67,8 +67,8 @@ func (q *{{ $.model.Name }}Query) Create(change *queryx.{{ $.model.Name }}Change
  		return nil, q.err
  	}
  	var row {{ $.model.Name }}
-    var query string
-    var args []interface{}
+ 	var query string
+ 	var args []interface{}
 
 	{{- if eq $.model.Timestamps true }}
 	now := queryx.Now("2006-01-02 15:04:05.000")
