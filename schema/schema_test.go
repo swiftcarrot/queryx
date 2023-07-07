@@ -6,12 +6,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestPostgreSQLWithoutPrimaryKey(t *testing.T) {
+func TestTableWithoutPrimaryKey(t *testing.T) {
 	schema := NewSchema()
 	database := schema.NewDatabase("test")
 	user := database.NewModel("User")
 	user.AddColumn(&Column{Name: "name", Type: "string"})
 
 	require.Nil(t, user.PrimaryKey)
-	database.CreatePostgreSQLSchema("")
+	database.CreatePostgreSQLSchema("test")
+	database.CreateMySQLSchema("test")
+	database.CreateSQLiteSchema("test")
 }

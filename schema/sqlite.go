@@ -87,15 +87,17 @@ func (d *Database) CreateSQLiteSchema(dbName string) *schema.Schema {
 			columnMap[c.Name] = col
 		}
 
-		cols := []*schema.Column{}
-		for _, name := range model.PrimaryKey.ColumnNames {
-			if _, ok := m[name]; !ok {
-				cols = append(cols, columnMap[name])
+		if model.PrimaryKey != nil {
+			cols := []*schema.Column{}
+			for _, name := range model.PrimaryKey.ColumnNames {
+				if _, ok := m[name]; !ok {
+					cols = append(cols, columnMap[name])
+				}
 			}
-		}
-		if len(m) == 0 {
-			pk := schema.NewPrimaryKey(cols...)
-			t.SetPrimaryKey(pk)
+			if len(m) == 0 {
+				pk := schema.NewPrimaryKey(cols...)
+				t.SetPrimaryKey(pk)
+			}
 		}
 
 		for _, i := range model.Index {

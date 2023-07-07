@@ -55,11 +55,13 @@ func (d *Database) CreateMySQLSchema(dbName string) *schema.Schema {
 		}
 
 		cols := []*schema.Column{}
-		for _, name := range model.PrimaryKey.ColumnNames {
-			cols = append(cols, columnMap[name])
+		if model.PrimaryKey != nil {
+			for _, name := range model.PrimaryKey.ColumnNames {
+				cols = append(cols, columnMap[name])
+			}
+			pk := schema.NewPrimaryKey(cols...)
+			t.SetPrimaryKey(pk)
 		}
-		pk := schema.NewPrimaryKey(cols...)
-		t.SetPrimaryKey(pk)
 
 		for _, i := range model.Index {
 			name := fmt.Sprintf("%s_%s_index", i.TableName, strings.Join(i.ColumnNames, "_"))
