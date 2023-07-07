@@ -39,9 +39,10 @@ func (d *Database) CreateMySQLSchema(dbName string) *schema.Schema {
 			case "date":
 				col.SetType(&schema.TimeType{T: mysql.TypeDate})
 			case "time":
-				col.SetType(&schema.TimeType{T: mysql.TypeTime})
-			case "datetime":
 				col.SetType(&schema.TimeType{T: mysql.TypeDateTime})
+			case "datetime":
+				i := 6
+				col.SetType(&schema.TimeType{T: mysql.TypeDateTime, Precision: &i})
 			case "json", "jsonb":
 				col.SetType(&schema.JSONType{T: mysql.TypeJSON})
 			case "uuid":
