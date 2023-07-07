@@ -287,7 +287,7 @@ func (db *Database) modelFromBlock(block *hcl.Block, ctx *hcl.EvalContext) (*Mod
 			if err != nil {
 				return nil, err
 			}
-			m.Columns = append(m.Columns, col)
+			m.AddColumn(col)
 		case "has_many":
 			hasMany, err := hasManyFromBlock(block, ctx)
 			if err != nil {

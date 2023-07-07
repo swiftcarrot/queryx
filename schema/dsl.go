@@ -62,6 +62,10 @@ func (m *Model) AddDefaultPrimaryKey() {
 	}
 }
 
+func (m *Model) AddColumn(column *Column) {
+	m.Columns = append(m.Columns, column)
+}
+
 // custom primary key for a model
 func (m *Model) SetPrimaryKey(columnNames []string) {
 	cols := []*Column{}
@@ -93,14 +97,6 @@ func (m *Model) AddTimestamps() {
 		Type: "datetime",
 		Null: false,
 	})
-}
-
-func (m *Model) NewColumn(name string, colType string) *Column {
-	return &Column{
-		Name: name,
-		Type: colType,
-		Null: true,
-	}
 }
 
 func (m *Model) AddHasMany(hasMany *HasMany) {

@@ -1,9 +1,5 @@
 package schema
 
-import (
-	"strings"
-)
-
 type Model struct {
 	Database *Database
 	// model name in camel case
@@ -20,21 +16,6 @@ type Model struct {
 	// whether to automatically add a default primary key column named "id", default true
 	DefaultPrimaryKey bool
 	PrimaryKey        *PrimaryKey
-}
-
-// TODO: pretty print a model
-func (m *Model) String() string {
-	var b strings.Builder
-	b.WriteString(m.Name)
-	b.WriteString("(columns=")
-	for _, c := range m.Columns {
-		b.WriteString(c.Name)
-		b.WriteString(",")
-	}
-	b.WriteString("primary_key=")
-	b.WriteString(strings.Join(m.PrimaryKey.ColumnNames, ", "))
-	b.WriteString(")")
-	return b.String()
 }
 
 type PrimaryKey struct {
