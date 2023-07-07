@@ -198,7 +198,7 @@ func TestJSON(t *testing.T) {
 	require.Equal(t, float64(payload["weight"].(int)), user.Payload.Val["weight"])
 }
 
-func TestPrimaryKey(t *testing.T) {
+func TestCompositePrimaryKey(t *testing.T) {
 	_, _ = c.QueryCode().DeleteAll()
 	code, err := c.QueryCode().Create(c.ChangeCode().SetType("type").SetKey("key"))
 	require.NoError(t, err)
@@ -212,14 +212,12 @@ func TestPrimaryKey(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, "type", code.Type)
 	require.Equal(t, "key", code.Key)
+}
 
-	_, _ = c.QueryClient().DeleteAll()
+func TestNoPrimaryKey(t *testing.T) {
 	client, err := c.QueryClient().Create(c.ChangeClient().SetName("client"))
 	require.NoError(t, err)
-	require.Equal(t, "client", client.Name)
-
-	i, _ := c.QueryClient().Delete("client")
-	require.Equal(t, int64(1), i)
+	require.Equal(t, "client", client.Name.Val)
 }
 
 func TestBoolean(t *testing.T) {

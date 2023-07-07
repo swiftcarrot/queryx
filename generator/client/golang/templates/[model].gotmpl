@@ -59,6 +59,7 @@ func ({{ $m }} *{{.model.Name}}) applyChange(change *queryx.{{.model.Name}}Chang
 	return nil
 }
 
+{{- if $.model.PrimaryKey }}
 func ({{ $m }} *{{.model.Name}}) Update(change *queryx.{{.model.Name}}Change) error {
 	_, err := {{ $m }}.queries.Query{{.model.Name}}().Where({{$m}}.schema.And(
 	{{- range $i, $c := $.model.PrimaryKey.Columns -}}
@@ -79,3 +80,4 @@ func ({{ $m }} *{{.model.Name}}) Delete() error {
 	{{- end -}})
 	return err
 }
+{{- end }}

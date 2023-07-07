@@ -81,62 +81,58 @@ func (q *{{ $.model.Name }}Query) Create(change *queryx.{{ $.model.Name }}Change
 	{{- end }}
 
  	{{- if or (eq .client.Adapter "postgresql") (eq $.client.Adapter "sqlite") }}
- 	if change ==nil {
- 	query, args = queryx.NewInsert().Into("{{ $.model.TableName }}").Returning("{{range $i, $e := .model.Columns}}{{if $i}},{{end}}{{.Name}}{{end}}").ToSQL()
-
+	if change == nil {
+		query, args = queryx.NewInsert().Into("{{ $.model.TableName }}").Returning("{{range $i, $e := .model.Columns}}{{if $i}},{{end}}{{.Name}}{{end}}").ToSQL()
 	} else if change != nil {
-	    if !change.IsSet() {
-	     	query, args = queryx.NewInsert().Into("{{ $.model.TableName }}").Returning("{{range $i, $e := .model.Columns}}{{if $i}},{{end}}{{.Name}}{{end}}").ToSQL()
-	    } else {
+		if !change.IsSet() {
+	    query, args = queryx.NewInsert().Into("{{ $.model.TableName }}").Returning("{{range $i, $e := .model.Columns}}{{if $i}},{{end}}{{.Name}}{{end}}").ToSQL()
+	  } else {
 	    columns, values := change.Changes()
-        query, args = queryx.NewInsert().Into("{{ $.model.TableName }}").Columns(columns...).Values(values...).Returning("{{range $i, $e := .model.Columns}}{{if $i}},{{end}}{{.Name}}{{end}}").ToSQL()
-	    }
+      query, args = queryx.NewInsert().Into("{{ $.model.TableName }}").Columns(columns...).Values(values...).Returning("{{range $i, $e := .model.Columns}}{{if $i}},{{end}}{{.Name}}{{end}}").ToSQL()
+	  }
 	}
 	err := q.adapter.QueryOne(query, args...).Scan(&row)
 	if err != nil {
 		return nil, err
 	}
 
-    {{- else if eq .client.Adapter "mysql"}}
-    if change ==nil {
-    query, args = queryx.NewInsert().Into("{{ $.model.TableName }}").Values().ToSQL()
-    } else if change != nil {
-        if !change.IsSet() {
-            query, args = queryx.NewInsert().Into("{{ $.model.TableName }}").Values().ToSQL()
-        } else {
-        columns, values := change.Changes()
-        query, args = queryx.NewInsert().Into("{{ $.model.TableName }}").Columns(columns...).Values(values...).ToSQL()
-        }
+  {{- else if eq .client.Adapter "mysql"}}
+  if change == nil {
+		query, args = queryx.NewInsert().Into("{{ $.model.TableName }}").Values().ToSQL()
+  } else if change != nil {
+    if !change.IsSet() {
+    	query, args = queryx.NewInsert().Into("{{ $.model.TableName }}").Values().ToSQL()
+    } else {
+    	columns, values := change.Changes()
+      query, args = queryx.NewInsert().Into("{{ $.model.TableName }}").Columns(columns...).Values(values...).ToSQL()
     }
+  }
 
-    result, err := q.adapter.ExecInternal(query, args...)
-    if err != nil {
-    	return nil, err
-    }
+  result, err := q.adapter.ExecInternal(query, args...)
+  if err != nil {
+    return nil, err
+  }
 
-    {{- if eq $.model.DefaultPrimaryKey false }}
-    affected, err := result.RowsAffected()
-    if affected==0 || err!=nil{
-    	return nil, fmt.Errorf("insert fail:%+v, or affected rows equal to 0",err)
-    }
-    u, err := q.Where({{ template "mysql_primary_key_custom" $.model }}).First()
-    if err != nil {
-    	return nil,err
-    }
-
-    {{- else}}
-    id, err := result.LastInsertId()
-    if err != nil {
-    	return nil, fmt.Errorf("insert fail:%+v", err)
-    }
-    u, err := q.Where({{ template "mysql_primary_key_default" $.model }}).First()
-    if err != nil {
-    	return nil,err
-    }
-
-    {{ end}}
-
-    row=*u
+  {{- if eq $.model.DefaultPrimaryKey false }}
+  affected, err := result.RowsAffected()
+  if affected == 0 || err != nil{
+    return nil, fmt.Errorf("insert fail:%+v, or affected rows equal to 0",err)
+  }
+  u, err := q.Where({{ template "mysql_primary_key_custom" $.model }}).First()
+  if err != nil {
+    return nil,err
+  }
+  {{- else }}
+  id, err := result.LastInsertId()
+  if err != nil {
+    return nil, fmt.Errorf("insert fail:%+v", err)
+  }
+  u, err := q.Where({{ template "mysql_primary_key_default" $.model }}).First()
+  if err != nil {
+    return nil,err
+  }
+  {{ end }}
+  row =* u
 	{{- end }}
 
 	row.schema = q.schema
@@ -163,11 +159,11 @@ func (q *{{.model.Name}}Query) BulkCreate(changes []*queryx.{{.model.Name}}Chang
 		values = append(values, now)
 		{{- end}}
 		if i == 0 {
-			insert=insert.Columns(columns...)
+			insert = insert.Columns(columns...)
 		}
 		insert = insert.Values(values...)
 	}
-	query, args:=insert.ToSQL()
+	query, args := insert.ToSQL()
 	rows, err := q.adapter.Exec(query,args...)
 	if err != nil {
 		return rows, err
@@ -175,6 +171,7 @@ func (q *{{.model.Name}}Query) BulkCreate(changes []*queryx.{{.model.Name}}Chang
 	return rows, nil
 }
 
+{{- if $.model.PrimaryKey }}
 func (q *{{ $.model.Name }}Query) Delete({{ template "primary_key_params" $.model.PrimaryKey }}) (int64, error) {
 	query, args := queryx.NewDelete().From("{{.model.TableName}}").Where({{ template "primary_key_where" $.model }}).ToSQL()
 	result, err := q.adapter.Exec(query, args...)
@@ -196,6 +193,7 @@ func (q *{{.model.Name}}Query) Find({{ template "primary_key_params" $.model.Pri
 	res.queries = q.queries
 	return res, err
 }
+{{- end }}
 
 func (q *{{.model.Name}}Query) FindBy(where *queryx.Clause) (*{{.model.Name}}, error) {
 	return q.Where(where).First()
