@@ -201,9 +201,9 @@ func TestJSON(t *testing.T) {
 func TestPrimaryKey(t *testing.T) {
 	_, _ = c.QueryCode().DeleteAll()
 	code, err := c.QueryCode().Create(c.ChangeCode().SetType("type").SetKey("key"))
+	require.NoError(t, err)
 	require.Equal(t, "type", code.Type)
 	require.Equal(t, "key", code.Key)
-	require.NoError(t, err)
 
 	_, err = c.QueryCode().Create(c.ChangeCode().SetType("type").SetKey("key"))
 	require.Error(t, err)
