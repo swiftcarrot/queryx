@@ -172,7 +172,7 @@ func (q *{{.model.Name}}Query) BulkCreate(changes []*queryx.{{.model.Name}}Chang
 	if err != nil {
 		return rows, err
 	}
-    return rows, nil
+	return rows, nil
 }
 
 func (q *{{ $.model.Name }}Query) Delete({{ template "primary_key_params" $.model.PrimaryKey }}) (int64, error) {
@@ -181,7 +181,7 @@ func (q *{{ $.model.Name }}Query) Delete({{ template "primary_key_params" $.mode
 	if err != nil {
 		return 0, err
 	}
-    return result, err
+	return result, err
 }
 
 func (q *{{.model.Name}}Query) Find({{ template "primary_key_params" $.model.PrimaryKey }}) (*{{.model.Name}}, error) {
@@ -455,7 +455,7 @@ func (q *{{.model.Name}}Query) All() ([]*{{.model.Name}}, error) {
 	}
 	{{- end }}
 
-	return {{ $var1 }}, nil
+  return {{ $var1 }}, nil
 }
 
 func (q *{{ $.model.Name }}Query) First() (*{{.model.Name}}, error) {
@@ -466,7 +466,7 @@ func (q *{{ $.model.Name }}Query) First() (*{{.model.Name}}, error) {
 	}
 	if len(results) > 0 {
 		return results[0], nil
-	}
+  }
 
 	return nil, nil
 }
@@ -481,7 +481,7 @@ func (q *{{ $.model.Name }}Query) Count() (int64, error) {
 	return 0, err
 	}
 
-	return res.Count, nil
+  return res.Count, nil
 }
 
 func (q *{{ $.model.Name }}Query) Avg(v string) (float64, error) {
@@ -548,9 +548,9 @@ func (q *{{ $.model.Name }}Query) Exists() (bool, error) {
 			return false, nil
 		}
 		return false, err
-	}
+  	}
 
-	return res.One == 1, nil
+  	return res.One == 1, nil
 }
 
 func (q *{{ $.model.Name }}Query) UpdateAll(change *queryx.{{ $.model.Name }}Change) (int64, error) {
@@ -566,18 +566,18 @@ func (q *{{ $.model.Name }}Query) UpdateAll(change *queryx.{{ $.model.Name }}Cha
 	{{- end }}
  	columns, values := change.Changes()
 	query, args := q.selectStatement.Update().Columns(columns...).Values(values...).ToSQL()
-    result, err := q.adapter.Exec(query, args...)
-    if err != nil {
-    	return 0, err
-    }
-    return result, err
-}
-
-func (q *{{ $.model.Name }}Query) DeleteAll() (int64, error) {
-	query, args := q.selectStatement.Delete().ToSQL()
 	result, err := q.adapter.Exec(query, args...)
 	if err != nil {
 		return 0, err
 	}
-    return result, err
+	return result, err
+}
+
+func (q *{{ $.model.Name }}Query) DeleteAll() (int64, error) {
+	query, args := q.selectStatement.Delete().ToSQL()
+  result, err := q.adapter.Exec(query, args...)
+  if err != nil {
+		return 0, err
+  }
+  return result, err
 }
