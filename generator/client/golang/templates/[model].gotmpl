@@ -76,25 +76,3 @@ func ({{ $m }} *{{.model.Name}}) Delete() error {
 	{{- end -}})
 	return err
 }
-
-{{- $ms := .client.Models }}
-{{- $m := .model.Name }}
-{{- range $v := .client.Models }}
-{{- range $v2 := $v.HasMany }}
-{{- if eq $v.Name $m }}
-{{- $singV2Through := firstWordUpperCamel $v2.Through }}
-{{- if ne  $singV2Through "" }}
-func ({{ $m }} *{{ $m }}) Query{{firstWordUpperCamel $v2.Name}}() *{{singular (firstWordUpperCamel $v2.Name)}}Query {
-	return {{$m}}.queries.Query{{singular (firstWordUpperCamel $v2.Name)}}().
-		Joins("inner join {{getTableNameOfThrough $v2.Through  $ms}} on {{getTableNameOfThrough $v2.Through  $ms}}.{{singular (getTableNameOfHasMany $v2  $ms)}}_id = {{getTableNameOfHasMany $v2  $ms}}.id").
-		Where({{$m}}.schema.{{singular $singV2Through}}{{singular (firstWordUpperCamel $m)}}ID.EQ({{$m}}.ID))
-}
-{{- else }}
-func ({{ $m }} *{{ $m }}) Query{{firstWordUpperCamel $v2.Name}}() *{{singular (firstWordUpperCamel $v2.Name)}}Query {
-	return {{ $m }}.queries.Query{{singular (firstWordUpperCamel $v2.Name)}}().
-		Where({{ $m }}.schema.{{singular (firstWordUpperCamel $v2.Name)}}{{singular (firstWordUpperCamel $m)}}ID.EQ({{$m}}.ID))
-}
-{{- end }}
-{{- end }}
-{{- end }}
-{{- end -}}
