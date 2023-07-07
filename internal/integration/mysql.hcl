@@ -3,7 +3,7 @@ database "db" {
   time_zone = "Asia/Shanghai"
 
   config "test" {
-    url = "user_test:queryx_test@tcp(localhost:3306)/queryx_test?parseTime=true&loc=Local"
+    url = "root:123456@tcp(localhost:3306)/queryx_test?parseTime=true&loc=Local"
   }
 
   generator "client-golang" {}

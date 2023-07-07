@@ -66,6 +66,9 @@ func (q *{{ $.model.Name }}Query) Create(change *queryx.{{ $.model.Name }}Change
 	if q.err != nil {
  		return nil, q.err
  	}
+ 	if change==nil{
+    	change=&queryx.{{ $.model.Name }}Change{}
+    }
 	{{- if eq $.model.Timestamps true }}
 	now := queryx.Now("2006-01-02 15:04:05.000")
 	if !change.CreatedAt.Set {
@@ -93,7 +96,7 @@ func (q *{{ $.model.Name }}Query) Create(change *queryx.{{ $.model.Name }}Change
     	Into("{{ $.model.TableName }}").
     	Columns(columns...).
     	Values(values...).ToSQL()
-    result, err := q.adapter.Exec(query, args...)
+    result, err := q.adapter.ExecInternal(query, args...)
     if err != nil {
     	return nil, err
     }
@@ -149,22 +152,10 @@ func (q *{{.model.Name}}Query) BulkCreate(changes []*queryx.{{.model.Name}}Chang
 		insert = insert.Values(values...)
 	}
 	query, args:=insert.ToSQL()
-
-	{{- if or (eq .client.Adapter "postgresql") (eq .client.Adapter "sqlite")}}
 	rows, err := q.adapter.Exec(query,args...)
 	if err != nil {
 		return rows, err
 	}
-    {{- else if eq .client.Adapter "mysql"}}
-    res, err := q.adapter.Exec(query, args...)
-    if err != nil {
-    	return 0, err
-    }
-    rows, err := res.RowsAffected()
-    if err != nil {
-    	return 0,err
-    }
-	{{- end}}
     return rows, nil
 }
 
@@ -174,16 +165,7 @@ func (q *{{ $.model.Name }}Query) Delete({{ template "primary_key_params" $.mode
 	if err != nil {
 		return 0, err
 	}
-    {{- if or (eq .client.Adapter "postgresql") (eq $.client.Adapter "sqlite") }}
     return result, err
-    {{- else if eq .client.Adapter "mysql"}}
-    rows, err := result.RowsAffected()
-    if err != nil {
-    	return 0, err
-    }
-    return rows, err
-	{{- end}}
-
 }
 
 func (q *{{.model.Name}}Query) Find({{ template "primary_key_params" $.model.PrimaryKey }}) (*{{.model.Name}}, error) {
@@ -568,19 +550,11 @@ func (q *{{ $.model.Name }}Query) UpdateAll(change *queryx.{{ $.model.Name }}Cha
 	{{- end }}
  	columns, values := change.Changes()
 	query, args := q.selectStatement.Update().Columns(columns...).Values(values...).ToSQL()
-	result, err := q.adapter.Exec(query, args...)
-	if err != nil {
-		return 0, err
-	}
-    {{- if or (eq .client.Adapter "postgresql") (eq $.client.Adapter "sqlite") }}
-    return result, err
-    {{- else if eq .client.Adapter "mysql"}}
-    rows, err := result.RowsAffected()
+    result, err := q.adapter.Exec(query, args...)
     if err != nil {
     	return 0, err
     }
-    return rows, err
-    {{- end}}
+    return result, err
 }
 
 func (q *{{ $.model.Name }}Query) DeleteAll() (int64, error) {
@@ -589,13 +563,5 @@ func (q *{{ $.model.Name }}Query) DeleteAll() (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-    {{- if or (eq .client.Adapter "postgresql") (eq $.client.Adapter "sqlite") }}
     return result, err
-    {{- else if eq .client.Adapter "mysql"}}
-    rows, err := result.RowsAffected()
-    if err != nil {
-    	return 0, err
-    }
-    return rows, err
-    {{- end}}
 }
