@@ -127,6 +127,7 @@ func (q *{{ $.model.Name }}Query) Create(change *queryx.{{ $.model.Name }}Change
 }
 
 {{- if $.model.PrimaryKey }}
+
 func (q *{{ $.model.Name }}Query) Delete({{ template "primary_key_params" $.model.PrimaryKey }}) (int64, error) {
 	query, args := queryx.NewDelete().From("{{.model.TableName}}").Where({{ template "primary_key_where" $.model }}).ToSQL()
 	result, err := q.adapter.Exec(query, args...)
@@ -187,10 +188,12 @@ func (q *{{.model.Name}}Query) Offset(offset int) *{{.model.Name}}Query {
 	q.selectStatement.Offset(offset)
 	return q
 }
+
 func (q *{{.model.Name}}Query) Group(group string) *{{.model.Name}}Query {
 	q.selectStatement.GroupBy(group)
 	return q
 }
+
 func (q *{{.model.Name}}Query) Having(having string) *{{.model.Name}}Query {
 	q.selectStatement.Having(having)
 	return q
