@@ -8,16 +8,6 @@ type {{ .model.Name }}Change struct {
 	{{- end }}
 }
 
-func (c *{{.model.Name}}Change) IsSet() bool {
-	{{- range $c := .model.Columns }}
-	{{- $f := $c.Name | pascal }}
-	if c.{{ $f }}.Set {
-		return true
-	}
-	{{- end }}
-	return false
-}
-
 func (c *{{.model.Name}}Change) Changes() (columns []string, values []interface{}) {
 	if c == nil {
 		return columns, values

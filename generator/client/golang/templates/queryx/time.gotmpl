@@ -16,12 +16,12 @@ type Time struct {
 }
 
 func parseTime(s string) (*time.Time, error) {
-    {{- if eq .client.Adapter "mysql"}}
-    s=fmt.Sprintf("2006-01-02 %+v",s)
-    layout:="2006-01-02 15:04:05"
+	{{- if eq $.client.Adapter "mysql" }}
+	s = fmt.Sprintf("2006-01-02 %+v", s)
+	layout := "2006-01-02 15:04:05"
  	{{- else if or (eq .client.Adapter "postgresql") (eq $.client.Adapter "sqlite") }}
-    layout:="15:04:05"
-    {{- end}}
+	layout := "15:04:05"
+	{{- end }}
 	loc, err := time.LoadLocation("{{ $.client.TimeZone }}")
 	if err != nil {
 		return nil, err
@@ -57,13 +57,13 @@ func (t *Time) Scan(value interface{}) error {
 		return err
 	}
 	t.Val, t.Null = n.Time, !n.Valid
-    {{- if eq .client.Adapter "mysql"}}
+	{{- if eq .client.Adapter "mysql" }}
 	loc, err := loadLocation()
-    if err != nil {
-    	return err
-    }
-    t.Val = t.Val.In(loc)
-    {{- end}}
+	if err != nil {
+		return err
+	}
+	t.Val = t.Val.In(loc)
+	{{- end }}
 	return nil
 }
 
