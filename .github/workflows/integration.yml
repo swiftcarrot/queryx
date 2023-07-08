@@ -96,6 +96,14 @@ jobs:
           cd internal/integration
           queryx db:migrate --schema mysql.hcl
           queryx generate --schema mysql.hcl
+      - name: yarn install
+        run: |
+          cd internal/integration
+          yarn install
+      - name: yarn test
+        run: |
+          cd internal/integration
+          yarn test
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
@@ -121,6 +129,14 @@ jobs:
           cd internal/integration
           queryx db:migrate --schema sqlite.hcl
           queryx generate --schema sqlite.hcl
+      - name: yarn install
+        run: |
+          cd internal/integration
+          yarn install
+      - name: yarn test
+        run: |
+          cd internal/integration
+          yarn test
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
