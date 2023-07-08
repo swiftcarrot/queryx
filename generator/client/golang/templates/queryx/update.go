@@ -52,7 +52,7 @@ func (s *UpdateStatement) ToSQL() (string, []interface{}) {
 		sets = append(sets, fmt.Sprintf("%s = ?", col))
 	}
 
-	sql = fmt.Sprintf("%s %s", sql, strings.Join(sets, ","))
+	sql = fmt.Sprintf("%s %s", sql, strings.Join(sets, ", "))
 
 	if s.where != nil {
 		sql = fmt.Sprintf("%s WHERE %s", sql, s.where.fragment)

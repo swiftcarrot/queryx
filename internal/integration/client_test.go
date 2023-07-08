@@ -1,7 +1,9 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
+	"fmt"
 	"log"
 	"testing"
 	"time"
@@ -61,6 +63,50 @@ func TestCreate(t *testing.T) {
 	require.Equal(t, "admin", user.Type.Val)
 	require.False(t, user.Type.Null)
 	require.True(t, user.ID > 0)
+}
+
+func TestCreateEmpty(t *testing.T) {
+	tag, err := c.QueryTag().Create(nil)
+	require.NoError(t, err)
+	require.True(t, tag.ID > 0)
+	require.True(t, tag.Name.Null)
+
+	tag, err = c.QueryTag().Create(c.ChangeTag())
+	require.NoError(t, err)
+	require.True(t, tag.ID > 0)
+	require.True(t, tag.Name.Null)
+}
+
+func TestFind(t *testing.T) {
+	tag, err := c.QueryTag().Create(c.ChangeTag().SetName("test"))
+	require.NoError(t, err)
+	tag, err = c.QueryTag().Find(tag.ID)
+	require.NoError(t, err)
+	require.Equal(t, "test", tag.Name.Val)
+
+	tag, err = c.QueryTag().Find(tag.ID + 1)
+	require.Error(t, err)
+	require.ErrorIs(t, err, sql.ErrNoRows)
+	require.Nil(t, tag)
+}
+
+func TestFirst(t *testing.T) {
+	_, err := c.QueryTag().DeleteAll()
+	require.NoError(t, err)
+
+	tag1, err := c.QueryTag().Create(c.ChangeTag().SetName("test"))
+	require.NoError(t, err)
+	tag2, err := c.QueryTag().First()
+	require.NoError(t, err)
+	require.Equal(t, "test", tag2.Name.Val)
+	require.Equal(t, tag1.ID, tag2.ID)
+
+	_, err = c.QueryTag().DeleteAll()
+	require.NoError(t, err)
+
+	tag3, err := c.QueryTag().First()
+	require.NoError(t, err)
+	require.Nil(t, tag3)
 }
 
 func TestTime(t *testing.T) {
@@ -152,12 +198,12 @@ func TestJSON(t *testing.T) {
 	require.Equal(t, float64(payload["weight"].(int)), user.Payload.Val["weight"])
 }
 
-func TestPrimaryKey(t *testing.T) {
+func TestCompositePrimaryKey(t *testing.T) {
 	_, _ = c.QueryCode().DeleteAll()
 	code, err := c.QueryCode().Create(c.ChangeCode().SetType("type").SetKey("key"))
+	require.NoError(t, err)
 	require.Equal(t, "type", code.Type)
 	require.Equal(t, "key", code.Key)
-	require.NoError(t, err)
 
 	_, err = c.QueryCode().Create(c.ChangeCode().SetType("type").SetKey("key"))
 	require.Error(t, err)
@@ -166,14 +212,12 @@ func TestPrimaryKey(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, "type", code.Type)
 	require.Equal(t, "key", code.Key)
+}
 
-	_, _ = c.QueryClient().DeleteAll()
+func TestNoPrimaryKey(t *testing.T) {
 	client, err := c.QueryClient().Create(c.ChangeClient().SetName("client"))
 	require.NoError(t, err)
-	require.Equal(t, "client", client.Name)
-
-	i, _ := c.QueryClient().Delete("client")
-	require.Equal(t, int64(1), i)
+	require.Equal(t, "client", client.Name.Val)
 }
 
 func TestBoolean(t *testing.T) {
@@ -187,20 +231,28 @@ func TestExists(t *testing.T) {
 	require.NoError(t, err)
 	require.False(t, exists)
 
-	_, _ = c.QueryClient().Create(c.ChangeClient().SetName("client"))
+	_, err = c.QueryClient().Create(c.ChangeClient().SetName("client"))
+	require.NoError(t, err)
 	exists, err = c.QueryClient().Exists()
 	require.NoError(t, err)
 	require.True(t, exists)
 }
 
 func TestBelongsTo(t *testing.T) {
-	author, err := c.QueryUser().Create(c.ChangeUser().SetName("author"))
+	user, err := c.QueryUser().Create(c.ChangeUser())
 	require.NoError(t, err)
-	post, err := c.QueryPost().Create(c.ChangePost().SetTitle("post title").SetAuthorID(author.ID))
+	post, err := c.QueryPost().Create(c.ChangePost().SetAuthorID(user.ID))
 	require.NoError(t, err)
+	account, err := c.QueryAccount().Create(c.ChangeAccount().SetUserID(user.ID))
+	require.NoError(t, err)
+
 	post, err = c.QueryPost().PreloadAuthor().Find(post.ID)
 	require.NoError(t, err)
-	require.Equal(t, author.ID, post.Author.ID)
+	require.Equal(t, user, post.Author)
+
+	account, err = c.QueryAccount().PreloadUser().Find(account.ID)
+	require.NoError(t, err)
+	require.Equal(t, user, account.User)
 }
 
 func TestAllEmpty(t *testing.T) {
@@ -247,14 +299,14 @@ func TestHasManyEmpty(t *testing.T) {
 }
 
 func TestHasOne(t *testing.T) {
-	user, err := c.QueryUser().Create(c.ChangeUser().SetName("has_one"))
+	user, err := c.QueryUser().Create(c.ChangeUser())
 	require.NoError(t, err)
-	account, err := c.QueryAccount().Create(c.ChangeAccount().SetName("account").SetUserID(user.ID))
+	account, err := c.QueryAccount().Create(c.ChangeAccount().SetUserID(user.ID))
 	require.NoError(t, err)
 
 	user, err = c.QueryUser().PreloadAccount().Find(user.ID)
 	require.NoError(t, err)
-	require.Equal(t, account.Name, user.Account.Name)
+	require.Equal(t, account, user.Account)
 }
 
 func TestPreload(t *testing.T) {
@@ -324,6 +376,17 @@ func TestChangeJSON(t *testing.T) {
 	require.True(t, userChange.Name.Set)
 	require.True(t, userChange.IsAdmin.Set)
 	require.False(t, userChange.Age.Set)
+}
+
+func TestModelStringer(t *testing.T) {
+	_, err := c.QueryCode().DeleteAll()
+	require.NoError(t, err)
+
+	code, err := c.QueryCode().Create(c.ChangeCode().SetKey("code key").SetType("code type"))
+	require.NoError(t, err)
+
+	s := fmt.Sprintf(`(Code type: "%s", key: "%s")`, code.Type, code.Key)
+	require.Equal(t, s, code.String())
 }
 
 func init() {

@@ -27,7 +27,6 @@ func NewClient() (*QXClient, error) {
 	if env == "" {
 		env = "development"
 	}
-
 	return NewClientWithEnv(env)
 }
 
@@ -37,7 +36,13 @@ func NewClientWithEnv(env string) (*QXClient, error) {
 		return nil, fmt.Errorf("client config is missing for %s", env)
 	}
 
+	{{- if eq $.client.Adapter "postgresql" }}
 	db, err := sql.Open("postgres", config.URL)
+	{{- else if eq $.client.Adapter "mysql" }}
+	db, err := sql.Open("mysql", config.URL)
+    {{- else if eq $.client.Adapter "sqlite" }}
+    db, err := sql.Open("sqlite3", config.URL)
+	{{- end }}
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +53,7 @@ func NewClientWithEnv(env string) (*QXClient, error) {
 		Adapter: queryx.NewAdapter(db),
 		Schema : queryx.NewSchema(),
 	}
-    client.setDefaultLogger()
+  client.setDefaultLogger()
 
 	return client, nil
 }
@@ -104,4 +109,3 @@ func (tx *Tx) Query{{ $m.Name }}() *{{ $m.Name }}Query {
 	return New{{ $m.Name }}Query(tx.Adapter, tx.Schema, tx)
 }
 {{- end }}
-

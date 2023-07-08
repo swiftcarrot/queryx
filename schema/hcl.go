@@ -2,7 +2,6 @@ package schema
 
 import (
 	"github.com/hashicorp/hcl/v2"
-	"github.com/swiftcarrot/queryx/inflect"
 	"github.com/swiftcarrot/queryx/types"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/function"
@@ -117,6 +116,8 @@ var hclBelongsTo = &hcl.BodySchema{
 	Attributes: []hcl.AttributeSchema{
 		{Name: "model_name"},
 		{Name: "foreign_key"},
+		{Name: "null"},
+		{Name: "index"},
 	},
 }
 
@@ -286,7 +287,7 @@ func (db *Database) modelFromBlock(block *hcl.Block, ctx *hcl.EvalContext) (*Mod
 			if err != nil {
 				return nil, err
 			}
-			m.Columns = append(m.Columns, col)
+			m.AddColumn(col)
 		case "has_many":
 			hasMany, err := hasManyFromBlock(block, ctx)
 			if err != nil {
@@ -376,9 +377,7 @@ func primaryKeyFromBlock(block *hcl.Block, ctx *hcl.EvalContext) (*PrimaryKey, e
 }
 
 func belongsToFromBlock(block *hcl.Block, ctx *hcl.EvalContext) (*BelongsTo, error) {
-	belongsTo := &BelongsTo{
-		Name: block.Labels[0],
-	}
+	belongsTo := NewBelongsTo(block.Labels[0])
 
 	content, d := block.Body.Content(hclBelongsTo)
 	if d.HasErrors() {
@@ -396,6 +395,10 @@ func belongsToFromBlock(block *hcl.Block, ctx *hcl.EvalContext) (*BelongsTo, err
 			belongsTo.ModelName = value.AsString()
 		case "foreign_key":
 			belongsTo.ForeignKey = value.AsString()
+		case "null":
+			belongsTo.Null = valueAsBool(value)
+		case "index":
+			belongsTo.Index = valueAsBool(value)
 		}
 	}
 
@@ -406,7 +409,6 @@ func hasManyFromBlock(block *hcl.Block, ctx *hcl.EvalContext) (*HasMany, error) 
 	hasMany := &HasMany{
 		Name: block.Labels[0],
 	}
-	hasMany.ModelName = inflect.Pascal(inflect.Singular(hasMany.Name))
 	content, d := block.Body.Content(hclHasMany)
 	if d.HasErrors() {
 		return nil, d.Errs()[0]
@@ -431,7 +433,6 @@ func hasOneFromBlock(block *hcl.Block, ctx *hcl.EvalContext) (*HasOne, error) {
 	hasOne := &HasOne{
 		Name: block.Labels[0],
 	}
-	hasOne.ModelName = inflect.Pascal(inflect.Singular(hasOne.Name))
 	content, d := block.Body.Content(hclHasOne)
 	if d.HasErrors() {
 		return nil, d.Errs()[0]

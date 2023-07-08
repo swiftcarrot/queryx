@@ -22,11 +22,9 @@ type Adapter interface {
 func NewAdapter(config *schema.Config) (Adapter, error) {
 	if config.Adapter == "postgresql" {
 		return NewPostgreSQLAdapter(config), nil
-	}
-	if config.Adapter == "mysql" {
-		return NewMysqlAdapter(config), nil
-	}
-	if config.Adapter == "sqlite" {
+	} else if config.Adapter == "mysql" {
+		return NewMySQLAdapter(config), nil
+	} else if config.Adapter == "sqlite" {
 		return NewSQLiteAdapter(config), nil
 	}
 	return nil, fmt.Errorf("unsupported adapter: %q", config.Adapter)

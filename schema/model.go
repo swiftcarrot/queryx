@@ -1,10 +1,9 @@
 package schema
 
-import (
-	"strings"
-)
+import "strings"
 
 type Model struct {
+	Database *Database
 	// model name in camel case
 	Name       string
 	TableName  string
@@ -21,17 +20,16 @@ type Model struct {
 	PrimaryKey        *PrimaryKey
 }
 
-// TODO: pretty print a model
+// String implements the stringer interface.
 func (m *Model) String() string {
 	var b strings.Builder
-	b.WriteString(m.Name)
-	b.WriteString("(columns=")
-	for _, c := range m.Columns {
-		b.WriteString(c.Name)
-		b.WriteString(",")
+	b.WriteString(m.Name + "(")
+	for i, col := range m.Columns {
+		if i > 0 {
+			b.WriteString(", ")
+		}
+		b.WriteString(col.Name + ": " + col.Type)
 	}
-	b.WriteString("primary_key=")
-	b.WriteString(strings.Join(m.PrimaryKey.ColumnNames, ", "))
 	b.WriteString(")")
 	return b.String()
 }
@@ -75,6 +73,7 @@ type HasMany struct {
 	Through    string
 	ForeignKey string
 	Source     string
+	BelongsTo  *BelongsTo
 }
 
 type HasOne struct {
@@ -82,6 +81,7 @@ type HasOne struct {
 	ModelName  string
 	Through    string
 	ForeignKey string
+	BelongsTo  *BelongsTo
 }
 
 type BelongsTo struct {
@@ -90,6 +90,9 @@ type BelongsTo struct {
 	ForeignKey  string
 	ForeignType string
 	PrimaryKey  string
+	Type        string
+	Index       bool
+	Null        bool
 	Dependent   string
 	Optional    bool
 	Required    bool

@@ -5,8 +5,6 @@ package queryx
 import (
 	"database/sql"
 	"regexp"
-
-	_ "github.com/lib/pq"
 )
 
 type DB interface {
@@ -20,28 +18,6 @@ type Adapter struct {
 
 func NewAdapter(db DB) *Adapter {
 	return &Adapter{db: db}
-}
-
-func (a *Adapter) Exec(query string, args ...interface{}) (int64, error) {
-	matched1, err := regexp.MatchString(`.* IN (.*?)`, query)
-	if err != nil {
-		return 0, err
-	}
-	matched2, err := regexp.MatchString(`.* in (.*?)`, query)
-	if err != nil {
-		return 0, err
-	}
-	if matched1 || matched2 {
-		query, args, err = In(query, args...)
-		if err != nil {
-			return 0, err
-		}
-	}
-	result, err := a.db.Exec(rebind(DOLLAR, query), args...)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected()
 }
 
 func (a *Adapter) Query(query string, args ...interface{}) *Rows {
@@ -79,7 +55,8 @@ func (r *Rows) Scan(v interface{}) error {
 			return err
 		}
 	}
-	rows, err := r.adapter.db.Query(rebind(DOLLAR, query), args...)
+	query, args = rebind(query, args)
+	rows, err := r.adapter.db.Query(query, args...)
 	if err != nil {
 		return err
 	}
@@ -112,7 +89,8 @@ func (r *Row) Scan(v interface{}) error {
 			return err
 		}
 	}
-	rows, err := r.adapter.db.Query(rebind(DOLLAR, query), args...)
+	query, args = rebind(query, args)
+	rows, err := r.adapter.db.Query(query, args...)
 	if err != nil {
 		return err
 	}

@@ -5,24 +5,24 @@ import (
 	"database/sql"
 	"fmt"
 
-	my "ariga.io/atlas/sql/mysql"
+	"ariga.io/atlas/sql/mysql"
 	sqlschema "ariga.io/atlas/sql/schema"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/swiftcarrot/queryx/schema"
 )
 
-type MysqlAdapter struct {
+type MySQLAdapter struct {
 	*sql.DB
 	Config *schema.Config
 }
 
-func NewMysqlAdapter(config *schema.Config) *MysqlAdapter {
-	return &MysqlAdapter{
+func NewMySQLAdapter(config *schema.Config) *MySQLAdapter {
+	return &MySQLAdapter{
 		Config: config,
 	}
 }
 
-func (a *MysqlAdapter) Open() error {
+func (a *MySQLAdapter) Open() error {
 	db, err := sql.Open("mysql", a.Config.ConnectionURL(true))
 	if err != nil {
 		return err
@@ -31,7 +31,7 @@ func (a *MysqlAdapter) Open() error {
 	return nil
 }
 
-func (a *MysqlAdapter) CreateDatabase() error {
+func (a *MySQLAdapter) CreateDatabase() error {
 	db, err := sql.Open("mysql", a.Config.ConnectionURL(false))
 	if err != nil {
 		return err
@@ -50,7 +50,7 @@ func (a *MysqlAdapter) CreateDatabase() error {
 	return nil
 }
 
-func (a *MysqlAdapter) DropDatabase() error {
+func (a *MySQLAdapter) DropDatabase() error {
 	db, err := sql.Open("mysql", a.Config.ConnectionURL(false))
 	if err != nil {
 		return err
@@ -70,8 +70,8 @@ func (a *MysqlAdapter) DropDatabase() error {
 }
 
 // create migrations table with atlas
-func (a *MysqlAdapter) CreateMigrationsTable(ctx context.Context) error {
-	driver, err := my.Open(a)
+func (a *MySQLAdapter) CreateMigrationsTable(ctx context.Context) error {
+	driver, err := mysql.Open(a)
 	if err != nil {
 		return err
 	}
@@ -105,11 +105,11 @@ func (a *MysqlAdapter) CreateMigrationsTable(ctx context.Context) error {
 	return nil
 }
 
-func (a *MysqlAdapter) GetDBName() string {
+func (a *MySQLAdapter) GetDBName() string {
 	a.Config.ConnectionURL(false)
 	return a.Config.Database
 }
 
-func (a *MysqlAdapter) GetAdapter() string {
+func (a *MySQLAdapter) GetAdapter() string {
 	return a.Config.Adapter
 }

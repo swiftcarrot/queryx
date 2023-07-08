@@ -1,7 +1,6 @@
 package adapter
 
 import (
-	"bufio"
 	"context"
 	"database/sql"
 	"fmt"
@@ -47,47 +46,16 @@ func (m *Migrator) RunMigration(mg *Migration) error {
 	if apapter == "" {
 		return fmt.Errorf("the dbName can not be nil")
 	}
-	if apapter == "postgresql" || apapter == "sqlite" {
-		f, err := os.ReadFile(mg.Path)
+	f, err := os.ReadFile(mg.Path)
+	if err != nil {
+		return err
+	}
+	sql := string(f)
+
+	for _, line := range strings.Split(sql, "\n") {
+		_, err = m.Adapter.ExecContext(context.Background(), line)
 		if err != nil {
 			return err
-		}
-		sql := string(f)
-		if apapter == "postgresql" && strings.Contains(sql, "uuid_generate") {
-			_, err := m.Adapter.ExecContext(context.Background(), `create extension "uuid-ossp"`)
-			if err != nil {
-				return err
-			}
-		}
-		_, err = m.Adapter.ExecContext(context.Background(), sql)
-		if err != nil {
-			return err
-		}
-	} else if apapter == "mysql" {
-		file, err := os.OpenFile(mg.Path, os.O_RDWR, 0666)
-		if err != nil {
-			return err
-		}
-		defer file.Close()
-		buf := bufio.NewReader(file)
-		for {
-			line, err := buf.ReadString('\n')
-			if line != "" {
-				sqlLine := strings.TrimSpace(line)
-				_, err = m.Adapter.ExecContext(context.Background(), sqlLine)
-				if err != nil {
-					return err
-				}
-			}
-			if err != nil {
-				if err == io.EOF {
-					fmt.Println("File read ok!")
-					break
-				} else {
-					fmt.Println("Read file error!", err)
-					return err
-				}
-			}
 		}
 	}
 
