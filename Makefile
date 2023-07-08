@@ -30,7 +30,8 @@ test-mysql: install
 	cd internal/integration && QUERYX_ENV=test queryx db:create --schema mysql.hcl
 	cd internal/integration && QUERYX_ENV=test queryx db:migrate --schema mysql.hcl
 	cd internal/integration && QUERYX_ENV=test queryx generate --schema mysql.hcl
-	cd internal/integration && go test ./...
+	cd internal/integration && yarn test
+	# cd internal/integration && go test ./...
 
 test-sqlite: install
 	rm -rf internal/integration/db

@@ -7,6 +7,7 @@ database "db" {
   }
 
   generator "client-golang" {}
+  generator "client-typescript" {}
 
   model "User" {
     has_one "account" {}
