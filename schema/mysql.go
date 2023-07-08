@@ -39,9 +39,10 @@ func (d *Database) CreateMySQLSchema(dbName string) *schema.Schema {
 			case "date":
 				col.SetType(&schema.TimeType{T: mysql.TypeDate})
 			case "time":
-				col.SetType(&schema.TimeType{T: mysql.TypeTime})
-			case "datetime":
 				col.SetType(&schema.TimeType{T: mysql.TypeDateTime})
+			case "datetime":
+				i := 6
+				col.SetType(&schema.TimeType{T: mysql.TypeDateTime, Precision: &i})
 			case "json", "jsonb":
 				col.SetType(&schema.JSONType{T: mysql.TypeJSON})
 			case "uuid":
@@ -54,11 +55,13 @@ func (d *Database) CreateMySQLSchema(dbName string) *schema.Schema {
 		}
 
 		cols := []*schema.Column{}
-		for _, name := range model.PrimaryKey.ColumnNames {
-			cols = append(cols, columnMap[name])
+		if model.PrimaryKey != nil {
+			for _, name := range model.PrimaryKey.ColumnNames {
+				cols = append(cols, columnMap[name])
+			}
+			pk := schema.NewPrimaryKey(cols...)
+			t.SetPrimaryKey(pk)
 		}
-		pk := schema.NewPrimaryKey(cols...)
-		t.SetPrimaryKey(pk)
 
 		for _, i := range model.Index {
 			name := fmt.Sprintf("%s_%s_index", i.TableName, strings.Join(i.ColumnNames, "_"))

@@ -1,7 +1,7 @@
 # Queryx
 
 > **Warning**
-> This project is currently in beta (v0), although it has been battled tested in internal projects. Currently, it only supports golang code generation for PostgreSQL databases. We plan to release support for TypeScript code generation along with MySQL and SQLite databases. Feel free to [open an issue](https://github.com/swiftcarrot/queryx/issues) or [start a discussion](https://github.com/swiftcarrot/queryx/discussions) if you have any questions.
+> This project is currently in beta (v0), although it has been battled tested in internal projects. Currently, it only supports golang code generation. We plan to release support for TypeScript code generation. Feel free to [open an issue](https://github.com/swiftcarrot/queryx/issues) or [start a discussion](https://github.com/swiftcarrot/queryx/discussions) if you have any questions.
 
 [English](README.md) | [中文](README_zh.md)
 
@@ -62,6 +62,32 @@ database "db" {
 ```
 
 In this sample schema, we create a queryx database `db`, which consists of a model `Post`. `Post` model contains two fields, `title` as `string` type and `content` as `text` type. `string` and `text` are both predefined queryx types. The `db` database is defined as the `postgresql` adapter and the connection config url to the PostgreSQL database is defined through the `config` block.
+
+Queryx also support MySQL and SQLite databases by changing the `adapter` attribute and `config` in `database` block.
+
+Example for MySQL database:
+
+```hcl
+database "db" {
+  adapter = "mysql"
+
+  config "development" {
+    url = "root@tcp(localhost:3306)/queryx_test?parseTime=true"
+  }
+}
+```
+
+Example for SQLite database:
+
+```hcl
+database "db" {
+  adapter = "sqlite"
+
+  config "test" {
+    url = "file:test.sqlite3"
+  }
+}
+```
 
 Run the following command to automatically format the schema file:
 

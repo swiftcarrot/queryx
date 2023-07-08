@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"ariga.io/atlas/sql/schema"
-	"ariga.io/atlas/sql/sqlite"
 )
 
 func (d *Database) CreateSQLiteSchema(dbName string) *schema.Schema {
@@ -19,20 +18,14 @@ func (d *Database) CreateSQLiteSchema(dbName string) *schema.Schema {
 		if t.Name == "sqlite_master" {
 			continue
 		}
-
+		m := make(map[string]struct{})
 		for _, c := range model.Columns {
 			col := schema.NewColumn(c.Name)
-			if c.Type == "pk" {
-				_clo := schema.Column{Name: c.Name, Type: &schema.ColumnType{Type: &schema.IntegerType{T: "INTEGER"}}, Attrs: []schema.Attr{&sqlite.AutoIncrement{}}}
-				pk := schema.NewPrimaryKey(&_clo)
-				t.SetPrimaryKey(pk)
-				continue
-			}
 
 			switch c.Type {
 			case "id":
 				col.SetType(&schema.IntegerType{T: "INTEGER"})
-			case "string":
+			case "string", "uuid":
 				col.SetType(&schema.StringType{T: "varchar", Size: 0})
 				if c.Default != nil {
 					d, ok := c.Default.(string)
@@ -48,6 +41,13 @@ func (d *Database) CreateSQLiteSchema(dbName string) *schema.Schema {
 					if ok {
 						col.SetType(&schema.IntegerType{T: "integer"}).SetDefault(&schema.RawExpr{X: strconv.Itoa(d)})
 					}
+				} else {
+					col.SetType(&schema.IntegerType{T: "integer"})
+				}
+			case "bigint":
+				if c.AutoIncrement {
+					col.SetType(&schema.IntegerType{T: "integer PRIMARY KEY AUTOINCREMENT"})
+					m[c.Name] = struct{}{}
 				} else {
 					col.SetType(&schema.IntegerType{T: "integer"})
 				}
@@ -77,11 +77,27 @@ func (d *Database) CreateSQLiteSchema(dbName string) *schema.Schema {
 				col.SetType(&schema.TimeType{T: "datetime"})
 			case "jsonb":
 				col.SetType(&schema.JSONType{T: "jsonb"})
+			default:
+				fmt.Printf("This type is not supported:%+v", col.Type)
+
 			}
 
 			col.SetNull(c.Null)
 			t.AddColumns(col)
 			columnMap[c.Name] = col
+		}
+
+		if model.PrimaryKey != nil {
+			cols := []*schema.Column{}
+			for _, name := range model.PrimaryKey.ColumnNames {
+				if _, ok := m[name]; !ok {
+					cols = append(cols, columnMap[name])
+				}
+			}
+			if len(m) == 0 {
+				pk := schema.NewPrimaryKey(cols...)
+				t.SetPrimaryKey(pk)
+			}
 		}
 
 		for _, i := range model.Index {
@@ -100,6 +116,7 @@ func (d *Database) CreateSQLiteSchema(dbName string) *schema.Schema {
 		}
 
 		public.AddTables(t)
+		public.Name = "main"
 	}
 
 	return public

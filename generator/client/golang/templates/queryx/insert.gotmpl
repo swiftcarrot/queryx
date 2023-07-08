@@ -30,14 +30,18 @@ func (s *InsertStatement) Columns(columns ...string) *InsertStatement {
 }
 
 func (s *InsertStatement) Values(values ...interface{}) *InsertStatement {
-	s.values = append(s.values, values)
+	if len(values) > 0 {
+		s.values = append(s.values, values)
+	}
 	return s
 }
 
+{{- if or (eq $.client.Adapter "postgresql") (eq $.client.Adapter "sqlite") }}
 func (s *InsertStatement) Returning(returning ...string) *InsertStatement {
 	s.returning = returning
 	return s
 }
+{{- end }}
 
 func (s *InsertStatement) OnConflict(onConflict string) *InsertStatement {
 	s.onConflict = onConflict
@@ -48,9 +52,18 @@ func (s *InsertStatement) ToSQL() (string, []interface{}) {
 	sql := fmt.Sprintf("INSERT INTO %s", s.into)
 
 	if len(s.columns) > 0 {
+		{{- if eq $.client.Adapter "mysql" }}
+		sql = fmt.Sprintf("%s(`%s`)", sql, strings.Join(s.columns, "`, `"))
+		{{- else }}
 		sql = fmt.Sprintf("%s(%s)", sql, strings.Join(s.columns, ", "))
+		{{- end }}
+	} else {
+		{{- if eq $.client.Adapter "mysql" }}
+		sql = fmt.Sprintf("%s VALUES ()", sql)
+		{{- else }}
+		sql = fmt.Sprintf("%s DEFAULT VALUES", sql)
+		{{- end }}
 	}
-
 	values := []string{}
 	for _, v := range s.values {
 		ss := []string{}
@@ -59,7 +72,9 @@ func (s *InsertStatement) ToSQL() (string, []interface{}) {
 		}
 		values = append(values, fmt.Sprintf("(%s)", strings.Join(ss, ", ")))
 	}
-	sql = fmt.Sprintf("%s VALUES %s", sql, strings.Join(values, ", "))
+	if len(values) > 0 {
+		sql = fmt.Sprintf("%s VALUES %s", sql, strings.Join(values, ", "))
+	}
 
 	if len(s.returning) > 0 {
 		sql = fmt.Sprintf("%s RETURNING %s", sql, strings.Join(s.returning, ", "))

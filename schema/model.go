@@ -1,8 +1,6 @@
 package schema
 
-import (
-	"strings"
-)
+import "strings"
 
 type Model struct {
 	Database *Database
@@ -22,17 +20,16 @@ type Model struct {
 	PrimaryKey        *PrimaryKey
 }
 
-// TODO: pretty print a model
+// String implements the stringer interface.
 func (m *Model) String() string {
 	var b strings.Builder
-	b.WriteString(m.Name)
-	b.WriteString("(columns=")
-	for _, c := range m.Columns {
-		b.WriteString(c.Name)
-		b.WriteString(",")
+	b.WriteString(m.Name + "(")
+	for i, col := range m.Columns {
+		if i > 0 {
+			b.WriteString(", ")
+		}
+		b.WriteString(col.Name + ": " + col.Type)
 	}
-	b.WriteString("primary_key=")
-	b.WriteString(strings.Join(m.PrimaryKey.ColumnNames, ", "))
 	b.WriteString(")")
 	return b.String()
 }

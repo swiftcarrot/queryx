@@ -9,9 +9,6 @@ import (
 	"strings"
 )
 
-// TODO: share code between ScanOne and ScanSlice
-// TODO: improve error messages
-// TODO: should we support sql.Row or sql.Rows ?
 func ScanOne(rows *sql.Rows, v interface{}) error {
 	rv := reflect.ValueOf(v)
 	if rv.Kind() != reflect.Ptr {

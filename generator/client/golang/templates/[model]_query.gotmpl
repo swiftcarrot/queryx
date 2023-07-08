@@ -9,13 +9,13 @@ import (
 	"time"
 )
 
-{{ define "primary_key_params" }}
+{{- define "primary_key_params" }}
 	{{- range $i, $c := $.Columns -}}
 		{{ if $i }}, {{ end }}{{ $c.Name | camel | goKeywordFix }} {{ goModelType $c.Type $c.Null }}
 	{{- end -}}
-{{ end }}
+{{- end }}
 
-{{ define "primary_key_where" }}
+{{- define "primary_key_where" }}
 	{{- if gt (len $.PrimaryKey.Columns) 1 -}}
 		q.schema.And(
 		{{- range $i, $c := index $.PrimaryKey.Columns -}}
@@ -25,7 +25,21 @@ import (
 		{{- $c := index $.PrimaryKey.Columns 0 -}}
 		q.schema.{{ .Name }}{{ $c.Name | pascal }}.EQ({{ $c.Name | camel | goKeywordFix }})
 	{{- end -}}
-{{ end }}
+{{- end }}
+
+{{- define "mysql_primary_key_custom" }}
+	{{- if gt (len $.PrimaryKey.Columns) 0 -}}
+		q.schema.And(
+		{{- range $i, $c := index $.PrimaryKey.Columns -}}
+			{{ if $i }}, {{ end }}q.schema.{{ $.Name }}{{ $c.Name | pascal }}.EQ(change.{{ $c.Name | pascal | goKeywordFix }}.Val)
+		{{- end -}})
+	{{- end -}}
+{{- end }}
+
+{{- define "mysql_primary_key_default" }}
+	{{- $c := index $.PrimaryKey.Columns 0 -}}
+	q.schema.{{ .Name }}{{ $c.Name | pascal }}.EQ({{ $c.Name | camel | goKeywordFix }})
+{{- end }}
 
 type {{ $.model.Name }}Query struct {
 	adapter *queryx.Adapter
@@ -51,6 +65,11 @@ func (q *{{ $.model.Name }}Query) Create(change *queryx.{{ $.model.Name }}Change
 	if q.err != nil {
  		return nil, q.err
  	}
+
+ 	record := &{{ $.model.Name }}{
+		schema: q.schema,
+		queries: q.queries,
+	}
 	{{- if $.model.Timestamps }}
 	now := queryx.Now("2006-01-02 15:04:05.000")
 	if !change.CreatedAt.Set {
@@ -60,53 +79,54 @@ func (q *{{ $.model.Name }}Query) Create(change *queryx.{{ $.model.Name }}Change
 		change.SetUpdatedAt(now)
 	}
 	{{- end }}
- 	columns, values := change.Changes()
+
+ 	{{- if or (eq .client.Adapter "postgresql") (eq $.client.Adapter "sqlite") }}
+	columns, values := change.Changes()
 	query, args := queryx.NewInsert().
 		Into("{{ $.model.TableName }}").
 		Columns(columns...).
 		Values(values...).
 		Returning("{{range $i, $e := .model.Columns}}{{if $i}},{{end}}{{.Name}}{{end}}").ToSQL()
-	var row {{ $.model.Name }}
-	err := q.adapter.QueryOne(query, args...).Scan(&row)
+	err := q.adapter.QueryOne(query, args...).Scan(record)
 	if err != nil {
 		return nil, err
 	}
-
-	row.schema = q.schema
-	row.queries = q.queries
-
-	return &row, nil
-}
-
-func (q *{{.model.Name}}Query) BulkCreate(changes []*queryx.{{.model.Name}}Change) (int64, error){
-	if len(changes) == 0 {
-		return 0,fmt.Errorf("%+v","changes' len eq 0")
-	}
-	if q.err != nil {
-		return 0, q.err
-	}
-	insert := queryx.NewInsert().Into("{{.model.TableName}}")
-	for i := 0; i < len(changes); i++ {
-		columns, values := changes[i].Changes()
-		{{- if eq $.model.Timestamps true}}
-		now := queryx.Now("2006-01-02 15:04:05")
-		columns = append(columns, "created_at")
-		values = append(values, now)
-		columns = append(columns, "updated_at")
-		values = append(values, now)
-		{{- end}}
-		if i == 0 {
-			insert=insert.Columns(columns...)
-		}
-		insert = insert.Values(values...)
-	}
-	query, args:=insert.ToSQL()
-	rows, err := q.adapter.Exec(query,args...)
+	{{- else if eq $.client.Adapter "mysql"}}
+	columns, values := change.Changes()
+	query, args := queryx.NewInsert().Into("{{ $.model.TableName }}").Columns(columns...).Values(values...).ToSQL()
+	{{- if $.model.DefaultPrimaryKey }}
+	result, err := q.adapter.ExecInternal(query, args...)
 	if err != nil {
-		return rows, err
+		return nil, err
 	}
-	return rows, nil
+	id, err := result.LastInsertId()
+	if err != nil {
+		return nil, fmt.Errorf("insert fail:%+v", err)
+	}
+	return q.Where({{ template "mysql_primary_key_default" $.model }}).First()
+	{{- else if $.model.PrimaryKey }}
+	result, err := q.adapter.ExecInternal(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	affected, err := result.RowsAffected()
+	if affected == 0 || err != nil {
+		return nil, fmt.Errorf("insert fail:%+v, or affected rows equal to 0",err)
+	}
+	return q.Where({{ template "mysql_primary_key_custom" $.model }}).First()
+	{{- else }}
+	_, err := q.adapter.ExecInternal(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	record.applyChange(change)
+	{{- end }}
+	{{- end }}
+
+	return record, nil
 }
+
+{{- if $.model.PrimaryKey }}
 
 func (q *{{ $.model.Name }}Query) Delete({{ template "primary_key_params" $.model.PrimaryKey }}) (int64, error) {
 	query, args := queryx.NewDelete().From("{{.model.TableName}}").Where({{ template "primary_key_where" $.model }}).ToSQL()
@@ -129,6 +149,7 @@ func (q *{{.model.Name}}Query) Find({{ template "primary_key_params" $.model.Pri
 	res.queries = q.queries
 	return res, err
 }
+{{- end }}
 
 func (q *{{.model.Name}}Query) FindBy(where *queryx.Clause) (*{{.model.Name}}, error) {
 	return q.Where(where).First()
@@ -167,10 +188,12 @@ func (q *{{.model.Name}}Query) Offset(offset int) *{{.model.Name}}Query {
 	q.selectStatement.Offset(offset)
 	return q
 }
+
 func (q *{{.model.Name}}Query) Group(group string) *{{.model.Name}}Query {
 	q.selectStatement.GroupBy(group)
 	return q
 }
+
 func (q *{{.model.Name}}Query) Having(having string) *{{.model.Name}}Query {
 	q.selectStatement.Having(having)
 	return q
@@ -481,9 +504,9 @@ func (q *{{ $.model.Name }}Query) Exists() (bool, error) {
 			return false, nil
 		}
 		return false, err
-	}
+		}
 
-	return res.One == 1, nil
+		return res.One == 1, nil
 }
 
 func (q *{{ $.model.Name }}Query) UpdateAll(change *queryx.{{ $.model.Name }}Change) (int64, error) {

@@ -31,16 +31,23 @@ type {{ $.model.Name }} struct {
 // String implements the stringer interface.
 func ({{ $m }} *{{.model.Name}}) String() string {
 	var b strings.Builder
-	b.WriteString("{{ $.model.Name }}(")
+	b.WriteString("({{ $.model.Name }} ")
 	{{- range $i, $c := $.model.Columns }}
-	b.WriteString(fmt.Sprintf("{{ $c.Name }}=%v", {{ $m }}.{{ pascal $c.Name }}))
+	b.WriteString(fmt.Sprintf("{{ $c.Name }}: \"%+v\"", {{ $m }}.{{ pascal $c.Name }}))
+	{{- $l := len $.model.Columns }}
+	{{- if ne $i (sub $l 1) }}
 	b.WriteString(", ")
+	{{- end }}
 	{{- end }}
 	b.WriteString(")")
 	return b.String()
 }
 
 func ({{ $m }} *{{.model.Name}}) applyChange(change *queryx.{{.model.Name}}Change) error {
+	if change == nil {
+		return nil
+	}
+
 	{{- range $c := $.model.Columns }}
 	{{- $f := $c.Name | pascal }}
 	if change.{{ $f }}.Set {
@@ -56,6 +63,7 @@ func ({{ $m }} *{{.model.Name}}) applyChange(change *queryx.{{.model.Name}}Chang
 	return nil
 }
 
+{{- if $.model.PrimaryKey }}
 func ({{ $m }} *{{.model.Name}}) Update(change *queryx.{{.model.Name}}Change) error {
 	_, err := {{ $m }}.queries.Query{{.model.Name}}().Where({{$m}}.schema.And(
 	{{- range $i, $c := $.model.PrimaryKey.Columns -}}
@@ -76,25 +84,4 @@ func ({{ $m }} *{{.model.Name}}) Delete() error {
 	{{- end -}})
 	return err
 }
-
-{{- $ms := .client.Models }}
-{{- $m := .model.Name }}
-{{- range $v := .client.Models }}
-{{- range $v2 := $v.HasMany }}
-{{- if eq $v.Name $m }}
-{{- $singV2Through := firstWordUpperCamel $v2.Through }}
-{{- if ne  $singV2Through "" }}
-func ({{ $m }} *{{ $m }}) Query{{firstWordUpperCamel $v2.Name}}() *{{singular (firstWordUpperCamel $v2.Name)}}Query {
-	return {{$m}}.queries.Query{{singular (firstWordUpperCamel $v2.Name)}}().
-		Joins("inner join {{getTableNameOfThrough $v2.Through  $ms}} on {{getTableNameOfThrough $v2.Through  $ms}}.{{singular (getTableNameOfHasMany $v2  $ms)}}_id = {{getTableNameOfHasMany $v2  $ms}}.id").
-		Where({{$m}}.schema.{{singular $singV2Through}}{{singular (firstWordUpperCamel $m)}}ID.EQ({{$m}}.ID))
-}
-{{- else }}
-func ({{ $m }} *{{ $m }}) Query{{firstWordUpperCamel $v2.Name}}() *{{singular (firstWordUpperCamel $v2.Name)}}Query {
-	return {{ $m }}.queries.Query{{singular (firstWordUpperCamel $v2.Name)}}().
-		Where({{ $m }}.schema.{{singular (firstWordUpperCamel $v2.Name)}}{{singular (firstWordUpperCamel $m)}}ID.EQ({{$m}}.ID))
-}
 {{- end }}
-{{- end }}
-{{- end }}
-{{- end -}}

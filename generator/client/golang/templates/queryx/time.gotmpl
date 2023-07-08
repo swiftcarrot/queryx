@@ -16,11 +16,17 @@ type Time struct {
 }
 
 func parseTime(s string) (*time.Time, error) {
+	{{- if eq $.client.Adapter "mysql" }}
+	s = fmt.Sprintf("2006-01-02 %+v", s)
+	layout := "2006-01-02 15:04:05"
+ 	{{- else if or (eq .client.Adapter "postgresql") (eq $.client.Adapter "sqlite") }}
+	layout := "15:04:05"
+	{{- end }}
 	loc, err := time.LoadLocation("{{ $.client.TimeZone }}")
 	if err != nil {
 		return nil, err
 	}
-	t, err := time.ParseInLocation("15:04:05", s, loc)
+	t, err := time.ParseInLocation(layout, s, loc)
 	if err != nil {
 		return nil, err
 	}
@@ -51,6 +57,13 @@ func (t *Time) Scan(value interface{}) error {
 		return err
 	}
 	t.Val, t.Null = n.Time, !n.Valid
+	{{- if eq .client.Adapter "mysql" }}
+	loc, err := loadLocation()
+	if err != nil {
+		return err
+	}
+	t.Val = t.Val.In(loc)
+	{{- end }}
 	return nil
 }
 
@@ -59,7 +72,11 @@ func (t Time) Value() (driver.Value, error) {
 	if t.Null {
 		return nil, nil
 	}
+	{{- if eq .client.Adapter "mysql"}}
+	return t.Val.UTC(), nil
+	{{- else}}
 	return t.Val, nil
+	{{- end}}
 }
 
 // MarshalJSON implements the json.Marshaler interface.

@@ -46,6 +46,17 @@ func (g *Generator) LoadTemplates(src embed.FS, adapter string) error {
 		if err != nil {
 			return fmt.Errorf("error reading file '%s': %w", path, err)
 		}
+		templateName = strings.TrimSuffix(templateName, "tmpl")
+
+		ss := strings.Split(templateName, ".")
+		if len(ss) > 2 {
+			if ss[1] == adapter {
+				templateName = ss[0] + "." + ss[2]
+			} else {
+				return nil
+			}
+		}
+
 		tmpl := t.New(templateName)
 		_, err = tmpl.Parse(string(buf))
 		if err != nil {
@@ -106,7 +117,7 @@ func (g *Generator) Generate() error {
 		if strings.Contains(name, "[model]") {
 			for _, model := range database.Models {
 				n := strings.ReplaceAll(name, "[model]", inflect.Snake(model.Name))
-				f := path.Join(dir, strings.TrimSuffix(n, "tmpl"))
+				f := path.Join(dir, n)
 				g.created = append(g.created, f)
 
 				data := map[string]interface{}{
@@ -119,7 +130,7 @@ func (g *Generator) Generate() error {
 				}
 			}
 		} else {
-			f := path.Join(dir, strings.TrimSuffix(name, "tmpl"))
+			f := path.Join(dir, name)
 			g.created = append(g.created, f)
 			data := map[string]interface{}{
 				"packageName": dir,

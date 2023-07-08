@@ -129,11 +129,6 @@ database "db" {
 
     column "name" {
       type = string
-      null = false
-    }
-
-    primary_key {
-      columns = ["name"]
     }
   }
 
