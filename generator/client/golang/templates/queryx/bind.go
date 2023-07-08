@@ -6,51 +6,8 @@ import (
 	"database/sql/driver"
 	"fmt"
 	"reflect"
-	"strconv"
 	"strings"
 )
-
-// https://github.com/jmoiron/sqlx/blob/master/bind.go
-const (
-	UNKNOWN = iota
-	QUESTION
-	DOLLAR
-	NAMED
-	AT
-)
-
-// TODO: move to adapter based on adapter
-func rebind(bindType int, query string) string {
-	switch bindType {
-	case QUESTION, UNKNOWN:
-		return query
-	}
-
-	// Add space enough for 10 params before we have to allocate
-	rqb := make([]byte, 0, len(query)+10)
-
-	var i, j int
-
-	for i = strings.Index(query, "?"); i != -1; i = strings.Index(query, "?") {
-		rqb = append(rqb, query[:i]...)
-
-		switch bindType {
-		case DOLLAR:
-			rqb = append(rqb, '$')
-		case NAMED:
-			rqb = append(rqb, ':', 'a', 'r', 'g')
-		case AT:
-			rqb = append(rqb, '@', 'p')
-		}
-
-		j++
-		rqb = strconv.AppendInt(rqb, int64(j), 10)
-
-		query = query[i+1:]
-	}
-
-	return string(append(rqb, query...))
-}
 
 // In expands slice values in args, returning the modified query string
 // and a new arg list that can be executed by a database. The `query` should
