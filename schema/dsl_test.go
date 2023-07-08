@@ -27,6 +27,8 @@ func TestNewModel(t *testing.T) {
 	require.Equal(t, "created_at", user.Columns[1].Name)
 	require.Equal(t, "updated_at", user.Columns[2].Name)
 
+	require.Equal(t, "User(id: bigint, created_at: datetime, updated_at: datetime)", user.String())
+
 	post := database.NewModel("Post")
 	b := &BelongsTo{Name: "user"}
 	post.AddBelongsTo(b)

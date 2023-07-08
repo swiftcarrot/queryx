@@ -1,5 +1,7 @@
 package schema
 
+import "strings"
+
 type Model struct {
 	Database *Database
 	// model name in camel case
@@ -16,6 +18,20 @@ type Model struct {
 	// whether to automatically add a default primary key column named "id", default true
 	DefaultPrimaryKey bool
 	PrimaryKey        *PrimaryKey
+}
+
+// String implements the stringer interface.
+func (m *Model) String() string {
+	var b strings.Builder
+	b.WriteString(m.Name + "(")
+	for i, col := range m.Columns {
+		if i > 0 {
+			b.WriteString(", ")
+		}
+		b.WriteString(col.Name + ": " + col.Type)
+	}
+	b.WriteString(")")
+	return b.String()
 }
 
 type PrimaryKey struct {

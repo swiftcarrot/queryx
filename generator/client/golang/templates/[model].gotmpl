@@ -34,16 +34,20 @@ func ({{ $m }} *{{.model.Name}}) String() string {
 	b.WriteString("({{ $.model.Name }} ")
 	{{- range $i, $c := $.model.Columns }}
 	b.WriteString(fmt.Sprintf("{{ $c.Name }}: \"%+v\"", {{ $m }}.{{ pascal $c.Name }}))
-	{{$l := len $.model.Columns}}
-	{{if ne $i (sub $l 1)}}
+	{{- $l := len $.model.Columns }}
+	{{- if ne $i (sub $l 1) }}
 	b.WriteString(", ")
-	{{- end}}
+	{{- end }}
 	{{- end }}
 	b.WriteString(")")
 	return b.String()
 }
 
 func ({{ $m }} *{{.model.Name}}) applyChange(change *queryx.{{.model.Name}}Change) error {
+	if change == nil {
+		return nil
+	}
+
 	{{- range $c := $.model.Columns }}
 	{{- $f := $c.Name | pascal }}
 	if change.{{ $f }}.Set {

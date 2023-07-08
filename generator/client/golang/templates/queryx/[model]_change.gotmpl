@@ -19,6 +19,10 @@ func (c *{{.model.Name}}Change) IsSet() bool {
 }
 
 func (c *{{.model.Name}}Change) Changes() (columns []string, values []interface{}) {
+	if c == nil {
+		return columns, values
+	}
+
 	{{- range $c := .model.Columns }}
 	{{- $f := $c.Name | pascal }}
 	if c.{{ $f }}.Set {
