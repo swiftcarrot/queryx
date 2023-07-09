@@ -39,6 +39,8 @@ var TemplateFunctions = template.FuncMap{
 
 	"tsType":          tsType,
 	"tsChangeSetType": tsChangeSetType,
+
+	"pyModelType": pyModelType,
 }
 
 type Database struct {

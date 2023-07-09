@@ -2,3 +2,5 @@
 *.gotmpl linguist-language=Go linguist-generated=false
 *.ts linguist-language=TypeScript linguist-generated=false
 *.tstmpl linguist-language=TypeScript linguist-generated=false
+*.py linguist-language=Python linguist-generated=false
+*.pytmpl linguist-language=Python linguist-generated=false

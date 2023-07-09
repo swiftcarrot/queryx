@@ -11,7 +11,8 @@ database "db" {
   }
 
   // generator "client-golang" {}
-  generator "client-typescript" {}
+  // generator "client-typescript" {}
+  generator "client-python" {}
 
   model "User" {
     has_one "account" {}

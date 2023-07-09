@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/swiftcarrot/queryx/generator"
 	"github.com/swiftcarrot/queryx/generator/client/golang"
+	"github.com/swiftcarrot/queryx/generator/client/python"
 	"github.com/swiftcarrot/queryx/generator/client/typescript"
 )
 
@@ -31,6 +32,10 @@ var generateCmd = &cobra.Command{
 				}
 			case "client-typescript":
 				if err := typescript.Run(g, args); err != nil {
+					return err
+				}
+			case "client-python":
+				if err := python.Run(g, args); err != nil {
 					return err
 				}
 			default:
