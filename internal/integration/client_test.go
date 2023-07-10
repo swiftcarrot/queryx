@@ -10,6 +10,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"github.com/swiftcarrot/queryx/internal/integration/db"
+	"github.com/swiftcarrot/queryx/internal/integration/db/queryx"
 )
 
 var c *db.QXClient
@@ -63,6 +64,23 @@ func TestCreate(t *testing.T) {
 	require.Equal(t, "admin", user.Type.Val)
 	require.False(t, user.Type.Null)
 	require.True(t, user.ID > 0)
+}
+
+func TestInsertAll(t *testing.T) {
+	_, err := c.QueryUserPost().DeleteAll()
+	require.NoError(t, err)
+
+	_, err = c.QueryPost().InsertAll(nil)
+	require.ErrorIs(t, err, db.ErrInsertAllEmptyChanges)
+	_, err = c.QueryPost().InsertAll([]*queryx.PostChange{})
+	require.ErrorIs(t, err, db.ErrInsertAllEmptyChanges)
+
+	inserted, err := c.QueryPost().InsertAll([]*queryx.PostChange{
+		c.ChangePost().SetTitle("title1"),
+		c.ChangePost().SetTitle("title2"),
+	})
+	require.NoError(t, err)
+	require.Equal(t, int64(2), inserted)
 }
 
 func TestCreateEmpty(t *testing.T) {
