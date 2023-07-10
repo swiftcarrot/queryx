@@ -5,3 +5,4 @@ node_modules
 *.sqlite3
 *.out
 node_modules
+__pycache__
