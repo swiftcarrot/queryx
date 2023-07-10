@@ -1,5 +1,27 @@
 import pytest
 import psycopg
+import asyncio
+import asyncpg
+import datetime
+
+url = "postgresql://postgres:postgres@localhost:5432/queryx_test?sslmode=disable"
+
+
+async def main():
+    # Establish a connection to an existing database named "test"
+    # as a "postgres" user.
+    conn = await asyncpg.connect(url)
+
+    await conn.execute("INSERT INTO tags(name) VALUES($1)", "test", )
+    row = await conn.fetchrow('SELECT * FROM tags WHERE name = $1', 'test')
+    # *row* now contains
+    # asyncpg.Record(id=1, name='Bob', dob=datetime.date(1984, 3, 1))
+    print(row['id'])
+
+    # Close the connection.
+    await conn.close()
+
+asyncio.get_event_loop().run_until_complete(main())
 
 
 class User:
@@ -7,38 +29,59 @@ class User:
         self.id = id
         self.name = name
 
+    def __str__(self) -> str:
+        return "User(id={}, name={})".format(self.id, self.name)
+
 
 class SelectStatement:
-    def __init__(self, sql, params) -> None:
-        self.sql = sql
-        self.params = params
-
-
-class UserQuery:
     def __init__(self) -> None:
         pass
 
-    def create(self, user):
-        return user
+
+# TODO: convert ? to %s
+def rebind(sql, args):
+    return sql, args
 
 
 class QXClient:
     def __init__(self) -> None:
-        url = "postgresql://postgres:postgres@localhost:5432/queryx_test?sslmode=disable"
         self.conn = psycopg.connect(url)
 
-    def query_one(self):
-        pass
+    def query_one(self, query, args):
+        sql, args = rebind(query, args)
+        with self.conn.cursor() as cur:
+            cur.execute(query, args)
+        return cur.fetchone()
 
-    def query(self):
-        pass
+    def query(self, query, args):
+        sql, args = rebind(query, args)
+        with self.conn.cursor() as cur:
+            cur.execute(query, args)
+        return cur.fetchall()
 
     def exec(self, query, args):
+        sql, args = rebind(query, args)
         with self.conn.cursor() as cur:
             cur.execute(query, args)
 
     def query_user(self):
-        return UserQuery()
+        return UserQuery(self)
+
+
+class UserChange:
+    def __init__(self, input) -> None:
+        pass
+
+    def setName(self, name: str):
+        self.name = name
+
+
+class UserQuery:
+    def __init__(self, client: QXClient) -> None:
+        self.client = client
+
+    def create(self, input):
+        return self.client.query_one("insert into users(name) values (%s)", input["name"])
 
 
 c = QXClient()
@@ -80,3 +123,8 @@ def test_find():
     assert user.name == "test"
     with pytest.raises(Exception):
         c.query_user().find(user.id + 1)
+
+
+def test_change():
+    userChange = UserChange({"name": "test"})
+    assert userChange.name == "test"
