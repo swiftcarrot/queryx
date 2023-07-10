@@ -316,6 +316,28 @@ func TestHasManyEmpty(t *testing.T) {
 	require.Equal(t, 0, len(user.UserPosts))
 }
 
+func TestHasMany(t *testing.T) {
+	user, err := c.QueryUser().Create(c.ChangeUser())
+	require.NoError(t, err)
+	post1, err := c.QueryPost().Create(c.ChangePost())
+	require.NoError(t, err)
+	userPost1, err := c.QueryUserPost().Create(c.ChangeUserPost().SetUserID(user.ID).SetPostID(post1.ID))
+	require.NoError(t, err)
+
+	_, err = c.QueryPost().Create(c.ChangePost())
+	require.NoError(t, err)
+	_, err = c.QueryUserPost().Create(c.ChangeUserPost())
+	require.NoError(t, err)
+
+	posts, err := user.QueryPosts().All()
+	require.NoError(t, err)
+	require.Equal(t, []*db.Post{post1}, posts)
+
+	userPosts, err := user.QueryUserPosts().All()
+	require.NoError(t, err)
+	require.Equal(t, []*db.UserPost{userPost1}, userPosts)
+}
+
 func TestHasOne(t *testing.T) {
 	user, err := c.QueryUser().Create(c.ChangeUser())
 	require.NoError(t, err)

@@ -77,11 +77,18 @@ func ({{ $m }} *{{.model.Name}}) Update(change *queryx.{{.model.Name}}Change) er
 	return {{ $m }}.applyChange(change)
 }
 
-func ({{ $m }} *{{.model.Name}}) Delete() error {
-	_, err := {{$m}}.queries.Query{{.model.Name}}().Delete(
+func ({{ $m }} *{{ $.model.Name }}) Delete() error {
+	_, err := {{ $m }}.queries.Query{{ $.model.Name }}().Delete(
 	{{- range $i, $c := $.model.PrimaryKey.Columns -}}
 		{{ if $i }}, {{ end }}{{ $m }}.{{ $c.Name | pascal }}
 	{{- end -}})
 	return err
+}
+{{- end }}
+
+{{- range $h := $.model.HasMany }}
+
+func ({{ $m }} *{{ $.model.Name }}) Query{{ $h.Name | pascal }}() *{{ $h.ModelName }}Query {
+	return {{ $m }}.queries.Query{{ $h.ModelName }}()
 }
 {{- end }}
