@@ -1,5 +1,5 @@
 import pytest
-import psycopg
+#import psycopg
 import asyncio
 import asyncpg
 import datetime
@@ -13,15 +13,11 @@ async def main():
     conn = await asyncpg.connect(url)
 
     await conn.execute("INSERT INTO tags(name) VALUES($1)", "test", )
-    row = await conn.fetchrow('SELECT * FROM tags WHERE name = $1', 'test')
-    # *row* now contains
-    # asyncpg.Record(id=1, name='Bob', dob=datetime.date(1984, 3, 1))
+    row = await conn.fetchrow('SELECT * FROM tags WHERE name = $1 ORDER BY id DESC', 'test')
     print(row['id'])
-
-    # Close the connection.
     await conn.close()
 
-asyncio.get_event_loop().run_until_complete(main())
+asyncio.run(main())
 
 
 class User:
@@ -84,7 +80,7 @@ class UserQuery:
         return self.client.query_one("insert into users(name) values (%s)", input["name"])
 
 
-c = QXClient()
+#c = QXClient()
 
 
 def test_query_one():
