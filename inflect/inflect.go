@@ -1,7 +1,6 @@
 package inflect
 
 import (
-	"encoding/json"
 	"strings"
 	"text/template"
 	"unicode"
@@ -15,21 +14,19 @@ var Singular = rules.Singularize
 var Tableize = inflect.Tableize
 
 var TemplateFunctions = template.FuncMap{
-	"lower":                 strings.ToLower,
-	"upper":                 strings.ToUpper,
-	"pascal":                Pascal,
-	"plural":                Plural,
-	"singular":              rules.Singularize,
-	"snake":                 Snake,
-	"join":                  strings.Join,
-	"camel":                 Camel,
-	"firstWordUpperCamel":   firstWordUpperCamel,
-	"firstWordLowerCamel":   firstWordLowerCamel,
-	"sub":                   sub,
-	"add":                   add,
-	"addStr":                addStr,
-	"getTableNameOfHasMany": getTableNameOfHasMany,
-	"getTableNameOfThrough": getTableNameOfThrough,
+	"lower":               strings.ToLower,
+	"upper":               strings.ToUpper,
+	"pascal":              Pascal,
+	"plural":              Plural,
+	"singular":            rules.Singularize,
+	"snake":               Snake,
+	"join":                strings.Join,
+	"camel":               Camel,
+	"firstWordUpperCamel": firstWordUpperCamel,
+	"firstWordLowerCamel": firstWordLowerCamel,
+	"sub":                 sub,
+	"add":                 add,
+	"addStr":              addStr,
 
 	"goType":          goType,
 	"goChangeSetType": goChangeSetType,
@@ -39,48 +36,6 @@ var TemplateFunctions = template.FuncMap{
 
 	"tsType":          tsType,
 	"tsChangeSetType": tsChangeSetType,
-}
-
-type Database struct {
-	Name    string
-	Adapter string
-	Models  []*Model
-}
-
-// 为了避免循环依赖，没有直接引用schema.Model
-type Model struct {
-	Name       string
-	TableName  string
-	Timestamps bool
-	BelongsTo  []*BelongsTo
-	HasMany    []*HasMany
-	HasOne     []*HasOne
-}
-
-type HasOne struct {
-	Name       string
-	ModelName  string
-	Through    string
-	ForeignKey string
-}
-
-type HasMany struct {
-	Name       string
-	ModelName  string
-	Through    string
-	ForeignKey string
-	Source     string
-}
-type BelongsTo struct {
-	Name        string
-	ModelName   string
-	ForeignKey  string
-	ForeignType string
-	PrimaryKey  string
-	Dependent   string
-	Optional    bool
-	Required    bool
-	Default     bool
 }
 
 func sub(a int, b int) int {
@@ -101,51 +56,6 @@ func addStr(a ...string) string {
 		str = str + a[i]
 	}
 	return str
-}
-
-func getTableNameOfThrough(through string, models interface{}) string {
-	s := Singular(firstWordUpperCamel(through))
-	marshaller, err := json.Marshal(models)
-	if err != nil {
-		return ""
-	}
-	var ms []*Model
-	err = json.Unmarshal(marshaller, &ms)
-	if err != nil {
-		return ""
-	}
-	m := make(map[string]Model)
-	for i := 0; i < len(ms); i++ {
-		m[ms[i].Name] = *ms[i]
-	}
-	return m[s].TableName
-}
-
-func getTableNameOfHasMany(hasMany interface{}, model interface{}) string {
-	marshaller, err := json.Marshal(model)
-	if err != nil {
-		return ""
-	}
-	var ms []*Model
-	err = json.Unmarshal(marshaller, &ms)
-	if err != nil {
-		return ""
-	}
-
-	_hasMany, err := json.Marshal(hasMany)
-	if err != nil {
-		return ""
-	}
-	var h HasMany
-	err = json.Unmarshal(_hasMany, &h)
-	if err != nil {
-		return ""
-	}
-	m := make(map[string]Model)
-	for i := 0; i < len(ms); i++ {
-		m[ms[i].Name] = *ms[i]
-	}
-	return m[h.ModelName].TableName
 }
 
 func Camel(s string) string {
