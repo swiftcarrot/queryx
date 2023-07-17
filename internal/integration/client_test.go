@@ -329,13 +329,13 @@ func TestHasMany(t *testing.T) {
 	_, err = c.QueryUserPost().Create(c.ChangeUserPost())
 	require.NoError(t, err)
 
-	posts, err := user.QueryPosts().All()
-	require.NoError(t, err)
-	require.Equal(t, []*db.Post{post1}, posts)
-
 	userPosts, err := user.QueryUserPosts().All()
 	require.NoError(t, err)
 	require.Equal(t, []*db.UserPost{userPost1}, userPosts)
+
+	posts, err := user.QueryPosts().All()
+	require.NoError(t, err)
+	require.Equal(t, []*db.Post{post1}, posts)
 }
 
 func TestHasOne(t *testing.T) {
