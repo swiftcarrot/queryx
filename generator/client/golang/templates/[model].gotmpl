@@ -77,11 +77,24 @@ func ({{ $m }} *{{.model.Name}}) Update(change *queryx.{{.model.Name}}Change) er
 	return {{ $m }}.applyChange(change)
 }
 
-func ({{ $m }} *{{.model.Name}}) Delete() error {
-	_, err := {{$m}}.queries.Query{{.model.Name}}().Delete(
+func ({{ $m }} *{{ $.model.Name }}) Delete() error {
+	_, err := {{ $m }}.queries.Query{{ $.model.Name }}().Delete(
 	{{- range $i, $c := $.model.PrimaryKey.Columns -}}
 		{{ if $i }}, {{ end }}{{ $m }}.{{ $c.Name | pascal }}
 	{{- end -}})
 	return err
+}
+{{- end }}
+
+{{- range $h := $.model.HasMany }}
+
+func ({{ $m }} *{{ $.model.Name }}) Query{{ $h.Name | pascal }}() *{{ $h.ModelName }}Query {
+	{{- if $h.Through }}
+	return {{ $m }}.queries.Query{{ $h.ModelName }}().
+		Joins("INNER JOIN {{ $h.Through }} ON {{ $h.Through }}.{{ $h.ModelName | snake }}_id = {{ $h.Name }}.id").
+		Where({{ $m }}.schema.{{ $h.Through | singular | pascal }}{{ $h.ForeignKey | pascal }}.EQ({{ $m }}.ID))
+	{{- else }}
+	return {{ $m }}.queries.Query{{ $h.ModelName }}().Where({{ $m }}.schema.{{ $h.ModelName }}{{ $h.ForeignKey | pascal }}.EQ({{ $m }}.ID))
+	{{- end }}
 }
 {{- end }}
