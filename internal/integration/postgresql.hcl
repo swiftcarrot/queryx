@@ -139,4 +139,14 @@ database "db" {
       columns = ["id"]
     }
   }
+
+  model "Item" {
+    column "embedding" {
+      type = "vector(3)"
+    }
+    // column "embedding" {
+    //   type = vector
+    //   dimension = 3
+    // }
+  }
 }

@@ -1,9 +1,5 @@
 package inflect
 
-import (
-	"log"
-)
-
 // avoid go keyword with syntax error
 func goKeywordFix(s string) string {
 	switch s {
@@ -39,9 +35,10 @@ func goModelType(t string, null bool) string {
 			return "queryx.Float"
 		case "json", "jsonb":
 			return "queryx.JSON"
+		case "vector(3)":
+			return "queryx.Vector"
 		default:
-			log.Fatal("not found", t)
-			return ""
+			return t
 		}
 	} else {
 		switch t {
@@ -65,9 +62,10 @@ func goModelType(t string, null bool) string {
 			return "float"
 		case "json", "jsonb":
 			return "queryx.JSON"
+		case "vector(3)":
+			return "queryx.Vector"
 		default:
-			log.Fatal("not found", t)
-			return ""
+			return t
 		}
 	}
 }
@@ -95,8 +93,10 @@ func goType(t string) string {
 		return "Float"
 	case "json", "jsonb":
 		return "JSON"
+	case "vector(3)":
+		return "Vector"
 	default:
-		return "" // TODO: raise error
+		return t
 	}
 }
 
@@ -125,8 +125,9 @@ func goChangeSetType(t string) string {
 		return "float64"
 	case "json", "jsonb":
 		return "map[string]interface{}"
+	case "vector(3)":
+		return "[]float32"
 	default:
-		log.Fatal("unknown type in goChangeSetType", t) // TODO: error handling
-		return ""
+		return t
 	}
 }
