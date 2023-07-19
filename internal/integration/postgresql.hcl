@@ -142,11 +142,8 @@ database "db" {
 
   model "Item" {
     column "embedding" {
-      type = "vector(3)"
+      type      = vector
+      dimension = 1536
     }
-    // column "embedding" {
-    //   type = vector
-    //   dimension = 3
-    // }
   }
 }

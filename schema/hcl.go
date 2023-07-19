@@ -67,6 +67,7 @@ var hclColumn = &hcl.BodySchema{
 		{Name: "null"},
 		{Name: "default"},
 		{Name: "unique"},
+		{Name: "dimension"},
 	},
 	Blocks: []hcl.BlockHeaderSchema{},
 }
@@ -476,6 +477,8 @@ func columnFromBlock(block *hcl.Block, ctx *hcl.EvalContext) (*Column, error) {
 			column.Array = valueAsBool(value)
 		case "null":
 			column.Null = valueAsBool(value)
+		case "dimension":
+			column.Dimension = valueAsInt(value)
 		}
 	}
 	for name, attr := range content.Attributes {
@@ -560,6 +563,7 @@ func Parse(body hcl.Body) (*Schema, error) {
 			"json":      cty.StringVal("json"),
 			"jsonb":     cty.StringVal("jsonb"),
 			"uuid":      cty.StringVal("uuid"),
+			"vector":    cty.StringVal("vector"),
 		},
 		Functions: map[string]function.Function{
 			"env": env,

@@ -35,7 +35,7 @@ func goModelType(t string, null bool) string {
 			return "queryx.Float"
 		case "json", "jsonb":
 			return "queryx.JSON"
-		case "vector(3)":
+		case "vector":
 			return "queryx.Vector"
 		default:
 			return t
@@ -62,7 +62,7 @@ func goModelType(t string, null bool) string {
 			return "float"
 		case "json", "jsonb":
 			return "queryx.JSON"
-		case "vector(3)":
+		case "vector":
 			return "queryx.Vector"
 		default:
 			return t
@@ -93,7 +93,7 @@ func goType(t string) string {
 		return "Float"
 	case "json", "jsonb":
 		return "JSON"
-	case "vector(3)":
+	case "vector":
 		return "Vector"
 	default:
 		return t
@@ -125,7 +125,7 @@ func goChangeSetType(t string) string {
 		return "float64"
 	case "json", "jsonb":
 		return "map[string]interface{}"
-	case "vector(3)":
+	case "vector":
 		return "[]float32"
 	default:
 		return t

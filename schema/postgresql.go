@@ -104,6 +104,8 @@ func (d *Database) CreatePostgreSQLSchema(dbName string) *schema.Schema {
 						col.SetType(&postgres.UUIDType{T: postgres.TypeUUID}).SetDefault(&schema.RawExpr{X: d})
 					}
 				}
+			case "vector":
+				col.SetType(&postgres.UserDefinedType{T: fmt.Sprintf("vector(%d)", c.Dimension)})
 			default:
 				col.SetType(&postgres.UserDefinedType{T: c.Type})
 			}
