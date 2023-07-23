@@ -68,3 +68,11 @@ func (i *Integer) UnmarshalJSON(data []byte) error {
 	i.Val = int32(p)
 	return nil
 }
+
+// String implements the stringer interface.
+func (i Integer) String() string {
+	if i.Null {
+		return "null"
+	}
+	return strconv.Itoa(int(i.Val))
+}

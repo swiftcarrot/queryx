@@ -33,7 +33,13 @@ func ({{ $m }} *{{.model.Name}}) String() string {
 	var b strings.Builder
 	b.WriteString("({{ $.model.Name }} ")
 	{{- range $i, $c := $.model.Columns }}
-	b.WriteString(fmt.Sprintf("{{ $c.Name }}: \"%+v\"", {{ $m }}.{{ pascal $c.Name }}))
+	{{- if $c.Null }}
+	b.WriteString(fmt.Sprintf("{{ $c.Name }}: %s", {{ $m }}.{{ pascal $c.Name }}))
+	{{- else if eq $c.Type "string" }}
+	b.WriteString(fmt.Sprintf(`{{ $c.Name }}: "%s"`, {{ $m }}.{{ pascal $c.Name }}))
+	{{- else }}
+	b.WriteString(fmt.Sprintf("{{ $c.Name }}: %v", {{ $m }}.{{ pascal $c.Name }}))
+	{{- end }}
 	{{- $l := len $.model.Columns }}
 	{{- if ne $i (sub $l 1) }}
 	b.WriteString(", ")

@@ -67,3 +67,11 @@ func (j *JSON) UnmarshalJSON(data []byte) error {
 	j.Val = m
 	return nil
 }
+
+// String implements the stringer interface.
+func (j JSON) String() string {
+	if j.Null {
+		return "null"
+	}
+	return fmt.Sprintf("%+v", j.Val)
+}

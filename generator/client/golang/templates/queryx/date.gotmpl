@@ -88,3 +88,11 @@ func (d *Date) UnmarshalJSON(data []byte) error {
 	d.Val = *t
 	return nil
 }
+
+// String implements the stringer interface.
+func (d Date) String() string {
+	if d.Null {
+		return "null"
+	}
+	return d.Val.Format("2006-01-02")
+}

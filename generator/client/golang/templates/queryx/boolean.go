@@ -64,3 +64,14 @@ func (b *Boolean) UnmarshalJSON(data []byte) error {
 	}
 	return nil
 }
+
+// String implements the stringer interface.
+func (b Boolean) String() string {
+	if b.Null {
+		return "null"
+	}
+	if b.Val {
+		return "true"
+	}
+	return "false"
+}

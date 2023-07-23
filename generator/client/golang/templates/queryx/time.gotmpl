@@ -105,3 +105,11 @@ func (t *Time) UnmarshalJSON(data []byte) error {
 	t.Val = *tt
 	return nil
 }
+
+// String implements the stringer interface.
+func (t Time) String() string {
+	if t.Null {
+		return "null"
+	}
+	return t.Val.Format("15:04:05")
+}

@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"encoding/json"
+	"strconv"
 )
 
 type Float struct {
@@ -60,4 +61,12 @@ func (f *Float) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	return nil
+}
+
+// String implements the stringer interface.
+func (f Float) String() string {
+	if f.Null {
+		return "null"
+	}
+	return strconv.FormatFloat(f.Val, 'f', 2, 64)
 }

@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"log"
 	"testing"
 	"time"
@@ -422,11 +421,13 @@ func TestModelStringer(t *testing.T) {
 	_, err := c.QueryCode().DeleteAll()
 	require.NoError(t, err)
 
-	code, err := c.QueryCode().Create(c.ChangeCode().SetKey("code key").SetType("code type"))
+	code, err := c.QueryCode().Create(c.ChangeCode().SetKey("key").SetType("type"))
 	require.NoError(t, err)
+	require.Equal(t, `(Code type: "type", key: "key")`, code.String())
 
-	s := fmt.Sprintf(`(Code type: "%s", key: "%s")`, code.Type, code.Key)
-	require.Equal(t, s, code.String())
+	client, err := c.QueryClient().Create(c.ChangeClient().SetName("test"))
+	require.NoError(t, err)
+	require.Equal(t, `(Client name: "test")`, client.String())
 }
 
 func init() {

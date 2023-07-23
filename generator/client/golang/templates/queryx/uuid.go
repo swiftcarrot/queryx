@@ -61,3 +61,11 @@ func (u *UUID) UnmarshalJSON(data []byte) error {
 	}
 	return nil
 }
+
+// String implements the stringer interface.
+func (u UUID) String() string {
+	if u.Null {
+		return "null"
+	}
+	return u.Val
+}

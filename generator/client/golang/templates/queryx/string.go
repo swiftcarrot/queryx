@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"encoding/json"
+	"fmt"
 )
 
 type String struct {
@@ -60,4 +61,12 @@ func (s *String) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	return nil
+}
+
+// String implements the stringer interface.
+func (s String) String() string {
+	if s.Null {
+		return "null"
+	}
+	return fmt.Sprintf(`"%s"`, s.Val)
 }

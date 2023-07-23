@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"encoding/json"
+	"strconv"
 )
 
 type BigInt struct {
@@ -63,4 +64,12 @@ func (b *BigInt) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	return nil
+}
+
+// String implements the stringer interface.
+func (b BigInt) String() string {
+	if b.Null {
+		return "null"
+	}
+	return strconv.FormatInt(b.Val, 10)
 }
