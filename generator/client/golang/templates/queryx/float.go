@@ -68,5 +68,5 @@ func (f Float) String() string {
 	if f.Null {
 		return "null"
 	}
-	return strconv.FormatFloat(f.Val, 'f', 2, 64)
+	return strconv.FormatFloat(f.Val, 'f', -1, 64)
 }
