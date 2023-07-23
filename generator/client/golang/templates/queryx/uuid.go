@@ -9,33 +9,33 @@ import (
 )
 
 type UUID struct {
-	Val  string
-	Null bool
-	Set  bool
+	Val   string
+	Valid bool
+	Set   bool
 }
 
 func NewUUID(v string) UUID {
-	return UUID{Val: v, Set: true}
+	return UUID{Val: v, Valid: true, Set: true}
 }
 
 func NewNullableUUID(v *string) UUID {
 	if v != nil {
-		return UUID{Val: *v, Set: true}
+		return NewUUID(*v)
 	}
-	return UUID{Null: true, Set: true}
+	return UUID{Set: true}
 }
 
 // Scan implements the Scanner interface.
 func (u *UUID) Scan(value interface{}) error {
 	ns := sql.NullString{String: u.Val}
 	err := ns.Scan(value)
-	u.Val, u.Null = ns.String, !ns.Valid
+	u.Val, u.Valid = ns.String, ns.Valid
 	return err
 }
 
 // Value implements the driver Valuer interface.
 func (u UUID) Value() (driver.Value, error) {
-	if u.Null {
+	if !u.Valid {
 		return nil, nil
 	}
 	return u.Val, nil
@@ -43,7 +43,7 @@ func (u UUID) Value() (driver.Value, error) {
 
 // MarshalJSON implements the json.Marshaler interface.
 func (u UUID) MarshalJSON() ([]byte, error) {
-	if u.Null {
+	if !u.Valid {
 		return json.Marshal(nil)
 	}
 	return json.Marshal(u.Val)
@@ -53,11 +53,19 @@ func (u UUID) MarshalJSON() ([]byte, error) {
 func (u *UUID) UnmarshalJSON(data []byte) error {
 	u.Set = true
 	if string(data) == "null" {
-		u.Null = true
 		return nil
 	}
+	u.Valid = true
 	if err := json.Unmarshal(data, &u.Val); err != nil {
 		return err
 	}
 	return nil
+}
+
+// String implements the stringer interface.
+func (u UUID) String() string {
+	if !u.Valid {
+		return "null"
+	}
+	return u.Val
 }

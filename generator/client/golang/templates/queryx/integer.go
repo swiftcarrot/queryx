@@ -10,20 +10,20 @@ import (
 )
 
 type Integer struct {
-	Val  int32
-	Null bool
-	Set  bool
+	Val   int32
+	Valid bool
+	Set   bool
 }
 
 func NewInteger(v int32) Integer {
-	return Integer{Val: v, Set: true}
+	return Integer{Val: v, Valid: true, Set: true}
 }
 
 func NewNullableInteger(v *int32) Integer {
 	if v != nil {
 		return NewInteger(*v)
 	}
-	return Integer{Null: true, Set: true}
+	return Integer{Set: true}
 }
 
 // Scan implements the Scanner interface.
@@ -33,13 +33,13 @@ func (i *Integer) Scan(value interface{}) error {
 	if err != nil {
 		return err
 	}
-	i.Val, i.Null = int32(n.Int64), !n.Valid
+	i.Val, i.Valid = int32(n.Int64), n.Valid
 	return nil
 }
 
 // Value implements the driver Valuer interface.
 func (i Integer) Value() (driver.Value, error) {
-	if i.Null {
+	if !i.Valid {
 		return nil, nil
 	}
 	return int64(i.Val), nil
@@ -47,7 +47,7 @@ func (i Integer) Value() (driver.Value, error) {
 
 // MarshalJSON implements the json.Marshaler interface.
 func (i Integer) MarshalJSON() ([]byte, error) {
-	if i.Null {
+	if !i.Valid {
 		return json.Marshal(nil)
 	}
 	return json.Marshal(i.Val)
@@ -58,13 +58,21 @@ func (i *Integer) UnmarshalJSON(data []byte) error {
 	i.Set = true
 	s := string(data)
 	if s == "null" {
-		i.Null = true
 		return nil
 	}
+	i.Valid = true
 	p, err := strconv.ParseInt(s, 10, 32)
 	if err != nil {
 		return err
 	}
 	i.Val = int32(p)
 	return nil
+}
+
+// String implements the stringer interface.
+func (i Integer) String() string {
+	if !i.Valid {
+		return "null"
+	}
+	return strconv.Itoa(int(i.Val))
 }
