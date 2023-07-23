@@ -418,16 +418,13 @@ func TestChangeJSON(t *testing.T) {
 }
 
 func TestModelStringer(t *testing.T) {
-	_, err := c.QueryCode().DeleteAll()
-	require.NoError(t, err)
-
-	code, err := c.QueryCode().Create(c.ChangeCode().SetKey("key").SetType("type"))
-	require.NoError(t, err)
-	require.Equal(t, `(Code type: "type", key: "key")`, code.String())
-
 	client, err := c.QueryClient().Create(c.ChangeClient().SetName("test"))
 	require.NoError(t, err)
-	require.Equal(t, `(Client name: "test")`, client.String())
+	require.Equal(t, `(Client name: "test", float: null)`, client.String())
+
+	client, err = c.QueryClient().Create(c.ChangeClient().SetName("test").SetFloat(51.1234))
+	require.NoError(t, err)
+	require.Equal(t, `(Client name: "test", float: 51.1234)`, client.String())
 }
 
 func init() {
