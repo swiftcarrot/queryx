@@ -12,10 +12,10 @@ import (
 func TestNewFloat(t *testing.T) {
 	f1 := NewFloat(2.1)
 	require.Equal(t, 2.1, f1.Val)
-	require.Equal(t, false, f1.Null)
+	require.True(t, f1.Valid)
 
 	f2 := NewNullableFloat(nil)
-	require.Equal(t, true, f2.Null)
+	require.False(t, f2.Valid)
 }
 
 func TestFloatJSON(t *testing.T) {

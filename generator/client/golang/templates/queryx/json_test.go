@@ -11,13 +11,13 @@ func TestNewJSON(t *testing.T) {
 	m := map[string]interface{}{"a": 1}
 	j1 := NewJSON(m)
 	require.Equal(t, m, j1.Val)
-	require.False(t, j1.Null)
+	require.True(t, j1.Valid)
 
 	j2 := NewNullableJSON(nil)
-	require.True(t, j2.Null)
+	require.False(t, j2.Valid)
 
 	j3 := NewNullableJSON(m)
-	require.False(t, j3.Null)
+	require.True(t, j3.Valid)
 }
 
 func TestJSONJSON(t *testing.T) {
