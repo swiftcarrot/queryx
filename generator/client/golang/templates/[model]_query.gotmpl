@@ -254,7 +254,7 @@ func (q *{{ $.model.Name }}Query) preload{{ pascal $b.Name }}(rows []*{{ $.model
 	ids := []int64{}
 	for _, r := range rows {
 		{{- if $b.Null }}
-		if !r.{{ $b.ForeignKey | pascal }}.Null {
+		if r.{{ $b.ForeignKey | pascal }}.Valid {
 			ids = append(ids, r.{{ $b.ForeignKey | pascal }}.Val)
 		}
 		{{- else }}
@@ -272,7 +272,7 @@ func (q *{{ $.model.Name }}Query) preload{{ pascal $b.Name }}(rows []*{{ $.model
 	}
 	for _, r := range rows {
 		{{- if $b.Null }}
-		if !r.{{ $b.ForeignKey | pascal }}.Null {
+		if r.{{ $b.ForeignKey | pascal }}.Valid {
 			r.{{ $b.Name | pascal }} = m[r.{{ $b.ForeignKey | pascal }}.Val]
 		}
 		{{- else }}

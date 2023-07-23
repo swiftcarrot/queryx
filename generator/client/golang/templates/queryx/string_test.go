@@ -12,10 +12,10 @@ import (
 func TestNewString(t *testing.T) {
 	s1 := NewString("ss")
 	require.Equal(t, "ss", s1.Val)
-	require.Equal(t, false, s1.Null)
+	require.True(t, s1.Valid)
 
 	s2 := NewNullableString(nil)
-	require.Equal(t, true, s2.Null)
+	require.False(t, s2.Valid)
 }
 
 func TestStringJSON(t *testing.T) {

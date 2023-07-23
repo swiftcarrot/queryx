@@ -9,26 +9,26 @@ import (
 )
 
 type JSON struct {
-	Val  map[string]interface{}
-	Null bool
-	Set  bool
+	Val   map[string]interface{}
+	Valid bool
+	Set   bool
 }
 
 func NewJSON(v map[string]interface{}) JSON {
-	return JSON{Val: v, Set: true}
+	return JSON{Val: v, Valid: true, Set: true}
 }
 
 func NewNullableJSON(v interface{}) JSON {
 	if v != nil {
 		return NewJSON(v.(map[string]interface{}))
 	}
-	return JSON{Null: true, Set: true}
+	return JSON{Set: true}
 }
 
 // Scan implements the Scanner interface.
 func (j *JSON) Scan(value interface{}) error {
 	if value == nil {
-		j.Val, j.Null = nil, true
+		j.Val, j.Valid = nil, false
 		return nil
 	}
 	b, ok := value.([]byte)
@@ -45,7 +45,7 @@ func (j JSON) Value() (driver.Value, error) {
 
 // MarshalJSON implements the json.Marshaler interface.
 func (j JSON) MarshalJSON() ([]byte, error) {
-	if j.Null {
+	if !j.Valid {
 		return json.Marshal(nil)
 	}
 	return json.Marshal(j.Val)
@@ -56,9 +56,9 @@ func (j *JSON) UnmarshalJSON(data []byte) error {
 	j.Set = true
 	s := string(data)
 	if s == "{}" || s == "null" {
-		j.Null = true
 		return nil
 	}
+	j.Valid = true
 	m := map[string]interface{}{}
 	err := json.Unmarshal(data, &m)
 	if err != nil {
@@ -66,4 +66,12 @@ func (j *JSON) UnmarshalJSON(data []byte) error {
 	}
 	j.Val = m
 	return nil
+}
+
+// String implements the stringer interface.
+func (j JSON) String() string {
+	if !j.Valid {
+		return "null"
+	}
+	return fmt.Sprintf("%+v", j.Val)
 }

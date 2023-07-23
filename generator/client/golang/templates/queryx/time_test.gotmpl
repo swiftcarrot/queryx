@@ -12,10 +12,10 @@ import (
 func TestNewTime(t *testing.T) {
 	t1 := NewTime("12:11:10")
 	require.Equal(t, "12:11:10", t1.Val.Format("15:04:05"))
-	require.Equal(t, false, t1.Null)
+	require.True(t, t1.Valid)
 
 	t2 := NewNullableTime(nil)
-	require.Equal(t, true, t2.Null)
+	require.False(t, t2.Valid)
 }
 
 func TestTimeJSON(t *testing.T) {

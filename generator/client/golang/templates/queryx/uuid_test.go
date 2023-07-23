@@ -12,10 +12,10 @@ import (
 func TestNewUUID(t *testing.T) {
 	u1 := NewUUID("a81e44c5-7e18-4dfe-b9b3-d9280629d2ef")
 	require.Equal(t, "a81e44c5-7e18-4dfe-b9b3-d9280629d2ef", u1.Val)
-	require.Equal(t, false, u1.Null)
+	require.True(t, u1.Valid)
 
 	u2 := NewNullableUUID(nil)
-	require.Equal(t, true, u2.Null)
+	require.False(t, u2.Valid)
 }
 
 func TestUUIDJSON(t *testing.T) {
