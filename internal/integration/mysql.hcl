@@ -125,6 +125,9 @@ database "db" {
     column "name" {
       type = string
     }
+    column "float" {
+      type = float
+    }
   }
 
   model "Device" {
