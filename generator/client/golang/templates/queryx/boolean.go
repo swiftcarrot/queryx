@@ -9,20 +9,20 @@ import (
 )
 
 type Boolean struct {
-	Val  bool
-	Null bool
-	Set  bool
+	Val   bool
+	Valid bool
+	Set   bool
 }
 
 func NewBoolean(v bool) Boolean {
-	return Boolean{Val: v, Set: true}
+	return Boolean{Val: v, Valid: true, Set: true}
 }
 
 func NewNullableBoolean(v *bool) Boolean {
 	if v != nil {
 		return NewBoolean(*v)
 	}
-	return Boolean{Null: true, Set: true}
+	return Boolean{Set: true}
 }
 
 // Scan implements the Scanner interface.
@@ -32,13 +32,13 @@ func (b *Boolean) Scan(value interface{}) error {
 	if err != nil {
 		return err
 	}
-	b.Val, b.Null = n.Bool, !n.Valid
+	b.Val, b.Valid = n.Bool, n.Valid
 	return nil
 }
 
 // Value implements the driver Valuer interface.
 func (b Boolean) Value() (driver.Value, error) {
-	if b.Null {
+	if !b.Valid {
 		return nil, nil
 	}
 	return b.Val, nil
@@ -46,7 +46,7 @@ func (b Boolean) Value() (driver.Value, error) {
 
 // MarshalJSON implements the json.Marshaler interface.
 func (b Boolean) MarshalJSON() ([]byte, error) {
-	if b.Null {
+	if !b.Valid {
 		return json.Marshal(nil)
 	}
 	return json.Marshal(b.Val)
@@ -56,9 +56,9 @@ func (b Boolean) MarshalJSON() ([]byte, error) {
 func (b *Boolean) UnmarshalJSON(data []byte) error {
 	b.Set = true
 	if string(data) == "null" {
-		b.Null = true
 		return nil
 	}
+	b.Valid = true
 	if err := json.Unmarshal(data, &b.Val); err != nil {
 		return err
 	}
@@ -67,7 +67,7 @@ func (b *Boolean) UnmarshalJSON(data []byte) error {
 
 // String implements the stringer interface.
 func (b Boolean) String() string {
-	if b.Null {
+	if !b.Valid {
 		return "null"
 	}
 	if b.Val {

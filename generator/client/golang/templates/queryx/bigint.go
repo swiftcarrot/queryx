@@ -10,20 +10,20 @@ import (
 )
 
 type BigInt struct {
-	Val  int64
-	Null bool
-	Set  bool
+	Val   int64
+	Valid bool
+	Set   bool
 }
 
 func NewBigInt(v int64) BigInt {
-	return BigInt{Val: v, Set: true}
+	return BigInt{Val: v, Valid: true, Set: true}
 }
 
 func NewNullableBigInt(v *int64) BigInt {
 	if v != nil {
 		return NewBigInt(*v)
 	}
-	return BigInt{Null: true, Set: true}
+	return BigInt{Set: true}
 }
 
 // Scan implements the Scanner interface.
@@ -33,13 +33,13 @@ func (b *BigInt) Scan(value interface{}) error {
 	if err != nil {
 		return err
 	}
-	b.Val, b.Null = n.Int64, !n.Valid
+	b.Val, b.Valid = n.Int64, n.Valid
 	return nil
 }
 
 // Value implements the driver Valuer interface.
 func (b BigInt) Value() (driver.Value, error) {
-	if b.Null {
+	if !b.Valid {
 		return nil, nil
 	}
 	return b.Val, nil
@@ -47,7 +47,7 @@ func (b BigInt) Value() (driver.Value, error) {
 
 // MarshalJSON implements the json.Marshaler interface.
 func (b BigInt) MarshalJSON() ([]byte, error) {
-	if b.Null {
+	if !b.Valid {
 		return json.Marshal(nil)
 	}
 	return json.Marshal(b.Val)
@@ -57,9 +57,9 @@ func (b BigInt) MarshalJSON() ([]byte, error) {
 func (b *BigInt) UnmarshalJSON(data []byte) error {
 	b.Set = true
 	if string(data) == "null" {
-		b.Null = true
 		return nil
 	}
+	b.Valid = true
 	if err := json.Unmarshal(data, &b.Val); err != nil {
 		return err
 	}
@@ -68,7 +68,7 @@ func (b *BigInt) UnmarshalJSON(data []byte) error {
 
 // String implements the stringer interface.
 func (b BigInt) String() string {
-	if b.Null {
+	if !b.Valid {
 		return "null"
 	}
 	return strconv.FormatInt(b.Val, 10)

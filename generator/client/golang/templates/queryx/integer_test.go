@@ -12,10 +12,10 @@ import (
 func TestNewInteger(t *testing.T) {
 	i1 := NewInteger(2)
 	require.Equal(t, int32(2), i1.Val)
-	require.Equal(t, false, i1.Null)
+	require.True(t, i1.Valid)
 
 	i2 := NewNullableInteger(nil)
-	require.Equal(t, true, i2.Null)
+	require.False(t, i2.Valid)
 }
 
 func TestIntegerJSON(t *testing.T) {

@@ -59,9 +59,9 @@ func TestCreate(t *testing.T) {
 	user, err := c.QueryUser().Create(c.ChangeUser().SetName("user").SetType("admin"))
 	require.NoError(t, err)
 	require.Equal(t, "user", user.Name.Val)
-	require.False(t, user.Name.Null)
+	require.True(t, user.Name.Valid)
 	require.Equal(t, "admin", user.Type.Val)
-	require.False(t, user.Type.Null)
+	require.True(t, user.Type.Valid)
 	require.True(t, user.ID > 0)
 }
 
@@ -86,12 +86,12 @@ func TestCreateEmpty(t *testing.T) {
 	tag, err := c.QueryTag().Create(nil)
 	require.NoError(t, err)
 	require.True(t, tag.ID > 0)
-	require.True(t, tag.Name.Null)
+	require.False(t, tag.Name.Valid)
 
 	tag, err = c.QueryTag().Create(c.ChangeTag())
 	require.NoError(t, err)
 	require.True(t, tag.ID > 0)
-	require.True(t, tag.Name.Null)
+	require.False(t, tag.Name.Valid)
 }
 
 func TestFind(t *testing.T) {
@@ -157,8 +157,8 @@ func TestDatetime(t *testing.T) {
 func TestTimestamps(t *testing.T) {
 	user, err := c.QueryUser().Create(c.ChangeUser())
 	require.NoError(t, err)
-	require.False(t, user.CreatedAt.Null)
-	require.False(t, user.UpdatedAt.Null)
+	require.True(t, user.CreatedAt.Valid)
+	require.True(t, user.UpdatedAt.Valid)
 	require.True(t, user.CreatedAt.Val.Equal(user.UpdatedAt.Val))
 
 	time.Sleep(time.Millisecond)
@@ -171,7 +171,7 @@ func TestTimestamps(t *testing.T) {
 func TestUUID(t *testing.T) {
 	user, err := c.QueryUser().Create(c.ChangeUser())
 	require.NoError(t, err)
-	require.True(t, user.UUID.Null)
+	require.False(t, user.UUID.Valid)
 
 	uuid1 := "c7e5b9af-0499-4eca-a7e6-77e10d56987b"
 	err = user.Update(c.ChangeUser().SetUUID(uuid1))
@@ -197,10 +197,10 @@ func TestSetNullable(t *testing.T) {
 	require.Equal(t, name, user.Name.Val)
 
 	user.Update(c.ChangeUser().SetNullableName(nil))
-	require.True(t, user.Name.Null)
+	require.False(t, user.Name.Valid)
 
 	user, _ = c.QueryUser().Find(user.ID)
-	require.True(t, user.Name.Null)
+	require.False(t, user.Name.Valid)
 }
 
 func TestJSON(t *testing.T) {

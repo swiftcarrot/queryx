@@ -10,9 +10,9 @@ import (
 )
 
 type Datetime struct {
-	Val  time.Time
-	Null bool
-	Set  bool
+	Val   time.Time
+	Valid bool
+	Set   bool
 }
 
 func loadLocation() (*time.Location, error) {
@@ -39,16 +39,16 @@ func Now(layout string) string {
 func NewDatetime(v string) Datetime {
 	t, err := parseDatetime(v)
 	if err != nil {
-		return Datetime{Null: true, Set: true}
+		return Datetime{Set: true}
 	}
-	return Datetime{Val: *t, Set: true}
+	return Datetime{Val: *t, Valid: true, Set: true}
 }
 
 func NewNullableDatetime(v *string) Datetime {
 	if v != nil {
 		return NewDatetime(*v)
 	}
-	return Datetime{Null: true, Set: true}
+	return Datetime{Set: true}
 }
 
 // Scan implements the Scanner interface.
@@ -58,7 +58,7 @@ func (d *Datetime) Scan(value interface{}) error {
 	if err != nil {
 		return err
 	}
-	d.Val, d.Null = n.Time, !n.Valid
+	d.Val, d.Valid = n.Time, n.Valid
 	loc, err := loadLocation()
 	if err != nil {
 		return err
@@ -69,7 +69,7 @@ func (d *Datetime) Scan(value interface{}) error {
 
 // Value implements the driver Valuer interface.
 func (d Datetime) Value() (driver.Value, error) {
-	if d.Null {
+	if !d.Valid {
 		return nil, nil
 	}
 	return d.Val.UTC(), nil
@@ -77,7 +77,7 @@ func (d Datetime) Value() (driver.Value, error) {
 
 // MarshalJSON implements the json.Marshaler interface.
 func (d Datetime) MarshalJSON() ([]byte, error) {
-	if d.Null {
+	if !d.Valid {
 		return json.Marshal(nil)
 	}
 	return json.Marshal(d.Val.UTC())
@@ -88,10 +88,9 @@ func (d *Datetime) UnmarshalJSON(data []byte) error {
 	d.Set = true
 	s := string(data)
 	if s == "null" || s == "" {
-		d.Null = true
 		return nil
 	}
-
+	d.Valid = true
 	t := time.Time{}
 	err := t.UnmarshalJSON(data)
 	if err != nil {
@@ -109,7 +108,7 @@ func (d *Datetime) UnmarshalJSON(data []byte) error {
 
 // String implements the stringer interface.
 func (d Datetime) String() string {
-	if d.Null {
+	if !d.Valid {
 		return "null"
 	}
 	return d.Val.Format("2006-01-02 15:04:05")
