@@ -16,14 +16,10 @@ import (
 
 type Generator struct {
 	Adapter   string
-	template  *template.Template
-	Templates map[string]*template.Template
+	Templates []*template.Template
 }
 
-// load template files from go embed
 func (g *Generator) LoadTemplates(src embed.FS, adapter string) error {
-	t := template.New("templates").Funcs(inflect.TemplateFunctions)
-
 	if err := fs.WalkDir(src, "templates", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return fmt.Errorf("error walking directory %s: %w", path, err)
@@ -48,18 +44,18 @@ func (g *Generator) LoadTemplates(src embed.FS, adapter string) error {
 			}
 		}
 
-		tmpl := t.New(templateName)
-		_, err = tmpl.Parse(string(buf))
+		tmpl := template.New(templateName).Funcs(inflect.TemplateFunctions)
+		tmpl, err = tmpl.Parse(string(buf))
 		if err != nil {
 			return fmt.Errorf("parsing template '%s': %w", path, err)
 		}
+
+		g.Templates = append(g.Templates, tmpl)
 
 		return nil
 	}); err != nil {
 		return err
 	}
-
-	g.template = t
 
 	return nil
 }
@@ -100,11 +96,8 @@ func (g *Generator) Generate(schema *schema.Schema) error {
 	dir := database.Name
 	created := []string{}
 
-	for _, tpl := range g.template.Templates() {
+	for _, tpl := range g.Templates {
 		name := tpl.Name()
-		if name == "templates" || !strings.Contains(name, ".") { // TODO: ignore templates defined in templates
-			continue
-		}
 
 		if strings.Contains(name, "[model]") {
 			for _, model := range database.Models {

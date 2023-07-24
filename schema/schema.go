@@ -6,4 +6,5 @@ type Schema struct {
 
 type Generator struct {
 	Name string
+	Test bool
 }

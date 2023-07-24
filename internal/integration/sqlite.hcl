@@ -6,7 +6,9 @@ database "db" {
     url = "file:test.sqlite3"
   }
 
-  generator "client-golang" {}
+  generator "client-golang" {
+    test = true
+  }
 
   model "User" {
     has_one "account" {}
