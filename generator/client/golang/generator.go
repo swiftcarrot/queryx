@@ -41,17 +41,13 @@ func Run(generatorConfig *schema.Generator, schema *schema.Schema, args []string
 	// remove unused types in templates
 	templates := []*template.Template{}
 	typs := typesFromSchema(schema)
-	fmt.Println("typs", typs)
 	for _, tpl := range g.Templates {
 		name := tpl.Name()
 		name = strings.TrimPrefix(name, "/queryx/")
 		name = strings.TrimSuffix(name, ".go")
 		name = strings.TrimSuffix(name, "_column")
-		fmt.Println("name", name)
 		if b, ok := typs[name]; !ok || b {
 			templates = append(templates, tpl)
-		} else {
-			fmt.Println("=", name)
 		}
 	}
 	g.Templates = templates
