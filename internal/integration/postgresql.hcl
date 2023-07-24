@@ -6,7 +6,9 @@ database "db" {
     url = "postgres://postgres:postgres@localhost:5432/queryx_test?sslmode=disable"
   }
 
-  generator "client-golang" {}
+  generator "client-golang" {
+    test = true
+  }
 
   model "User" {
     has_one "account" {}

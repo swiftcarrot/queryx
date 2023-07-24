@@ -22,7 +22,7 @@ var generateCmd = &cobra.Command{
 		for _, generator := range database.Generators {
 			switch generator.Name {
 			case "client-golang":
-				if err := golang.Run(sch, args); err != nil {
+				if err := golang.Run(generator, sch, args); err != nil {
 					return err
 				}
 			case "client-typescript":
