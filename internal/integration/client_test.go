@@ -26,7 +26,8 @@ func TestQueryOne(t *testing.T) {
 	require.Equal(t, user.ID, row.UserID)
 
 	err = c.QueryOne("").Scan(&row)
-	require.NoError(t, err)
+	require.NotNil(t, err)
+	require.Equal(t, "queryx: scan  with empty sql", err.Error())
 }
 
 func TestQuery(t *testing.T) {
@@ -47,7 +48,8 @@ func TestQuery(t *testing.T) {
 	}, rows)
 
 	err = c.Query("").Scan(&rows)
-	require.NoError(t, err)
+	require.NotNil(t, err)
+	require.Equal(t, "queryx: scan  with empty sql", err.Error())
 }
 
 func TestExec(t *testing.T) {
@@ -65,11 +67,20 @@ func TestCreate(t *testing.T) {
 	user, err := c.QueryUser().Create(c.ChangeUser().SetName("user").SetType("admin"))
 	require.NoError(t, err)
 	require.Equal(t, "user", user.Name.Val)
-	require.Equal(t, 31415926359899, user.Sequence.Val)
 	require.True(t, user.Name.Valid)
 	require.Equal(t, "admin", user.Type.Val)
 	require.True(t, user.Type.Valid)
 	require.True(t, user.ID > 0)
+}
+
+func TestDefault(t *testing.T) {
+	device, err := c.QueryDevice().Create(c.ChangeDevice().SetID("c7e5b9af-0499-4eca-a7e6-77e10d56987b"))
+	require.NoError(t, err)
+	require.Equal(t, "device", device.Name.Val)
+	require.Equal(t, int64(31415926359899), device.Sequence.Val)
+	require.Equal(t, 3.1415, device.Weight.Val)
+	require.Equal(t, "c7e5b9af-0499-4eca-a7e6-77e10d56987b", device.UUID.Val)
+	require.Equal(t, int32(5), device.Age.Val)
 }
 
 func TestInsertAll(t *testing.T) {
