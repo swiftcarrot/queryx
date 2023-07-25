@@ -6,11 +6,9 @@ database "db" {
     url = "postgres://postgres:postgres@localhost:5432/queryx_test?sslmode=disable"
   }
 
-  config "production" {
-    url = env("DATABASE_URL")
-  }
-
-  // generator "client-golang" {}
+  // generator "client-golang" {
+  //   test = true
+  // }
   generator "client-typescript" {}
 
   model "User" {

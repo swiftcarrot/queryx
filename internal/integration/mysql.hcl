@@ -6,7 +6,9 @@ database "db" {
     url = "root@tcp(localhost:3306)/queryx_test?parseTime=true&loc=Asia%2FShanghai"
   }
 
-  generator "client-golang" {}
+  generator "client-golang" {
+    test = true
+  }
   generator "client-typescript" {}
 
   model "User" {
