@@ -1,9 +1,9 @@
 # Queryx
 
+[English](README.md) | [中文](README_zh.md)
+
 > **Warning**
 > 该项目目前处于 Beta 版本（v0），虽然已在内部项目中进行了测试。目前，它仅支持生成 golang 代码。我们计划发布支持生成 TypeScript 代码的功能。 如果您有任何问题，请随时 [提出 issue](https://github.com/swiftcarrot/queryx/issues) 或 [展开讨论](https://github.com/swiftcarrot/queryx/discussions)。
-
-[English](README.md) | [中文](README_zh.md)
 
 Queryx 是一个基于模式优先、类型安全的 ORM，具有代码生成功能。
 
@@ -11,10 +11,10 @@ Queryx 是一个基于模式优先、类型安全的 ORM，具有代码生成功
 [![test status](https://github.com/swiftcarrot/queryx/workflows/integration/badge.svg "test status")](https://github.com/swiftcarrot/queryx/actions)
 [![Go.Dev reference](https://img.shields.io/badge/go.dev-reference-blue?logo=go&logoColor=white)](https://pkg.go.dev/github.com/swiftcarrot/queryx)
 
-- **模式优先**: 在 queryx 的模式文件中定义应用程序模型，它可以自动与数据库结构同步。
-- **类型安全**: Queryx 根据模式生成友好的、类型安全的 ORM 方法，这些方法具有自动完成支持，并且不会出现与类型相关的错误。
+- **模式优先**: 在 queryx 的模式文件中定义应用程序模型，自动与数据库结构同步。
+- **类型安全**: Queryx 根据模式生成友好的、类型安全的 ORM 方法，这些方法具有自动完成支持，避免出现与类型相关的错误。
 
-这个项目的灵感来源于 [Active Record](https://guides.rubyonrails.org/active_record_basics.html) 和 [ent](https://entgo.io/). 数据库模式管理是基于 [Atlas](https://atlasgo.io/).
+这个项目的灵感来源于 [Active Record](https://guides.rubyonrails.org/active_record_basics.html) 和 [ent](https://entgo.io/). 数据库模式管理是基于 [Atlas](https://atlasgo.io/)。
 
 # 开始
 
