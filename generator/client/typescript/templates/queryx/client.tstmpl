@@ -7,7 +7,7 @@ import { {{ $m.Name }}Query } from "../{{ $m.Name | snake }}"
 {{- end }}
 import { Table, BigIntColumn, IntegerColumn, FloatColumn, BooleanColumn, StringColumn, TextColumn, DateColumn, TimeColumn, DatetimeColumn, UUIDColumn, JSONColumn } from "./table";
 
-types.setTypeParser(types.builtins.INT8, BigInt);
+types.setTypeParser(types.builtins.INT8, val => parseInt(val, 10));
 
 export class QXClient {
   private db: Pool;

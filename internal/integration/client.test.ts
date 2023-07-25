@@ -47,6 +47,31 @@ test("create", async () => {
   expect(user.id).toBeGreaterThan(0);
 });
 
+test("insertAll", async () => {
+  await c.queryPost().deleteAll();
+  await expect(async () => {
+    await c.queryPost().insertAll();
+  }).rejects.toThrowError("InsertAll with empty changes");
+  await expect(async () => {
+    await c.queryPost().insertAll([]);
+  }).rejects.toThrowError("InsertAll with empty changes");
+
+  inserted = await c
+    .queryPost()
+    .insertAll([{ title: "title1" }, { title: "title2" }]);
+  expect(inserted).toEqual(2);
+});
+
+test("createEmpty", async () => {
+  let tag = await c.queryTag().create(null);
+  expect(tag.id).toBeGreaterThan(0);
+  expect(tag.name).toBeNull();
+
+  tag = await c.queryTag().create({});
+  expect(tag.id).toBeGreaterThan(0);
+  expect(tag.name).toBeNull();
+});
+
 test("find", async () => {
   let tag = await c.queryTag().create({ name: "test" });
   tag = await c.queryTag().find(tag.id);
@@ -64,6 +89,17 @@ test("order", async () => {
 
   let tags = await c.queryTag().order("id desc").all();
   expect(tags).toEqual([tag2, tag1]);
+});
+
+test("first", async () => {
+  await c.queryTag().deleteAll();
+  let tag1 = await c.queryTag().create({ name: "test" });
+  let tag2 = await c.queryTag().first();
+  expect(tag2.name).toEqual("test");
+  expect(tag2.id).toEqual(tag1.id);
+  await c.queryTag().deleteAll();
+  let tag3 = await c.queryTag().first();
+  expect(tag3).toBeNull();
 });
 
 test("time", async () => {
@@ -90,7 +126,7 @@ test("datetime", async () => {
   expect(user.datetime).toEqual(s1);
 
   let s2 = "2012-11-10 09:08:07.654";
-  user = c.queryUser().create({ datetime: s2 });
+  user = await c.queryUser().create({ datetime: s2 });
   expect(user.datetime).toEqual(s2);
 });
 
@@ -140,7 +176,7 @@ test("json", async () => {
   expect(user.payload.weight).toEqual(payload.weight);
 });
 
-test("primaryKey", async () => {
+test("compositePrimaryKey", async () => {
   await c.queryCode().deleteAll();
   let code = await c.queryCode().create({ type: "type", key: "key" });
   expect(code.type).toEqual("type");
@@ -162,6 +198,11 @@ test("primaryKey", async () => {
   expect(deleted).toEqual(1);
 });
 
+test("noPrimaryKey", async () => {
+  let client = await c.queryClient().create({ name: "client" });
+  expect(client.name).toEqual("client");
+});
+
 test("boolean", async () => {
   let user = await c.queryUser().create({ isAdmin: true });
   expect(user.isAdmin).toBe(true);
@@ -178,12 +219,15 @@ test("exists", async () => {
 });
 
 test("belongsTo", async () => {
-  let author = await c.queryUser().create({ name: "author" });
-  let post = await c
-    .queryPost()
-    .create({ title: "post title", authorID: author.id });
+  let user = await c.queryUser().create();
+  let post = await c.queryPost().create({ authorID: user.id });
+  let account = await c.queryAccount().create({ userID: user.id });
+
   post = await c.queryPost().preloadAuthor().find(post.id);
-  expect(post.author.id).toEqual(author.id);
+  expect(post.author).toEqual(author);
+
+  account = c.queryAccount().preloadUser().find(account.id);
+  expect(account.user).toEqual(user);
 });
 
 test("allEmpty", async () => {
@@ -215,6 +259,23 @@ test("hasManyEmpty", async () => {
   user = await c.queryUser().preloadPosts().find(user.id);
   expect(user.posts).toEqual([]);
   expect(user.userPosts).toEqual([]);
+});
+
+test("hasMany", async () => {
+  let user = await c.queryUser().create();
+  let post1 = await c.queryPost().create();
+  let userPost1 = await c
+    .queryUserPost()
+    .create({ userID: user.id, postID: post1.id });
+
+  await c.queryPost().create();
+  await c.queryUserPost().create();
+
+  let userPosts = await c.queryUserPost().all();
+  expect(userPosts).toEqual([userPost1]);
+
+  let posts = await user.queryPosts().all();
+  expect(posts).toEqual([post1]);
 });
 
 test("hasOne", async () => {
@@ -271,7 +332,7 @@ test("transaction", async () => {
   expect(total2).toEqual(total1);
 
   let total3 = await tx.queryTag().count();
-  expect(total3).toEqual(total1 + 2n);
+  expect(total3).toEqual(total1 + 2);
 
   tag1 = await c.queryTag().find(tag1.id);
   expect(tag1.name).toEqual("tag1");
@@ -279,7 +340,7 @@ test("transaction", async () => {
   await tx.commit();
 
   let total4 = await c.queryTag().count();
-  expect(total4).toEqual(total1 + 2n);
+  expect(total4).toEqual(total1 + 2);
 
   tag1 = await c.queryTag().find(tag1.id);
   expect(tag1.name).toEqual("tag1-updated");
@@ -300,12 +361,9 @@ test("modelJSON", async () => {
 });
 
 test("modelString", async () => {
-  await c.queryCode().deleteAll();
-  let code = await c.queryCode().create({
-    type: "code type",
-    key: "code key",
-  });
-  expect(code.toString()).toEqual(
-    `(Code type: "${code.type}", key: "${code.key}")`
-  );
+  let client = await c.queryClient().create({ name: "test" });
+  expect(client.toString()).toEqual(`(Client name: "test", float: null)`);
+
+  client = await c.queryClient().create({ name: "test", float: 51.1234 });
+  expect(client.toString()).toEqual(`(Client name: "test", float: 51.1234)`);
 });

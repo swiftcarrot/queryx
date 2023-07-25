@@ -15,6 +15,14 @@ import (
 
 var c *db.QXClient
 
+func init() {
+	client, err := db.NewClientWithEnv("test")
+	if err != nil {
+		log.Fatal(err)
+	}
+	c = client
+}
+
 func TestQueryOne(t *testing.T) {
 	user, err := c.QueryUser().Create(c.ChangeUser().SetName("test"))
 	require.NoError(t, err)
@@ -446,12 +454,4 @@ func TestModelStringer(t *testing.T) {
 	client, err = c.QueryClient().Create(c.ChangeClient().SetName("test").SetFloat(51.1234))
 	require.NoError(t, err)
 	require.Equal(t, `(Client name: "test", float: 51.1234)`, client.String())
-}
-
-func init() {
-	client, err := db.NewClientWithEnv("test")
-	if err != nil {
-		log.Fatal(err)
-	}
-	c = client
 }
