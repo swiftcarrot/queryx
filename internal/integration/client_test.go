@@ -65,6 +65,7 @@ func TestCreate(t *testing.T) {
 	user, err := c.QueryUser().Create(c.ChangeUser().SetName("user").SetType("admin"))
 	require.NoError(t, err)
 	require.Equal(t, "user", user.Name.Val)
+	require.Equal(t, 31415926359899, user.Sequence.Val)
 	require.True(t, user.Name.Valid)
 	require.Equal(t, "admin", user.Type.Val)
 	require.True(t, user.Type.Valid)

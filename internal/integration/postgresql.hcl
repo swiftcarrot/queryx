@@ -29,6 +29,10 @@ database "db" {
     column "age" {
       type = integer
     }
+    column "sequence" {
+      type = bigint
+      default= 31415926359899
+    }
     column "is_admin" {
       type = boolean
     }
