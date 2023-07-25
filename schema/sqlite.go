@@ -50,13 +50,18 @@ func (d *Database) CreateSQLiteSchema(dbName string) *schema.Schema {
 					m[c.Name] = struct{}{}
 				} else {
 					col.SetType(&schema.IntegerType{T: "integer"})
+					d, ok := c.Default.(int)
+					if ok {
+						col.SetDefault(&schema.RawExpr{X: strconv.Itoa(d)})
+					}
+
 				}
 			case "float":
 				col.SetType(&schema.FloatType{T: "float"})
 				if c.Default != nil {
 					d, ok := c.Default.(float64)
 					if ok {
-						col.SetType(&schema.FloatType{T: "float"}).SetDefault(&schema.RawExpr{X: strconv.FormatFloat(d, 'f', 10, 64)})
+						col.SetDefault(&schema.RawExpr{X: strconv.FormatFloat(d, 'f', 10, 64)})
 					}
 				}
 			case "boolean":

@@ -25,7 +25,15 @@ func (d *Database) CreatePostgreSQLSchema(dbName string) *schema.Schema {
 				if c.AutoIncrement {
 					col.SetType(&postgres.SerialType{T: postgres.TypeBigSerial})
 				} else {
-					col.SetType(&schema.IntegerType{T: postgres.TypeInt8})
+					if c.Default != nil {
+						d, ok := c.Default.(int)
+						if ok {
+							col.SetType(&schema.IntegerType{T: postgres.TypeBigInt}).SetDefault(&schema.RawExpr{X: strconv.Itoa(d)})
+						}
+					} else {
+						col.SetType(&schema.IntegerType{T: postgres.TypeBigInt})
+					}
+
 				}
 			case "string":
 				if c.Array {
@@ -33,7 +41,7 @@ func (d *Database) CreatePostgreSQLSchema(dbName string) *schema.Schema {
 					if c.Default != nil {
 						d, ok := c.Default.(string)
 						if ok {
-							col.SetType(&postgres.ArrayType{Type: &schema.StringType{T: "character varying", Size: 0}, T: "varchar[]"}).SetDefault(&schema.RawExpr{X: fmt.Sprintf("'%s'", d)})
+							col.SetDefault(&schema.RawExpr{X: fmt.Sprintf("'%s'", d)})
 						}
 					}
 				} else {
@@ -41,7 +49,7 @@ func (d *Database) CreatePostgreSQLSchema(dbName string) *schema.Schema {
 					if c.Default != nil {
 						d, ok := c.Default.(string)
 						if ok {
-							col.SetType(&schema.StringType{T: "character varying", Size: 0}).SetDefault(&schema.RawExpr{X: fmt.Sprintf("'%s'", d)})
+							col.SetDefault(&schema.RawExpr{X: fmt.Sprintf("'%s'", d)})
 						}
 					}
 				}
@@ -53,7 +61,7 @@ func (d *Database) CreatePostgreSQLSchema(dbName string) *schema.Schema {
 					if c.Default != nil {
 						d, ok := c.Default.(int)
 						if ok {
-							col.SetType(&postgres.ArrayType{Type: &schema.IntegerType{T: "integer"}, T: "int[]"}).SetDefault(&schema.RawExpr{X: strconv.Itoa(d)})
+							col.SetDefault(&schema.RawExpr{X: strconv.Itoa(d)})
 						}
 					}
 				} else {
@@ -61,7 +69,7 @@ func (d *Database) CreatePostgreSQLSchema(dbName string) *schema.Schema {
 					if c.Default != nil {
 						d, ok := c.Default.(int)
 						if ok {
-							col.SetType(&schema.IntegerType{T: "integer"}).SetDefault(&schema.RawExpr{X: strconv.Itoa(d)})
+							col.SetDefault(&schema.RawExpr{X: strconv.Itoa(d)})
 						}
 					}
 				}
@@ -70,7 +78,7 @@ func (d *Database) CreatePostgreSQLSchema(dbName string) *schema.Schema {
 				if c.Default != nil {
 					d, ok := c.Default.(float64)
 					if ok {
-						col.SetType(&schema.FloatType{T: postgres.TypeFloat8}).SetDefault(&schema.RawExpr{X: strconv.FormatFloat(d, 'f', 10, 64)})
+						col.SetDefault(&schema.RawExpr{X: strconv.FormatFloat(d, 'f', 10, 64)})
 					}
 				}
 			case "boolean":
@@ -78,7 +86,7 @@ func (d *Database) CreatePostgreSQLSchema(dbName string) *schema.Schema {
 				if c.Default != nil {
 					d, ok := c.Default.(bool)
 					if ok {
-						col.SetType(&schema.BoolType{T: postgres.TypeBoolean}).SetDefault(&schema.RawExpr{X: strconv.FormatBool(d)})
+						col.SetDefault(&schema.RawExpr{X: strconv.FormatBool(d)})
 					}
 				}
 			case "enum":
@@ -98,7 +106,7 @@ func (d *Database) CreatePostgreSQLSchema(dbName string) *schema.Schema {
 				if c.Default != nil {
 					d, ok := c.Default.(string)
 					if ok {
-						col.SetType(&postgres.UUIDType{T: postgres.TypeUUID}).SetDefault(&schema.RawExpr{X: d})
+						col.SetType(&postgres.UUIDType{T: postgres.TypeUUID}).SetDefault(&schema.RawExpr{X: fmt.Sprintf("'%s'", d)})
 					}
 				}
 			}

@@ -511,7 +511,7 @@ func columnFromBlock(block *hcl.Block, ctx *hcl.EvalContext) (*Column, error) {
 			switch column.Type {
 			case "string", "uuid":
 				column.Default = value.AsString()
-			case "integer":
+			case "integer", "bigint":
 				column.Default = valueAsInt(value)
 			case "boolean":
 				column.Default = valueAsBool(value)
