@@ -26,8 +26,7 @@ func TestQueryOne(t *testing.T) {
 	require.Equal(t, user.ID, row.UserID)
 
 	err = c.QueryOne("").Scan(&row)
-	require.NotNil(t, err)
-	require.Equal(t, "queryx: scan  with empty sql", err.Error())
+	require.NoError(t, err)
 }
 
 func TestQuery(t *testing.T) {
@@ -48,8 +47,7 @@ func TestQuery(t *testing.T) {
 	}, rows)
 
 	err = c.Query("").Scan(&rows)
-	require.NotNil(t, err)
-	require.Equal(t, "queryx: scan  with empty sql", err.Error())
+	require.NoError(t, err)
 }
 
 func TestExec(t *testing.T) {
