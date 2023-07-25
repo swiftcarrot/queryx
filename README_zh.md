@@ -501,16 +501,16 @@ queryx format --schema db.hcl
 
 所有可用的命令有:
 
-- `queryx db:create`: create the database
-- `queryx db:drop`: drop the database
-- `queryx db:migrate`: generate migration files and run pending migrations
-- `queryx db:migrate:generate`: generate migration files
+- `queryx db:create`: 创建数据库
+- `queryx db:drop`: 移除数据库
+- `queryx db:migrate`: 生成迁移文件并运行待处理的迁移
+- `queryx db:migrate:generate`: 生成迁移文件
   <!-- - `queryx db:migrate:status`: list status of each migration -->
   <!-- - `queryx db:rollback`: rollback database -->
   <!-- - `queryx db:version`: print database migration version -->
-- `queryx format`: format schema file with HCL formatter
-- `queryx generate`: generate code based on schema
-- `queryx version`: print current installed queryx version
+- `queryx format`: 格式化 hcl 文件
+- `queryx generate`: 生成指定客户端代码
+- `queryx version`: 显示 queryx 的版本信息
 
 # License
 
