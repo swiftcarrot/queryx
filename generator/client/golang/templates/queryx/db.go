@@ -4,7 +4,9 @@ package queryx
 
 import (
 	"database/sql"
+	"errors"
 	"regexp"
+	"strings"
 )
 
 type DB interface {
@@ -36,6 +38,9 @@ type Rows struct {
 }
 
 func (r *Rows) Scan(v interface{}) error {
+	if strings.TrimSpace(r.query) == "" {
+		return errors.New("queryx: scan  with empty sql")
+	}
 	if r.err != nil {
 		return r.err
 	}
@@ -74,6 +79,9 @@ type Row struct {
 }
 
 func (r *Row) Scan(v interface{}) error {
+	if strings.TrimSpace(r.query) == "" {
+		return errors.New("queryx: scan  with empty sql")
+	}
 	query, args := r.query, r.args
 	matched1, err := regexp.MatchString(`.* IN (.*?)`, query)
 	if err != nil {
