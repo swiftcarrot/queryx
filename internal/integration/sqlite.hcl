@@ -140,6 +140,31 @@ database "db" {
       null = false
     }
 
+    column "name" {
+      type = string
+      default = "device"
+    }
+
+    column "sequence" {
+      type = bigint
+      default= 31415926359899
+    }
+
+    column "weight" {
+      type = float
+      default= 3.1415
+    }
+
+    column "uuid" {
+      type = uuid
+      default= "c7e5b9af-0499-4eca-a7e6-77e10d56987b"
+    }
+
+    column "age" {
+      type = integer
+      default= 5
+    }
+
     primary_key {
       columns = ["id"]
     }
