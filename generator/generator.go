@@ -49,8 +49,8 @@ func (g *Generator) LoadTemplates(src embed.FS, adapter string) error {
 
 		ss := strings.Split(templateName, ".")
 		if len(ss) > 2 {
-			if ss[1] == adapter {
-				templateName = ss[0] + "." + ss[2]
+			if ss[len(ss)-2] == adapter {
+				templateName = strings.Join(ss[:len(ss)-2], ".") + "." + ss[len(ss)-1]
 			} else {
 				return nil
 			}

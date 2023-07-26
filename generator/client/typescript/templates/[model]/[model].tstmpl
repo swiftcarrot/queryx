@@ -60,9 +60,9 @@ export class {{ $.model.Name }} {
   }
 
   toString() {
-    let str = "(" + {{ $.model.Name }};
+    let str = "({{ $.model.Name }}";
     {{- range $c := $.model.Columns }}
-    str += "{{ $c.Name | camel }}=" + this.{{ $c.Name | camel}};
+    str += "{{ $c.Name | camel }}: " + this.{{ $c.Name | camel}};
     {{- end }}
     return str;
   }

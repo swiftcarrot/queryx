@@ -21,6 +21,7 @@ test-postgresql: install
 	cd internal/integration && QUERYX_ENV=test queryx db:migrate --schema postgresql.hcl
 	cd internal/integration && QUERYX_ENV=test queryx generate --schema postgresql.hcl
 	cd internal/integration && yarn test
+	cd internal/integration && yarn tsc
 	# cd internal/integration && go test ./...
 	# cd internal/integration && QUERYX_ENV=test queryx db:drop --schema postgresql.hcl
 

@@ -8,10 +8,8 @@ beforeAll(async () => {
 });
 
 test("queryOne", async () => {
-  let user = await c.queryUser().create({
-    name: "test",
-  });
-  let row = await c.queryOne(
+  let user = await c.queryUser().create({ name: "test" });
+  let row = await c.queryOne<{ user_id: number }>(
     "select id as user_id from users where id = ?",
     user.id
   );
@@ -56,7 +54,7 @@ test("insertAll", async () => {
     await c.queryPost().insertAll([]);
   }).rejects.toThrowError("InsertAll with empty changes");
 
-  inserted = await c
+  let inserted = await c
     .queryPost()
     .insertAll([{ title: "title1" }, { title: "title2" }]);
   expect(inserted).toEqual(2);
@@ -224,9 +222,9 @@ test("belongsTo", async () => {
   let account = await c.queryAccount().create({ userID: user.id });
 
   post = await c.queryPost().preloadAuthor().find(post.id);
-  expect(post.author).toEqual(author);
+  expect(post.author).toEqual(user);
 
-  account = c.queryAccount().preloadUser().find(account.id);
+  account = await c.queryAccount().preloadUser().find(account.id);
   expect(account.user).toEqual(user);
 });
 
@@ -274,7 +272,7 @@ test("hasMany", async () => {
   let userPosts = await c.queryUserPost().all();
   expect(userPosts).toEqual([userPost1]);
 
-  let posts = await user.queryPosts().all();
+  let posts = await user.queryPost().all();
   expect(posts).toEqual([post1]);
 });
 
