@@ -30,19 +30,18 @@ func (d *Database) CreateSQLiteSchema(dbName string) *schema.Schema {
 				if c.Default != nil {
 					d, ok := c.Default.(string)
 					if ok {
-						col.SetType(&schema.StringType{T: "varchar", Size: 0}).SetDefault(&schema.RawExpr{X: fmt.Sprintf("'%s'", d)})
+						col.SetDefault(&schema.RawExpr{X: fmt.Sprintf("'%s'", d)})
 					}
 				}
 			case "text":
 				col.SetType(&schema.StringType{T: "text", Size: 0})
 			case "integer":
+				col.SetType(&schema.IntegerType{T: "integer"})
 				if c.Default != nil {
 					d, ok := c.Default.(int)
 					if ok {
-						col.SetType(&schema.IntegerType{T: "integer"}).SetDefault(&schema.RawExpr{X: strconv.Itoa(d)})
+						col.SetDefault(&schema.RawExpr{X: strconv.Itoa(d)})
 					}
-				} else {
-					col.SetType(&schema.IntegerType{T: "integer"})
 				}
 			case "bigint":
 				if c.AutoIncrement {
@@ -69,7 +68,7 @@ func (d *Database) CreateSQLiteSchema(dbName string) *schema.Schema {
 				if c.Default != nil {
 					d, ok := c.Default.(bool)
 					if ok {
-						col.SetType(&schema.BoolType{T: "boolean"}).SetDefault(&schema.RawExpr{X: strconv.FormatBool(d)})
+						col.SetDefault(&schema.RawExpr{X: strconv.FormatBool(d)})
 					}
 				}
 			case "enum":
