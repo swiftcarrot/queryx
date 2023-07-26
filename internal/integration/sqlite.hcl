@@ -9,7 +9,9 @@ database "db" {
   generator "client-golang" {
     test = true
   }
-  generator "client-typescript" {}
+  generator "client-typescript" {
+    test = true
+  }
 
   model "User" {
     has_one "account" {}
