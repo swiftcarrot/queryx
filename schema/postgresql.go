@@ -106,7 +106,7 @@ func (d *Database) CreatePostgreSQLSchema(dbName string) *schema.Schema {
 				if c.Default != nil {
 					d, ok := c.Default.(string)
 					if ok {
-						col.SetType(&postgres.UUIDType{T: postgres.TypeUUID}).SetDefault(&schema.RawExpr{X: fmt.Sprintf("'%s'", d)})
+						col.SetDefault(&schema.RawExpr{X: fmt.Sprintf("'%s'", d)})
 					}
 				}
 			}
