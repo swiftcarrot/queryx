@@ -15,6 +15,12 @@ import type { {{ pascal $h.ModelName }} } from "../{{ snake $h.ModelName }}";
 import type { {{ pascal $h.ModelName }} } from "../{{ snake $h.ModelName }}";
 {{- end }}
 
+{{- define "primary_key_params" }}
+	{{- range $i, $c := $.Columns -}}
+		{{ if $i }}, {{ end }}{{ $c.Name | camel }}: {{ tsType $c.Type }}
+	{{- end -}}
+{{- end }}
+
 export class {{ $.model.Name }}Query {
   private client: QXClient;
   private selectStatement: SelectStatement;
@@ -59,19 +65,22 @@ export class {{ $.model.Name }}Query {
 
   async insertAll(inputs: {{ $.model.Name }}ChangeInput[]) {}
 
-  async delete(id: number | BigInt) {
+  {{- if $.model.PrimaryKey }}
+
+  async delete({{ template "primary_key_params" $.model.PrimaryKey }}) {
     let filter = this.client.{{ $.model.Name | camel }}ID.eq(id);
     let [query, args] = newDelete("{{ $.model.TableName }}").where(filter).toSQL();
     return await this.client.exec(query, ...args);
   }
 
-  async find(id: number | BigInt) {
+  async find({{ template "primary_key_params" $.model.PrimaryKey }}) {
     let record = await this.where(this.client.{{ $.model.Name | camel }}ID.eq(id)).first();
     if (!record) {
       return Promise.reject("Record not found");
     }
     return record;
   }
+  {{- end }}
 
   async findBy() {}
 
@@ -89,13 +98,21 @@ export class {{ $.model.Name }}Query {
     return this;
   }
 
-  offset() {}
+  offset(offset: string) {
+    return this;
+  }
 
-  group() {}
+  group(group: string) {
+    return this;
+  }
 
-  having() {}
+  having(having: string) {
+    return this;
+  }
 
-  joins() {}
+  joins(joins: string) {
+    return this;
+  }
 
   order(order: string) {
     this.selectStatement.order(order);
@@ -277,7 +294,7 @@ export class {{ $.model.Name }}Query {
     this.selectStatement.select("COUNT(*)");
     let [query, args] = this.selectStatement.toSQL();
     let res = await this.client.queryOne(query, ...args);
-    return res.count as BigInt;
+    return res.count;
   }
 
   async exists() {

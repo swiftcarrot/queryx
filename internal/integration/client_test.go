@@ -252,7 +252,8 @@ func TestCompositePrimaryKey(t *testing.T) {
 	require.Equal(t, "key", code.Key)
 }
 
-func TestNoPrimaryKey(t *testing.T) {
+func TestWithoutPrimaryKey(t *testing.T) {
+	// TODO: test missing Delete() and Find() on ClientQuery and Client
 	client, err := c.QueryClient().Create(c.ChangeClient().SetName("client"))
 	require.NoError(t, err)
 	require.Equal(t, "client", client.Name.Val)

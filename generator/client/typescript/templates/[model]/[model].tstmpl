@@ -48,6 +48,7 @@ export class {{ $.model.Name }} {
     {{- end }}
   }
 
+  {{- if $.model.PrimaryKey }}
   async update(input: {{ $.model.Name }}ChangeInput) {
     let filter = this._client.{{ $.model.Name | camel }}ID.eq(this.id);
     await this._client.query{{ $.model.Name }}().where(filter).updateAll(input);
@@ -56,8 +57,22 @@ export class {{ $.model.Name }} {
 
   async delete() {
     let filter = this._client.{{ $.model.Name | camel }}ID.eq(this.id);
-    return await this._client.query{{ $.model.Name }}().where(filter).deleteAll(input);
+    return await this._client.query{{ $.model.Name }}().where(filter).deleteAll();
   }
+  {{- end }}
+
+  {{- range $h := $.model.HasMany }}
+
+  query{{ $h.Name | pascal }}()  {
+    {{- if $h.Through }}
+    return this._client.query{{ $h.ModelName }}()
+      .joins("INNER JOIN {{ $h.Through }} ON {{ $h.Through }}.{{ $h.ModelName | snake }}_id = {{ $h.Name }}.id")
+      .where(this._client.{{ $h.Through | singular | camel }}{{ $h.ForeignKey | pascal }}.EQ(this.id));
+    {{- else }}
+    return this._client.query{{ $h.ModelName }}().where(this._client.{{ $h.ModelName }}{{ $h.ForeignKey | camel }}.EQ(this.id));
+    {{- end }}
+  }
+  {{- end }}
 
   toString() {
     let str = "({{ $.model.Name }}";

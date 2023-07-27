@@ -1,4 +1,4 @@
-import { test, expect, beforeAll } from "vitest";
+import { test, expect, beforeAll, expectTypeOf } from "vitest";
 import { newClientWithEnv, QXClient, UserChange } from "./db";
 
 let c: QXClient;
@@ -48,9 +48,6 @@ test("create", async () => {
 test("insertAll", async () => {
   await c.queryPost().deleteAll();
   await expect(async () => {
-    await c.queryPost().insertAll();
-  }).rejects.toThrowError("InsertAll with empty changes");
-  await expect(async () => {
     await c.queryPost().insertAll([]);
   }).rejects.toThrowError("InsertAll with empty changes");
 
@@ -61,7 +58,7 @@ test("insertAll", async () => {
 });
 
 test("createEmpty", async () => {
-  let tag = await c.queryTag().create(null);
+  let tag = await c.queryTag().create();
   expect(tag.id).toBeGreaterThan(0);
   expect(tag.name).toBeNull();
 
@@ -118,7 +115,10 @@ test("datetime", async () => {
   user = await c
     .queryUser()
     .where(
-      c.userID.eq(user.id).and(c.userDatetime.ge(s1)).and(c.userDatetime.le(s1))
+      c.userID
+        .eq(user.id)
+        .and(c.userDatetime.gte(s1))
+        .and(c.userDatetime.lte(s1))
     )
     .first();
   expect(user.datetime).toEqual(s1);
@@ -130,12 +130,13 @@ test("datetime", async () => {
 
 test("timestamps", async () => {
   let user = await c.queryUser().create({});
+  // TODO: mock current time
   expect(user.createdAt).not.toBeNull();
   expect(user.updatedAt).not.toBeNull();
   expect(user.createdAt).toEqual(user.updatedAt);
 
   await user.update({ name: "new name" });
-  expect(user.updatedAt).toBeGreaterThan(user.createdAt);
+  expect(user.updatedAt > user.createdAt).toBe(true);
 });
 
 test("uuid", async () => {
@@ -169,9 +170,9 @@ test("json", async () => {
     weight: 65,
   };
   let user = await c.queryUser().create({ payload });
-  expect(user.payload.theme).toEqual(payload.theme);
-  expect(user.payload.height).toEqual(payload.height);
-  expect(user.payload.weight).toEqual(payload.weight);
+  expect(user.payload!.theme).toEqual(payload.theme);
+  expect(user.payload!.height).toEqual(payload.height);
+  expect(user.payload!.weight).toEqual(payload.weight);
 });
 
 test("compositePrimaryKey", async () => {
@@ -187,18 +188,16 @@ test("compositePrimaryKey", async () => {
   code = await c.queryCode().find("type", "key");
   expect(code.type).toEqual("type");
   expect(code.key).toEqual("key");
-
-  c.queryClient().deleteAll();
-  let client = await c.queryClient().create({ name: "client" });
-  expect(client.name).toEqual("client");
-
-  let deleted = await c.queryClient().delete("client");
-  expect(deleted).toEqual(1);
 });
 
-test("noPrimaryKey", async () => {
+test("withoutPrimaryKey", async () => {
+  expect(c.queryClient()).not.toHaveProperty("find");
+  expect(c.queryClient()).not.toHaveProperty("delete");
+
   let client = await c.queryClient().create({ name: "client" });
   expect(client.name).toEqual("client");
+  expect(client).not.toHaveProperty("find");
+  expect(client).not.toHaveProperty("delete");
 });
 
 test("boolean", async () => {
@@ -272,7 +271,7 @@ test("hasMany", async () => {
   let userPosts = await c.queryUserPost().all();
   expect(userPosts).toEqual([userPost1]);
 
-  let posts = await user.queryPost().all();
+  let posts = await user.queryPosts().all();
   expect(posts).toEqual([post1]);
 });
 
@@ -282,7 +281,7 @@ test("hasOne", async () => {
     .queryAccount()
     .create({ name: "account", userID: user.id });
   user = await c.queryUser().preloadAccount().find(user.id);
-  expect(user.account.name).toEqual(account.name);
+  expect(user.account!.name).toEqual(account.name);
 });
 
 test("preload", async () => {
@@ -299,18 +298,18 @@ test("preload", async () => {
     .queryUserPost()
     .create({ userID: user1.id, postID: post2.id });
   let user = await c.queryUser().preloadPosts().preloadAccount().find(user1.id);
-  expect(user.account.id).toEqual(account1.id);
-  expect(user.userPosts.length).toEqual(2);
-  expect(user.userPosts[0].id).toEqual(userPost1.id);
-  expect(user.userPosts[1].id).toEqual(userPost2.id);
+  expect(user.account!.id).toEqual(account1.id);
+  expect(user.userPosts!.length).toEqual(2);
+  expect(user.userPosts![0].id).toEqual(userPost1.id);
+  expect(user.userPosts![1].id).toEqual(userPost2.id);
 
-  expect(user.posts.length).toEqual(2);
-  expect(user.posts[0].id).toEqual(post1.id);
-  expect(user.posts[1].id).toEqual(post2.id);
+  expect(user.posts!.length).toEqual(2);
+  expect(user.posts![0].id).toEqual(post1.id);
+  expect(user.posts![1].id).toEqual(post2.id);
 
   let post = await c.queryPost().preloadUserPosts().find(post1.id);
-  expect(post.userPosts.length).toEqual(1);
-  expect(post.userPosts[0].id).toEqual(userPost1.id);
+  expect(post.userPosts!.length).toEqual(1);
+  expect(post.userPosts![0].id).toEqual(userPost1.id);
 });
 
 test("transaction", async () => {
