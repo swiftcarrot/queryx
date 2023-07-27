@@ -1,4 +1,4 @@
-import { test, expect, beforeAll, expectTypeOf } from "vitest";
+import { test, expect, beforeAll } from "vitest";
 import { newClientWithEnv, QXClient, UserChange } from "./db";
 
 let c: QXClient;
@@ -19,7 +19,7 @@ test("queryOne", async () => {
 test("query", async () => {
   let user1 = await c.queryUser().create({ name: "test1" });
   let user2 = await c.queryUser().create({ name: "test2" });
-  let rows = await c.query(
+  let rows = await c.query<{ user_name: string }>(
     "select name as user_name from users where id in (?)",
     [user1.id, user2.id]
   );
