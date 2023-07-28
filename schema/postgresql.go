@@ -25,13 +25,12 @@ func (d *Database) CreatePostgreSQLSchema(dbName string) *schema.Schema {
 				if c.AutoIncrement {
 					col.SetType(&postgres.SerialType{T: postgres.TypeBigSerial})
 				} else {
+					col.SetType(&schema.IntegerType{T: postgres.TypeBigInt})
 					if c.Default != nil {
 						d, ok := c.Default.(int)
 						if ok {
-							col.SetType(&schema.IntegerType{T: postgres.TypeBigInt}).SetDefault(&schema.RawExpr{X: strconv.Itoa(d)})
+							col.SetDefault(&schema.RawExpr{X: strconv.Itoa(d)})
 						}
-					} else {
-						col.SetType(&schema.IntegerType{T: postgres.TypeBigInt})
 					}
 
 				}
@@ -111,7 +110,12 @@ func (d *Database) CreatePostgreSQLSchema(dbName string) *schema.Schema {
 				}
 			}
 
-			col.SetNull(c.Null)
+			if c.Default == nil {
+				col.SetNull(c.Null)
+			}
+			if c.Comment != "" {
+				col.SetComment(c.Comment)
+			}
 			t.AddColumns(col)
 			columnMap[c.Name] = col
 		}
@@ -139,7 +143,9 @@ func (d *Database) CreatePostgreSQLSchema(dbName string) *schema.Schema {
 			}
 			t.AddIndexes(index)
 		}
-
+		if model.Comment != "" {
+			t.SetComment(model.Comment)
+		}
 		public.AddTables(t)
 	}
 

@@ -54,6 +54,7 @@ var hclModel = &hcl.BodySchema{
 		{Name: "primary_key"},
 		{Name: "timestamps"},
 		{Name: "default_primary_key"},
+		{Name: "comment"},
 	},
 	Blocks: []hcl.BlockHeaderSchema{
 		{Type: "column", LabelNames: []string{"name"}},
@@ -73,6 +74,7 @@ var hclColumn = &hcl.BodySchema{
 		{Name: "null"},
 		{Name: "default"},
 		{Name: "unique"},
+		{Name: "comment"},
 	},
 	Blocks: []hcl.BlockHeaderSchema{},
 }
@@ -291,6 +293,9 @@ func (db *Database) modelFromBlock(block *hcl.Block, ctx *hcl.EvalContext) (*Mod
 			if !timestamps {
 				addTimestamps = false
 			}
+		case "comment":
+			m.Comment = value.AsString()
+
 		}
 	}
 
@@ -500,6 +505,8 @@ func columnFromBlock(block *hcl.Block, ctx *hcl.EvalContext) (*Column, error) {
 			column.Array = valueAsBool(value)
 		case "null":
 			column.Null = valueAsBool(value)
+		case "comment":
+			column.Comment = value.AsString()
 		}
 	}
 	for name, attr := range content.Attributes {

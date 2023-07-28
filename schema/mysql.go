@@ -94,8 +94,12 @@ func (d *Database) CreateMySQLSchema(dbName string) *schema.Schema {
 					}
 				}
 			}
-
-			col.SetNull(c.Null)
+			if c.Default == nil {
+				col.SetNull(c.Null)
+			}
+			if c.Comment != "" {
+				col.SetComment(fmt.Sprintf("'%v'", c.Comment))
+			}
 			t.AddColumns(col)
 			columnMap[c.Name] = col
 		}
@@ -123,7 +127,9 @@ func (d *Database) CreateMySQLSchema(dbName string) *schema.Schema {
 			}
 			t.AddIndexes(index)
 		}
-
+		if model.Comment != "" {
+			t.SetComment(fmt.Sprintf("'%v'", model.Comment))
+		}
 		public.AddTables(t)
 	}
 
