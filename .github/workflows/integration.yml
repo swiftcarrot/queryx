@@ -30,6 +30,7 @@ jobs:
         run: |
           cd internal/integration
           queryx db:migrate --schema postgresql.hcl
+          queryx db:migrate --schema postgresql.hcl
           queryx generate --schema postgresql.hcl
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
@@ -68,6 +69,7 @@ jobs:
         run: |
           cd internal/integration
           queryx db:migrate --schema mysql.hcl
+          queryx db:migrate --schema mysql.hcl
           queryx generate --schema mysql.hcl
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
@@ -92,6 +94,7 @@ jobs:
           QUERYX_ENV: test
         run: |
           cd internal/integration
+          queryx db:migrate --schema sqlite.hcl
           queryx db:migrate --schema sqlite.hcl
           queryx generate --schema sqlite.hcl
       - name: golangci-lint
