@@ -12,6 +12,7 @@ jobs:
         run: |
           go test -v github.com/swiftcarrot/queryx/schema
           go test -v github.com/swiftcarrot/queryx/inflect
+          go test -v github.com/swiftcarrot/queryx/adapter
       - name: Build
         run: go build -o /usr/local/bin/queryx cmd/queryx/main.go
       - uses: actions/upload-artifact@v3
@@ -47,6 +48,7 @@ jobs:
           QUERYX_ENV: test
         run: |
           cd internal/integration
+          queryx db:migrate --schema postgresql.hcl
           queryx db:migrate --schema postgresql.hcl
           queryx generate --schema postgresql.hcl
       - name: golangci-lint
@@ -130,6 +132,7 @@ jobs:
         run: |
           cd internal/integration
           queryx db:migrate --schema mysql.hcl
+          queryx db:migrate --schema mysql.hcl
           queryx generate --schema mysql.hcl
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
@@ -197,6 +200,7 @@ jobs:
           QUERYX_ENV: test
         run: |
           cd internal/integration
+          queryx db:migrate --schema sqlite.hcl
           queryx db:migrate --schema sqlite.hcl
           queryx generate --schema sqlite.hcl
       - name: golangci-lint
