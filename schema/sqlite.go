@@ -75,8 +75,8 @@ func (d *Database) CreateSQLiteSchema(dbName string) *schema.Schema {
 				col.SetType(&schema.TimeType{T: "datetime"})
 			case "datetime":
 				col.SetType(&schema.TimeType{T: "datetime"})
-			case "jsonb":
-				col.SetType(&schema.JSONType{T: "jsonb"})
+			case "json", "jsonb":
+				col.SetType(&schema.JSONType{})
 			default:
 				fmt.Printf("This type is not supported:%+v", col.Type)
 
