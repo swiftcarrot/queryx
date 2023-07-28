@@ -69,6 +69,9 @@ database "db" {
     column "content" {
       type = text
     }
+    column "payload" {
+      type = json
+    }
   }
 
   model "UserPost" {

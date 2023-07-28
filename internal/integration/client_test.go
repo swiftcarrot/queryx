@@ -218,7 +218,10 @@ func TestJSON(t *testing.T) {
 	payload["theme"] = "dark"
 	payload["height"] = 170
 	payload["weight"] = 65
-	user, _ := c.QueryUser().Create(c.ChangeUser().SetPayload(payload))
+	user, err := c.QueryUser().Create(c.ChangeUser().SetPayload(payload))
+	require.NoError(t, err)
+	user, err = c.QueryUser().Find(user.ID)
+	require.NoError(t, err)
 	require.Equal(t, payload["theme"], user.Payload.Val["theme"])
 	// numbers are unmarshalled into float64 by default
 	require.Equal(t, float64(payload["height"].(int)), user.Payload.Val["height"])
