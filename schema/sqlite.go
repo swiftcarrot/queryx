@@ -70,7 +70,7 @@ func (d *Database) CreateSQLiteSchema(dbName string) *schema.Schema {
 			case "date":
 				col.SetType(&schema.TimeType{T: "date"})
 			case "time":
-				col.SetType(&schema.TimeType{T: "time"})
+				col.SetType(&schema.TimeType{T: "datetime"}) // TODO: "time"
 			case "datetime":
 				col.SetType(&schema.TimeType{T: "datetime"})
 			case "json", "jsonb":
