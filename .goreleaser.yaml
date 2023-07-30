@@ -1,5 +1,7 @@
 builds:
   - main: ./cmd/queryx/main.go
+    env:
+      - CGO_ENABLED=1
     goos:
       - linux
       - darwin
