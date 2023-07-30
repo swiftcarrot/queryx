@@ -49,8 +49,12 @@ func (g *Generator) LoadTemplates(src embed.FS, adapter string) error {
 
 		ss := strings.Split(templateName, ".")
 		if len(ss) > 2 {
-			if ss[len(ss)-2] == adapter {
-				templateName = strings.Join(ss[:len(ss)-2], ".") + "." + ss[len(ss)-1]
+			if stringInSlice(ss[len(ss)-2], []string{"postgresql", "mysql", "sqlite"}) {
+				if ss[len(ss)-2] == adapter {
+					templateName = strings.Join(ss[:len(ss)-2], ".") + "." + ss[len(ss)-1]
+				} else {
+					return nil
+				}
 			}
 		}
 
