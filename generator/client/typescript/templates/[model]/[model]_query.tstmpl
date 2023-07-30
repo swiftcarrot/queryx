@@ -63,7 +63,29 @@ export class {{ $.model.Name }}Query {
     return record;
   }
 
-  async insertAll(inputs: {{ $.model.Name }}ChangeInput[]) {}
+  async insertAll(inputs: {{ $.model.Name }}ChangeInput[]) {
+    if (inputs.length == 0) {
+      throw new Error("insert all with empty inputs");
+    }
+    const now = new Date().toISOString();
+    const s = newInsert().into("{{ $.model.TableName }}");
+    for (const [index, input] of inputs.entries()) {
+      const change = new {{ $.model.Name }}Change(input);
+      if (input.createdAt === undefined) {
+        change.setCreatedAt(now);
+      }
+      if (input.updatedAt === undefined) {
+        change.setUpdatedAt(now);
+      }
+      const [columns, values] = change.changes();
+      if (index === 0) {
+        s.columns(...columns);
+      }
+      s.values(...values);
+    }
+    let [query, args] = s.toSQL();
+    return await this.client.exec(query, ...args);
+  }
 
   {{- if $.model.PrimaryKey }}
 
@@ -287,7 +309,7 @@ export class {{ $.model.Name }}Query {
   async first() {
     this.limit(1);
     let records = await this.all();
-    return records[0];
+    return records[0] || null;
   }
 
   async count() {
@@ -300,8 +322,8 @@ export class {{ $.model.Name }}Query {
   async exists() {
     this.selectStatement.select("1 AS one").limit(1);
     let [query, args] = this.selectStatement.toSQL();
-    let res = await this.client.queryOne(query, ...args);
-    return res;
+    let res = await this.client.queryOne<{ one: number }>(query, ...args);
+    return res?.one == 1;
   }
 
   async updateAll(input: {{ $.model.Name }}ChangeInput) {

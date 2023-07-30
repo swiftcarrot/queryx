@@ -49,7 +49,7 @@ test("insertAll", async () => {
   await c.queryPost().deleteAll();
   await expect(async () => {
     await c.queryPost().insertAll([]);
-  }).rejects.toThrowError("InsertAll with empty changes");
+  }).rejects.toThrowError("insert all with empty inputs");
 
   let inserted = await c
     .queryPost()

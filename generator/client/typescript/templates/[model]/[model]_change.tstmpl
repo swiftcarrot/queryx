@@ -11,9 +11,9 @@ export class {{ $.model.Name }}Change {
   public {{ $c.Name | camel }}?: {{ tsType $c.Type }}{{ if $c.Null}} | null{{ end }};
   {{- end }}
 
-  constructor(input: {{ $.model.Name }}ChangeInput) {
+  constructor(input?: {{ $.model.Name }}ChangeInput) {
     {{- range $c := .model.Columns }}
-    if (input.{{ $c.Name | camel }} !== undefined) {
+    if (input?.{{ $c.Name | camel }} !== undefined) {
       this.{{ $c.Name | camel }} = input.{{ $c.Name | camel }};
     }
     {{- end }}

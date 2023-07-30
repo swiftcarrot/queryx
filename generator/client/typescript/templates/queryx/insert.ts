@@ -31,7 +31,9 @@ export class InsertStatement {
   }
 
   values(...values: any[]) {
-    this._values.push(values);
+    if (values.length > 0) {
+      this._values.push(values);
+    }
     return this;
   }
 
@@ -50,6 +52,8 @@ export class InsertStatement {
 
     if (this._columns.length > 0) {
       sql = `${sql} (${this._columns.join(", ")})`;
+    } else {
+      sql = `${sql} DEFAULT VALUES`;
     }
 
     const values: string[] = [];
@@ -60,7 +64,9 @@ export class InsertStatement {
       }
       values.push(`(${ss.join(", ")})`);
     }
-    sql = `${sql} VALUES ${values.join(", ")}`;
+    if (values.length > 0) {
+      sql = `${sql} VALUES ${values.join(", ")}`;
+    }
 
     if (this._returning.length > 0) {
       sql = `${sql} RETURNING ${this._returning.join(", ")}`;
