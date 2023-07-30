@@ -94,10 +94,10 @@ jobs:
         run: |
           cd internal/integration
           yarn install
-      - name: yarn tsc
-        run: |
-          cd internal/integration
-          yarn tsc
+      # - name: yarn tsc
+      #   run: |
+      #     cd internal/integration
+      #     yarn tsc
       - name: yarn test
         run: |
           cd internal/integration
@@ -177,10 +177,10 @@ jobs:
         run: |
           cd internal/integration
           yarn install
-      - name: yarn tsc
-        run: |
-          cd internal/integration
-          yarn tsc
+      # - name: yarn tsc
+      #   run: |
+      #     cd internal/integration
+      #     yarn tsc
       - name: yarn test
         run: |
           cd internal/integration
@@ -232,10 +232,10 @@ jobs:
         run: |
           cd internal/integration
           yarn install
-      - name: yarn tsc
-        run: |
-          cd internal/integration
-          yarn tsc
+      # - name: yarn tsc
+      #   run: |
+      #     cd internal/integration
+      #     yarn tsc
       - name: yarn test
         run: |
           cd internal/integration

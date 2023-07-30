@@ -2,7 +2,7 @@
 
 export interface {{ $.model.Name }}ChangeInput {
   {{- range $c := .model.Columns }}
-  {{ $c.Name | camel }}?: {{ tsType $c.Type }}{{ if $c.Null}} | null{{ end }};
+  {{ $c.Name | camel }}?: {{ tsChangeSetType $c.Type }}{{ if $c.Null}} | null{{ end }};
   {{- end }}
 }
 
@@ -14,7 +14,13 @@ export class {{ $.model.Name }}Change {
   constructor(input?: {{ $.model.Name }}ChangeInput) {
     {{- range $c := .model.Columns }}
     if (input?.{{ $c.Name | camel }} !== undefined) {
+      {{- if eq $c.Type "date" }}
+      this.{{ $c.Name | camel }} = new Date(input.{{ $c.Name | camel }});
+      {{- else if eq $c.Type "datetime" }}
+      this.{{ $c.Name | camel }} = new Date(input.{{ $c.Name | camel }});
+      {{- else }}
       this.{{ $c.Name | camel }} = input.{{ $c.Name | camel }};
+      {{- end }}
     }
     {{- end }}
   }
@@ -22,7 +28,14 @@ export class {{ $.model.Name }}Change {
   {{- range $c := .model.Columns }}
 
   set{{ $c.Name | pascal }}({{ $c.Name | camel}}: {{ tsChangeSetType $c.Type }}) {
+    {{- if eq $c.Type "date" }}
+    this.{{ $c.Name | camel }} = new Date({{ $c.Name | camel}});
+    {{- else if eq $c.Type "datetime" }}
+    this.{{ $c.Name | camel }} = new Date({{ $c.Name | camel}});
+    {{- else }}
     this.{{ $c.Name | camel }} = {{ $c.Name | camel}};
+    {{- end }}
+
     return this;
   }
   {{- end }}

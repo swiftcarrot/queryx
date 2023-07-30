@@ -48,7 +48,7 @@ export class {{ $.model.Name }}Query {
   async create(input?: {{ $.model.Name }}ChangeInput) {
     let change = new {{ $.model.Name }}Change(input);
     {{- if $.model.Timestamps }}
-    const now = new Date().toISOString();
+    let now = new Date().toISOString();
     if (change.createdAt === undefined) {
       change.setCreatedAt(now);
     }
@@ -62,7 +62,7 @@ export class {{ $.model.Name }}Query {
       .into("{{ $.model.TableName }}")
       .columns(...columns)
       .values(...values)
-      .returning("{{ range $i, $e := $.model.Columns}}{{if $i}},{{end}}{{.Name}}{{end}}")
+      .returning("*")
       .toSQL();
 
     let row = await this.client.queryOne(query, ...args);
@@ -352,6 +352,12 @@ export class {{ $.model.Name }}Query {
 
   async updateAll(input: {{ $.model.Name }}ChangeInput) {
     let change = new {{ $.model.Name }}Change(input);
+	  {{- if $.model.Timestamps }}
+    let now = new Date().toISOString();
+	  if (change.updatedAt === undefined) {
+		  change.setUpdatedAt(now)
+	  }
+	  {{- end }}
     let [columns, values] = change.changes();
     let [query, args] = this.selectStatement
       .update()

@@ -9,7 +9,9 @@ func tsType(t string) string {
 	switch t {
 	case "uuid", "string", "text":
 		return "string"
-	case "datetime", "date", "time":
+	case "datetime", "date":
+		return "Date"
+	case "time":
 		return "string"
 	case "bigint", "integer", "float":
 		return "number"

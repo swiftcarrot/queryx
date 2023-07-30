@@ -1,5 +1,6 @@
 import { test, expect, beforeAll } from "vitest";
 import { newClientWithEnv, QXClient, UserChange } from "./db";
+import { format } from "date-fns";
 
 let c: QXClient;
 
@@ -104,13 +105,13 @@ test("time", async () => {
 
 test("date", async () => {
   let user = await c.queryUser().create({ date: "2012-11-10" });
-  expect(user.date).toEqual("2012-11-10");
+  expect(format(user.date!, "yyyy-MM-dd")).toEqual("2012-11-10");
 });
 
 test("datetime", async () => {
   let s1 = "2012-11-10 09:08:07";
   let user = await c.queryUser().create({ datetime: s1 });
-  expect(user.datetime).toEqual(s1);
+  expect(format(user.datetime!, "yyyy-MM-dd HH:mm:ss")).toEqual(s1);
 
   user = await c
     .queryUser()
@@ -121,11 +122,11 @@ test("datetime", async () => {
         .and(c.userDatetime.lte(s1))
     )
     .first();
-  expect(user.datetime).toEqual(s1);
+  expect(format(user.datetime!, "yyyy-MM-dd HH:mm:ss")).toEqual(s1);
 
   let s2 = "2012-11-10 09:08:07.654";
   user = await c.queryUser().create({ datetime: s2 });
-  expect(user.datetime).toEqual(s2);
+  expect(format(user.datetime!, "yyyy-MM-dd HH:mm:ss.SSS")).toEqual(s2);
 });
 
 test("timestamps", async () => {
@@ -136,6 +137,7 @@ test("timestamps", async () => {
   expect(user.createdAt).toEqual(user.updatedAt);
 
   await user.update({ name: "new name" });
+  console.log(user.createdAt, user.updatedAt);
   expect(user.updatedAt > user.createdAt).toBe(true);
 });
 

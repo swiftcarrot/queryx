@@ -43,13 +43,25 @@ export class {{ $.model.Name }} {
   applyChange(input: {{ $.model.Name }}ChangeInput) {
     {{- range $c := $.model.Columns }}
     if (input.{{ $c.Name | camel }} !== undefined) {
+      {{- if eq $c.Type "date" }}
+      this.{{ $c.Name | camel }} = new Date(input.{{ $c.Name | camel }});
+      {{- else if eq $c.Type "datetime" }}
+      this.{{ $c.Name | camel }} = new Date(input.{{ $c.Name | camel }});
+      {{- else }}
       this.{{ $c.Name | camel }} = input.{{ $c.Name | camel }};
+      {{- end }}
     }
     {{- end }}
   }
 
   {{- if $.model.PrimaryKey }}
   async update(input: {{ $.model.Name }}ChangeInput) {
+	  {{- if $.model.Timestamps }}
+    let now = new Date().toISOString();
+	  if (input.updatedAt === undefined) {
+		  input.updatedAt = now;
+	  }
+	  {{- end }}
     let filter = this._client.{{ $.model.Name | camel }}ID.eq(this.id);
     await this._client.query{{ $.model.Name }}().where(filter).updateAll(input);
     this.applyChange(input);
