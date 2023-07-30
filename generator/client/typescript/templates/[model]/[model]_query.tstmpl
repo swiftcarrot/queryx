@@ -118,16 +118,22 @@ export class {{ $.model.Name }}Query {
   }
   {{- end }}
 
-  async findBy() {}
+  findBy(where: Clause) {
+    return this.where(where).first();
+  }
 
-  async findBySQL() {}
+  findBySQL(query: string, ...args: any[]) {
+    return this.query<{{ $.model.Name }}>(query, ...args);
+  }
 
   where(clause: Clause) {
     this.selectStatement.where(clause);
     return this;
   }
 
-  select() {}
+  select(...selection: string[]) {
+    this.selectStatement.select(...selection);
+  }
 
   limit(limit: number) {
     this.selectStatement.limit(limit);
@@ -135,18 +141,22 @@ export class {{ $.model.Name }}Query {
   }
 
   offset(offset: string) {
+    this.selectStatement.offset(offset);
     return this;
   }
 
   group(group: string) {
+    this.selectStatement.group(group);
     return this;
   }
 
   having(having: string) {
+    this.selectStatement.having(having);
     return this;
   }
 
   joins(joins: string) {
+    this.selectStatement.join(joins);
     return this;
   }
 

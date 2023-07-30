@@ -67,9 +67,9 @@ export class {{ $.model.Name }} {
     {{- if $h.Through }}
     return this._client.query{{ $h.ModelName }}()
       .joins("INNER JOIN {{ $h.Through }} ON {{ $h.Through }}.{{ $h.ModelName | snake }}_id = {{ $h.Name }}.id")
-      .where(this._client.{{ $h.Through | singular | camel }}{{ $h.ForeignKey | pascal }}.EQ(this.id));
+      .where(this._client.{{ $h.Through | singular | pascal | camel }}{{ $h.ForeignKey | pascal }}.eq(this.id));
     {{- else }}
-    return this._client.query{{ $h.ModelName }}().where(this._client.{{ $h.ModelName }}{{ $h.ForeignKey | camel }}.EQ(this.id));
+    return this._client.query{{ $h.ModelName }}().where(this._client.{{ $h.ModelName | camel }}{{ $h.ForeignKey | pascal }}.eq(this.id));
     {{- end }}
   }
   {{- end }}

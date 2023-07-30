@@ -28,7 +28,7 @@ export class QXClient {
     });
     {{- range $m := $.client.Models }}
     this.{{ $m.Name | camel }} = new Table("{{ $m.TableName }}");
-    {{- range $c := .Columns }}
+    {{- range $c := $m.Columns }}
     this.{{ $m.Name | camel }}{{ $c.Name | pascal }} = this.{{ $m.Name | camel }}.new{{ goType .Type }}Column("{{ $c.Name }}");
     {{- end}}
     {{- end}}

@@ -268,7 +268,7 @@ test("hasMany", async () => {
   await c.queryPost().create();
   await c.queryUserPost().create();
 
-  let userPosts = await c.queryUserPost().all();
+  let userPosts = await user.queryUserPosts().all();
   expect(userPosts).toEqual([userPost1]);
 
   let posts = await user.queryPosts().all();

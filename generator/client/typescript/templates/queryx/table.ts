@@ -161,6 +161,6 @@ export class DatetimeColumn extends Column {
   }
 }
 
-export class UUIDColumn extends Column {}
+export class UUIDColumn extends StringColumn {}
 
 export class JSONColumn extends Column {}

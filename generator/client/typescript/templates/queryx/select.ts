@@ -60,6 +60,10 @@ export class SelectStatement {
     return this;
   }
 
+  join(...join: string[]) {
+    this._joins = [...this._joins, ...join];
+  }
+
   // convert select statement to update statement
   update() {
     let s;

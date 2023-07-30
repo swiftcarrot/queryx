@@ -14,6 +14,7 @@ func TestSnake(t *testing.T) {
 func TestCamel(t *testing.T) {
 	require.Equal(t, "user", Camel("user"))
 	require.Equal(t, "userPost", Camel("user_post"))
+	require.Equal(t, "userPost", Camel("UserPost"))
 }
 
 func TestPascal(t *testing.T) {
@@ -28,4 +29,8 @@ func TestPlural(t *testing.T) {
 	require.Equal(t, "user_posts", Plural("user_post"))
 	require.Equal(t, "userPosts", Plural("userPost"))
 	require.Equal(t, "moneySlice", Plural("money"))
+}
+
+func TestSingular(t *testing.T) {
+	require.Equal(t, "user_post", Singular("user_posts"))
 }
