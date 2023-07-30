@@ -76,9 +76,17 @@ export class {{ $.model.Name }} {
 
   toString() {
     let str = "({{ $.model.Name }}";
-    {{- range $c := $.model.Columns }}
-    str += "{{ $c.Name | camel }}: " + this.{{ $c.Name | camel}};
+    {{- range $i, $c := $.model.Columns }}
+    {{- if ne $i 0 }}
+    str += ","
     {{- end }}
+    {{- if eq $c.Type "string" }}
+    str += " {{ $c.Name | camel }}: " + '"' + this.{{ $c.Name | camel }} + '"';
+    {{- else }}
+    str += " {{ $c.Name | camel }}: " + this.{{ $c.Name | camel }};
+    {{- end }}
+    {{- end }}
+    str += ")";
     return str;
   }
 

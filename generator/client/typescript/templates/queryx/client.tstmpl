@@ -7,6 +7,7 @@ import { {{ $m.Name }}Query } from "../{{ $m.Name | snake }}"
 {{- end }}
 import { Table, BigIntColumn, IntegerColumn, FloatColumn, BooleanColumn, StringColumn, TextColumn, DateColumn, TimeColumn, DatetimeColumn, UUIDColumn, JSONColumn } from "./table";
 import { rebind } from "./adapter";
+import { Clause } from "./clause";
 
 types.setTypeParser(types.builtins.INT8, val => parseInt(val, 10));
 
@@ -71,6 +72,14 @@ export class QXClient {
     const tx = new Tx(this.config);
     await tx.exec("BEGIN");
     return tx;
+  }
+
+  and(...clauses: Clause[]) {
+    return clauses[0].and(...clauses.slice(1));
+  }
+
+  or(...clauses: Clause[]) {
+    return clauses[0].or(...clauses.slice(1))
   }
 }
 

@@ -183,7 +183,7 @@ test("compositePrimaryKey", async () => {
 
   expect(async () => {
     await c.queryCode().create({ type: "type", key: "key" });
-  }).toThrowError();
+  }).rejects.toThrowError();
 
   code = await c.queryCode().find("type", "key");
   expect(code.type).toEqual("type");

@@ -51,8 +51,6 @@ func (g *Generator) LoadTemplates(src embed.FS, adapter string) error {
 		if len(ss) > 2 {
 			if ss[len(ss)-2] == adapter {
 				templateName = strings.Join(ss[:len(ss)-2], ".") + "." + ss[len(ss)-1]
-			} else {
-				return nil
 			}
 		}
 

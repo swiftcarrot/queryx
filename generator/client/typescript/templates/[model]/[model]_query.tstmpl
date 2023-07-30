@@ -21,6 +21,18 @@ import type { {{ pascal $h.ModelName }} } from "../{{ snake $h.ModelName }}";
 	{{- end -}}
 {{- end }}
 
+{{- define "primary_key_where" }}
+	{{- if gt (len $.PrimaryKey.Columns) 1 -}}
+		this.client.and(
+		{{- range $i, $c := index $.PrimaryKey.Columns -}}
+			{{ if $i }}, {{ end }}this.client.{{ $.Name | camel }}{{ $c.Name | pascal }}.eq({{ $c.Name | camel }})
+		{{- end -}})
+	{{- else -}}
+		{{- $c := index $.PrimaryKey.Columns 0 -}}
+		this.client.{{ .Name | camel }}{{ $c.Name | pascal }}.eq({{ $c.Name | camel }})
+	{{- end -}}
+{{- end }}
+
 export class {{ $.model.Name }}Query {
   private client: QXClient;
   private selectStatement: SelectStatement;
@@ -67,16 +79,18 @@ export class {{ $.model.Name }}Query {
     if (inputs.length == 0) {
       throw new Error("insert all with empty inputs");
     }
-    const now = new Date().toISOString();
     const s = newInsert().into("{{ $.model.TableName }}");
     for (const [index, input] of inputs.entries()) {
       const change = new {{ $.model.Name }}Change(input);
+      {{- if $.model.Timestamps }}
+      const now = new Date().toISOString();
       if (input.createdAt === undefined) {
         change.setCreatedAt(now);
       }
       if (input.updatedAt === undefined) {
         change.setUpdatedAt(now);
       }
+      {{- end }}
       const [columns, values] = change.changes();
       if (index === 0) {
         s.columns(...columns);
@@ -96,7 +110,7 @@ export class {{ $.model.Name }}Query {
   }
 
   async find({{ template "primary_key_params" $.model.PrimaryKey }}) {
-    let record = await this.where(this.client.{{ $.model.Name | camel }}ID.eq(id)).first();
+    let record = await this.where({{ template "primary_key_where" $.model }}).first();
     if (!record) {
       return Promise.reject("Record not found");
     }
