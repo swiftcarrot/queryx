@@ -14,8 +14,8 @@ jobs:
       - name: Build
         shell: pwsh
         run: |
-        echo ${{ github.sha }} > Release.txt
-        go build -o queryx.exe
+          echo github.sha > Release.txt
+          go build -o queryx.exe
       - name: Test
         run: cat Release.txt
       - name: Release
