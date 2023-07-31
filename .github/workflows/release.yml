@@ -14,12 +14,17 @@ jobs:
       - name: Build
         shell: pwsh
         run: |
-          echo github.sha > Release.txt
-          go build -o queryx.exe
+          echo github.sha > checksums.txt
+          go build -o queryx.exe  cmd/queryx/main.go
+          tar  zcvf  queryx_test-1_windows_amd64.tar.gz  ./*.md LICENSE  queryx.exe
       - name: Test
-        run: cat Release.txt
+        run: cat checksums.txt
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
-        with:
-          files: Release.txt
+        with: |
+          draft: false
+          prerelease: false
+          files: |
+             checksums.txt
+             queryx_test-1_windows_amd64.tar.gz
