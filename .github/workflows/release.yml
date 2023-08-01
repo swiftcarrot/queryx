@@ -57,7 +57,7 @@ jobs:
             queryx_${{ github.ref_name }}_linux_amd64.tar.gz
 
   build-mac:
-    runs-on: macos-latest
+    runs-on: darwin-amd64
     steps:
       - name: Checkout
         uses: actions/checkout@v3
