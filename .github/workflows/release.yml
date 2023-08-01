@@ -52,7 +52,7 @@ jobs:
             checksums.txt
             queryx_test-7_linux_amd64.tar.gz
 
-    build-ubuntu:
+    build-darwin:
       runs-on: darwin-latest
       steps:
         - name: Checkout
