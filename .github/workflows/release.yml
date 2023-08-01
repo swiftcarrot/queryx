@@ -32,6 +32,10 @@ jobs:
 
   build-ubuntu:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [ linux ]
+        goarch: [ amd64, arm64 ]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -39,7 +43,7 @@ jobs:
         shell: pwsh
         run: |
           go build -o queryx  cmd/queryx/main.go
-          tar  zcvf  queryx_${{ github.ref_name }}_linux_amd64.tar.gz  ./*.md LICENSE  queryx
+          tar  zcvf  queryx_${{ github.ref_name }}_linux_${{ matrix.goarch }}.tar.gz  ./*.md LICENSE  queryx
       - name: Test
         run: |
           go version
@@ -51,7 +55,7 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            queryx_${{ github.ref_name }}_linux_amd64.tar.gz
+            queryx_${{ github.ref_name }}_linux_${{ matrix.goarch }}.tar.gz
       - name: Checksums
         uses: wangzuo/action-release-checksums@v1
 
