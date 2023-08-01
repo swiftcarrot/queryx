@@ -8,6 +8,10 @@ on:
 jobs:
   build-windows:
     runs-on: windows-latest
+    strategy:
+      matrix:
+        goos: [ windows ]
+        goarch: [ amd64, arm64, armv6 ]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -35,7 +39,7 @@ jobs:
     strategy:
       matrix:
         goos: [ linux ]
-        goarch: [ amd64, arm64 ]
+        goarch: [ amd64, arm64, armv6 ]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -62,6 +66,10 @@ jobs:
 
   build-mac:
     runs-on: macos-latest
+    strategy:
+      matrix:
+        goos: [ darwin ]
+        goarch: [ amd64, arm64 ]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -69,7 +77,7 @@ jobs:
         shell: pwsh
         run: |
           go build -o queryx  cmd/queryx/main.go
-          tar  zcvf  queryx_${{ github.ref_name }}_mac_amd64.tar.gz  ./*.md LICENSE  queryx
+          tar  zcvf  queryx_${{ github.ref_name }}_darwin_${{ matrix.goarch }}.tar.gz  ./*.md LICENSE  queryx
       - name: Test
         run: |
           go version
@@ -80,6 +88,6 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            queryx_${{ github.ref_name }}_mac_amd64.tar.gz
+            queryx_${{ github.ref_name }}_darwin_${{ matrix.goarch }}.tar.gz
       - name: Checksums
         uses: wangzuo/action-release-checksums@v1
