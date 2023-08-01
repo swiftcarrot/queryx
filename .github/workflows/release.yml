@@ -21,9 +21,6 @@ jobs:
         run: |
           go build -o queryx.exe cmd/queryx/main.go
           tar zcvf queryx_${{ github.ref_name }}_windows_${{ matrix.goarch }}.tar.gz ./*.md LICENSE queryx.exe
-      - name: Test
-        run: |
-          go version
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
@@ -47,10 +44,6 @@ jobs:
         run: |
           go build -o queryx cmd/queryx/main.go
           tar zcvf queryx_${{ github.ref_name }}_linux_${{ matrix.goarch }}.tar.gz ./*.md LICENSE queryx
-      - name: Test
-        run: |
-          go version
-          go env
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
@@ -74,9 +67,6 @@ jobs:
         run: |
           go build -o queryx cmd/queryx/main.go
           tar zcvf queryx_${{ github.ref_name }}_darwin_${{ matrix.goarch }}.tar.gz  ./*.md LICENSE  queryx
-      - name: Test
-        run: |
-          go version
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
