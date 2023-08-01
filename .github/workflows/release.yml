@@ -16,7 +16,7 @@ jobs:
         run: |
           go build -o queryx.exe  cmd/queryx/main.go
           tar  zcvf  queryx_test-7_windows_amd64.tar.gz  ./*.md LICENSE  queryx.exe
-          md5sum queryx_test-7_windows_amd64.tar.gz >> checksums.txt
+          sha256sum queryx_test-7_windows_amd64.tar.gz >> checksums.txt
       - name: Test
         run: cat checksums.txt
       - name: Release
@@ -39,7 +39,7 @@ jobs:
         run: |
           go build -o queryx  cmd/queryx/main.go
           tar  zcvf  queryx_test-7_linux_amd64.tar.gz  ./*.md LICENSE  queryx
-          md5sum queryx_test-7_linux_amd64.tar.gz >> checksums.txt
+          sha256sum queryx_test-7_linux_amd64.tar.gz >> checksums.txt
       - name: Test
         run: cat checksums.txt
       - name: Release
@@ -62,7 +62,7 @@ jobs:
         run: |
           go build -o queryx  cmd/queryx/main.go
           tar  zcvf  queryx_test-7_darwin_amd64.tar.gz  ./*.md LICENSE  queryx
-          md5sum queryx_test-7_darwin_amd64.tar.gz >> checksums.txt
+          sha256sum queryx_test-7_darwin_amd64.tar.gz >> checksums.txt
       - name: Test
         run: cat checksums.txt
       - name: Release
