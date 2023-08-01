@@ -6,7 +6,7 @@ on:
       - "*"
 
 jobs:
-  build-windows:
+  release-windows:
     runs-on: windows-latest
     strategy:
       matrix:
@@ -16,8 +16,10 @@ jobs:
         uses: actions/checkout@v3
       - name: Build
         shell: pwsh
+        env:
+          GOARCH: ${{ matrix.goarch }}
         run: |
-          GOARCH=${{ matrix.goarch }} go build -o queryx.exe cmd/queryx/main.go
+          go build -o queryx.exe cmd/queryx/main.go
           tar zcvf queryx_${{ github.ref_name }}_windows_${{ matrix.goarch }}.tar.gz ./*.md LICENSE queryx.exe
       - name: Test
         run: |
@@ -31,8 +33,7 @@ jobs:
             queryx_${{ github.ref_name }}_windows_${{ matrix.goarch }}.tar.gz
       - name: Checksums
         uses: wangzuo/action-release-checksums@v1
-
-  build-ubuntu:
+  release-linux:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -41,9 +42,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Build
-        shell: pwsh
+        env:
+          GOARCH: ${{ matrix.goarch }}
         run: |
-          GOARCH=${{ matrix.goarch }} go build -o queryx cmd/queryx/main.go
+          go build -o queryx cmd/queryx/main.go
           tar zcvf queryx_${{ github.ref_name }}_linux_${{ matrix.goarch }}.tar.gz ./*.md LICENSE queryx
       - name: Test
         run: |
@@ -58,8 +60,7 @@ jobs:
             queryx_${{ github.ref_name }}_linux_${{ matrix.goarch }}.tar.gz
       - name: Checksums
         uses: wangzuo/action-release-checksums@v1
-
-  build-mac:
+  release-mac:
     runs-on: macos-latest
     strategy:
       matrix:
@@ -68,9 +69,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Build
-        shell: pwsh
+        env:
+          GOARCH: ${{ matrix.goarch }}
         run: |
-          GOARCH=${{ matrix.goarch }} go build -o queryx cmd/queryx/main.go
+          go build -o queryx cmd/queryx/main.go
           tar zcvf queryx_${{ github.ref_name }}_darwin_${{ matrix.goarch }}.tar.gz  ./*.md LICENSE  queryx
       - name: Test
         run: |
