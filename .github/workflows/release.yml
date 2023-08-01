@@ -10,7 +10,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        goarch: [amd64, arm64]
+        goarch: [amd64]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -18,6 +18,7 @@ jobs:
         shell: pwsh
         env:
           GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: 1
         run: |
           go build -o queryx.exe cmd/queryx/main.go
           tar zcvf queryx_${{ github.ref_name }}_windows_${{ matrix.goarch }}.tar.gz ./*.md LICENSE queryx.exe
@@ -34,13 +35,14 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        goarch: [amd64, arm64]
+        goarch: [amd64]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Build
         env:
           GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: 1
         run: |
           go build -o queryx cmd/queryx/main.go
           tar zcvf queryx_${{ github.ref_name }}_linux_${{ matrix.goarch }}.tar.gz ./*.md LICENSE queryx
@@ -64,6 +66,7 @@ jobs:
       - name: Build
         env:
           GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: 1
         run: |
           go build -o queryx cmd/queryx/main.go
           tar zcvf queryx_${{ github.ref_name }}_darwin_${{ matrix.goarch }}.tar.gz  ./*.md LICENSE  queryx
