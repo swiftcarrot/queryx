@@ -14,9 +14,9 @@ jobs:
       - name: Build
         shell: pwsh
         run: |
-          echo github.sha > checksums.txt
           go build -o queryx.exe  cmd/queryx/main.go
           tar  zcvf  queryx_test-1_windows_amd64.tar.gz  ./*.md LICENSE  queryx.exe
+          md5sum queryx_test-1_windows_amd64.tar.gz > checksums.txt
       - name: Test
         run: cat checksums.txt
       - name: Release
