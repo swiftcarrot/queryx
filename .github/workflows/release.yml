@@ -30,12 +30,8 @@ jobs:
       - name: Checksums
         uses: wangzuo/action-release-checksums@v1
 
-  build-ubuntu-01:
+  build-ubuntu:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        goos: [ linux ]
-        goarch: [ amd64 ]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -47,6 +43,7 @@ jobs:
       - name: Test
         run: |
           go version
+          echo ${CGO_ENABLED}
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
@@ -58,33 +55,6 @@ jobs:
       - name: Checksums
         uses: wangzuo/action-release-checksums@v1
 
-  build-ubuntu-02:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        goos: [ linux ]
-        goarch: [ arm64 ]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Build
-        shell: pwsh
-        run: |
-          go build -o queryx  cmd/queryx/main.go
-          tar  zcvf  queryx_${{ github.ref_name }}_linux_amd64.tar.gz  ./*.md LICENSE  queryx
-      - name: Test
-        run: |
-          go version
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          draft: false
-          prerelease: false
-          files: |
-            queryx_${{ github.ref_name }}_linux_arm64.tar.gz
-      - name: Checksums
-        uses: wangzuo/action-release-checksums@v1
 
   build-mac:
     runs-on: macos-latest
