@@ -30,7 +30,7 @@ jobs:
           draft: false
           prerelease: false
           files: |
-             queryx_${{ github.ref_name }}_windows_amd64.tar.gz
+             queryx_${{ github.ref_name }}_windows_${{ matrix.goarch }}.tar.gz
       - name: Checksums
         uses: wangzuo/action-release-checksums@v1
 
