@@ -43,7 +43,7 @@ jobs:
       - name: Test
         run: |
           go version
-          echo ${{CGO_ENABLED}}
+          go env
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
