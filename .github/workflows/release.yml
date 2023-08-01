@@ -19,7 +19,7 @@ jobs:
         shell: pwsh
         run: |
           go build -o queryx.exe  cmd/queryx/main.go
-          tar zcvf queryx_${{ github.ref_name }}_windows_amd64.tar.gz  ./*.md LICENSE  queryx.exe
+          tar zcvf queryx_${{ github.ref_name }}_windows_${{ matrix.goarch }}.tar.gz  ./*.md LICENSE  queryx.exe
       - name: Test
         run: |
           go version
