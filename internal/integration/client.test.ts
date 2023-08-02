@@ -1,11 +1,35 @@
 import { test, expect, beforeAll } from "vitest";
 import { newClientWithEnv, QXClient, UserChange } from "./db";
 import { format } from "date-fns";
+import mysql, { RowDataPacket } from "mysql2/promise";
 
 let c: QXClient;
 
 beforeAll(async () => {
   c = newClientWithEnv("test");
+});
+
+test("mysql", async () => {
+  let conn = mysql.createPool({
+    uri: "mysql://root@localhost:3306/queryx_test",
+  });
+
+  async function query<R>(query: string) {
+    let [rows] = await conn.query<R & RowDataPacket[]>(query);
+    return rows;
+  }
+
+  async function queryOne<R>(query: string) {
+    let [rows] = await conn.query<R & RowDataPacket[]>(query);
+    return rows[0] || null;
+  }
+
+  let users = await query<{ id: number; name: string }>(
+    "select id, name from users"
+  );
+  console.log(users[0].id, users[0].name);
+  let user = await queryOne<{ id: number }>("select id from users");
+  console.log(user.id);
 });
 
 test("queryOne", async () => {
