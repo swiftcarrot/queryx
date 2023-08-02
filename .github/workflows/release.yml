@@ -49,6 +49,7 @@ jobs:
           GOARCH: ${{ matrix.goarch }}
           CGO_ENABLED: 1
         run: |
+          env
           go build -o queryx cmd/queryx/main.go
           tar zcvf queryx_${{ github.ref_name }}_linux_${{ matrix.goarch }}.tar.gz ./*.md LICENSE queryx
       - name: Release
