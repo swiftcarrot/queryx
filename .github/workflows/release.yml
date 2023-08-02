@@ -42,10 +42,12 @@ jobs:
         env:
           CGO_ENABLED: 1
         run: |
-          go build -o queryx_${{ github.ref_name }}_linux_amd64/queryx cmd/queryx/main.go
-          env CGO_ENABLED=1  GOARCH=arm64 CC=aarch64-linux-gnu-gcc go build -o queryx_${{ github.ref_name }}_linux_arm64/queryx cmd/queryx/main.go
-          tar zcvf queryx_${{ github.ref_name }}_linux_amd64.tar.gz ./*.md LICENSE ./queryx_${{ github.ref_name }}_linux_amd64/queryx
-          tar zcvf queryx_${{ github.ref_name }}_linux_arm64.tar.gz ./*.md LICENSE ./queryx_${{ github.ref_name }}_linux_arm64/queryx
+          go build -o queryx cmd/queryx/main.go
+          tar zcvf queryx_${{ github.ref_name }}_linux_amd64.tar.gz ./*.md LICENSE queryx
+          rm -f queryx
+          env CGO_ENABLED=1  GOARCH=arm64 CC=aarch64-linux-gnu-gcc go build -o queryx cmd/queryx/main.go
+          tar zcvf queryx_${{ github.ref_name }}_linux_arm64.tar.gz ./*.md LICENSE queryx
+          rm -f queryx
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
