@@ -5,6 +5,8 @@
 > **Warning**
 > 该项目目前处于 Beta 版本（v0），虽然已在内部项目中进行了测试。目前，它仅支持生成 golang 代码。我们计划发布支持生成 TypeScript 代码的功能。 如果您有任何问题，请随时 [提出 issue](https://github.com/swiftcarrot/queryx/issues) 或 [展开讨论](https://github.com/swiftcarrot/queryx/discussions)。
 
+<img width="400px" src="https://user-images.githubusercontent.com/1039026/256765974-6a4feaca-ca82-4095-90fa-64d4f60cc748.png" />
+
 Queryx 是一个基于模式优先、类型安全的 ORM，具有代码生成功能。
 
 [![go report card](https://goreportcard.com/badge/github.com/swiftcarrot/queryx "go report card")](https://goreportcard.com/report/github.com/swiftcarrot/queryx)
