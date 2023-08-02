@@ -39,6 +39,8 @@ jobs:
     steps:
       - name: Install GNU C compiler for the arm64 architecture
         run: sudo apt-get update && sudo apt-get -y install gcc-aarch64-linux-gnu
+        env:
+          CC: aarch64-linux-gnu-gcc
         if: ${{ matrix.goarch == 'arm64' }}
       - name: Checkout
         uses: actions/checkout@v3
