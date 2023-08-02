@@ -54,6 +54,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
+          args: --timeout=3m
           working-directory: internal/integration/db
       - name: go test
         run: |
@@ -137,6 +138,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
+          args: --timeout=3m
           working-directory: internal/integration/db
       - name: go test
         run: |
@@ -206,6 +208,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
+          args: --timeout=3m
           working-directory: internal/integration/db
       - name: go test
         run: |
