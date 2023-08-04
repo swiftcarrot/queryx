@@ -2,6 +2,7 @@ import { test, expect, beforeAll } from "vitest";
 import { newClientWithEnv, QXClient, UserChange } from "./db";
 import { format } from "date-fns";
 import mysql, { RowDataPacket } from "mysql2/promise";
+import Database from "better-sqlite3";
 
 let c: QXClient;
 
@@ -27,7 +28,28 @@ test("mysql", async () => {
   let users = await query<{ id: number; name: string }>(
     "select id, name from users"
   );
-  console.log(users[0].id, users[0].name);
+  console.log(users);
+  let user = await queryOne<{ id: number }>("select id from users");
+  console.log(user.id);
+});
+
+test("sqlite", async () => {
+  let db = new Database("test.sqlite3");
+
+  function query<R>(query: string): R[] {
+    let stmt = db.prepare(query);
+    return stmt.all() as R[];
+  }
+
+  function queryOne<R>(query: string): R {
+    let stmt = db.prepare(query);
+    return stmt.get() as R;
+  }
+
+  let users = await query<{ id: number; name: string }>(
+    "select id, name from users"
+  );
+  console.log(users);
   let user = await queryOne<{ id: number }>("select id from users");
   console.log(user.id);
 });
