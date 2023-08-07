@@ -20,27 +20,29 @@ func TestNewPostgreSQLConfig(t *testing.T) {
 	require.Equal(t, "sslmode=disable", c.Options.Encode())
 	require.Equal(t, "postgres://postgres:password@localhost:5432/queryx_test?sslmode=disable", c.URL)
 	require.Equal(t, "postgres://postgres:password@localhost:5432/?sslmode=disable", c.URL2)
+	require.Equal(t, "postgres://postgres:password@localhost:5432/queryx_test?sslmode=disable", c.TSFormat())
 }
 
 func TestNewMySQLConfig(t *testing.T) {
-	url := "mysql://root:@localhost:3306/queryx_test"
+	u := "mysql://root:@localhost:3306/queryx_test"
 	// url := "root@tcp(localhost:3306)/queryx_test?parseTime=true&loc=Asia%2FShanghai"
-	c := NewConfig(&schema.Config{URL: types.StringOrEnv{Value: url}})
+	c := NewConfig(&schema.Config{URL: types.StringOrEnv{Value: u}})
 	require.Equal(t, "mysql", c.Adapter)
 	require.Equal(t, "root", c.Username)
 	require.Equal(t, "", c.Password)
 	require.Equal(t, "localhost", c.Host)
 	require.Equal(t, "3306", c.Port)
 	require.Equal(t, "queryx_test", c.Database)
-
 	require.Equal(t, "root@tcp(localhost:3306)/queryx_test?parseTime=true", c.URL)
 	require.Equal(t, "root@tcp(localhost:3306)/?parseTime=true", c.URL2)
+	require.Equal(t, "mysql://root:@localhost:3306/queryx_test?parseTime=true", c.TSFormat())
+
 }
 
 func TestNewSQLiteConfig(t *testing.T) {
-	url := "sqlite:test.sqlite3"
-	config := NewConfig(&schema.Config{Adapter: "sqlite", URL: types.StringOrEnv{Value: url}})
-	require.Equal(t, url, config.URL)
-	require.Equal(t, "", config.URL2)
-	require.Equal(t, "test.sqlite3", config.Database)
+	u := "sqlite:test.sqlite3"
+	c := NewConfig(&schema.Config{URL: types.StringOrEnv{Value: u}})
+	require.Equal(t, "sqlite", c.Adapter)
+	require.Equal(t, "file:test.sqlite3", c.URL)
+	require.Equal(t, "test.sqlite3", c.Database)
 }

@@ -26,6 +26,7 @@ type Config struct {
 }
 
 func NewConfigFromURL(rawURL string) *Config {
+	// TODO: error handling in parsing rawURL
 	c := &Config{}
 
 	u, _ := url.Parse(rawURL)
@@ -36,6 +37,10 @@ func NewConfigFromURL(rawURL string) *Config {
 	c.Host, c.Port, _ = net.SplitHostPort(u.Host)
 	c.Database = strings.TrimPrefix(u.Path, "/")
 	c.Options, _ = url.ParseQuery(u.RawQuery)
+
+	if c.Adapter == "sqlite" {
+		c.Database = strings.TrimPrefix(rawURL, "sqlite:")
+	}
 
 	return c
 }
@@ -69,7 +74,7 @@ func (c *Config) GoFormat() string {
 		c.Options.Set("parseTime", "true")
 		u = fmt.Sprintf("%s@tcp(%s:%s)/%s", c.Username, c.Host, c.Port, c.Database)
 	case "sqlite":
-		return ""
+		return fmt.Sprintf("file:%s", c.Database)
 	default:
 		return ""
 	}
@@ -89,7 +94,7 @@ func (c *Config) TSFormat() string {
 	case "postgresql":
 		u = fmt.Sprintf("postgres://%s:%s@%s:%s/%s", c.Username, c.Password, c.Host, c.Port, c.Database)
 	case "mysql":
-		u = fmt.Sprintf("%s@tcp(%s:%s)/%s", c.Username, c.Host, c.Port, c.Database)
+		u = fmt.Sprintf("mysql://%s:%s@%s:%s/%s", c.Username, c.Password, c.Host, c.Port, c.Database)
 	case "sqlite":
 		return ""
 	default:

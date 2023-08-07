@@ -3,7 +3,7 @@ database "db" {
   time_zone = "Asia/Shanghai"
 
   config "test" {
-    url = "file:test.sqlite3"
+    url = "sqlite:test.sqlite3"
   }
 
   generator "client-golang" {
