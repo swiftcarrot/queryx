@@ -3,7 +3,7 @@ database "db" {
   time_zone = "Asia/Shanghai"
 
   config "test" {
-    url = "postgres://postgres:postgres@localhost:5432/queryx_test?sslmode=disable"
+    url = "postgresql://postgres:postgres@localhost:5432/queryx_test?sslmode=disable"
   }
 
   generator "client-golang" {
