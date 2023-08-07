@@ -3,6 +3,7 @@
 package {{ $.packageName }}
 
 import (
+	"log"
 	"database/sql"
 	"fmt"
 	"os"
@@ -35,6 +36,8 @@ func NewClientWithEnv(env string) (*QXClient, error) {
 	if config == nil {
 		return nil, fmt.Errorf("client config is missing for %s", env)
 	}
+
+	log.Println(config.URL)
 
 	{{- if eq $.client.Adapter "postgresql" }}
 	db, err := sql.Open("postgres", config.URL)
