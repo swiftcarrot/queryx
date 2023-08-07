@@ -16,7 +16,7 @@ import (
 var c *db.QXClient
 
 func init() {
-	client, err := db.NewClientWithEnv("test")
+	client, err := db.NewClient()
 	if err != nil {
 		log.Fatal(err)
 	}

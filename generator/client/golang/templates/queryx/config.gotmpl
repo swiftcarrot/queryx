@@ -11,7 +11,7 @@ func NewConfig(env string) *Config {
 	{{- range $c := $.client.Configs }}
 		case "{{ $c.Environment }}":
 			return &Config{
-				URL: {{ if $c.URL.EnvKey }}os.Getenv("{{ $c.URL.EnvKey }}"){{ else }}"{{$c.URL.Value}}"{{end}},
+				URL: {{ if $c.URL.EnvKey }}os.Getenv("{{ $c.URL.EnvKey }}"){{ else }}"{{ $c.URL.Value }}"{{ end }},
 			}
 	{{- end }}
   }
