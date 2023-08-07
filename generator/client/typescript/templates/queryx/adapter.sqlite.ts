@@ -10,17 +10,19 @@ export class Adapter {
     this.db = new Database(config.url);
   }
 
-  query<R>(query: string): R[] {
+  query<R>(query: string, ...args: any[]): R[] {
+    console.log(query, args);
     let stmt = this.db.prepare(query);
-    return stmt.all() as R[];
+    return stmt.all(...args) as R[];
   }
 
-  queryOne<R>(query: string): R {
+  queryOne<R>(query: string, ...args: any[]): R {
+    console.log(query, args);
     let stmt = this.db.prepare(query);
-    return stmt.get() as R;
+    return stmt.get(...args) as R;
   }
 
-  async exec() {}
+  async exec(query: string, ...args: any[]) {}
 }
 
 export function rebind<T extends any[] = any[]>(query: string, args?: T) {}

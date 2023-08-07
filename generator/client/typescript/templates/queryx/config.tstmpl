@@ -28,11 +28,11 @@ function fixURL(rawURL: string) {
 	return rawURL;
 }
 {{- else if eq $.client.Adapter "mysql" }}
-func fixURL(rawURL: string) {
+function fixURL(rawURL: string) {
   return rawURL;
 }
 {{- else if eq $.client.Adapter "sqlite" }}
 function fixURL(rawURL: string) {
-  return rawURL;
+  return rawURL.replace(/^sqlite:/, "");
 }
 {{- end }}
