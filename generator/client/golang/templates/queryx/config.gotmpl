@@ -33,7 +33,7 @@ func fixURL(rawURL string) string {
 	password, _ := u.User.Password()
 	options, _ := url.ParseQuery(u.RawQuery)
 	options.Set("parseTime", "true")
-	options.Set("loc", "Asia Shanghai")
+	options.Set("loc", "Asia/Shanghai")
 	return fmt.Sprintf("%s:%s@tcp(%s)%s?%s", u.User.Username(), password, u.Host, u.Path, options.Encode())
 }
 {{- else if eq $.client.Adapter "sqlite" }}
