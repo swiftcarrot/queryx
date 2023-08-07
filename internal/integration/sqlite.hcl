@@ -2,8 +2,11 @@ database "db" {
   adapter   = "sqlite"
   time_zone = "Asia/Shanghai"
 
-  config "test" {
+  config "development" {
     url = "sqlite:test.sqlite3"
+  }
+  config "test" {
+    url = env("DATABASE_URL")
   }
 
   generator "client-golang" {

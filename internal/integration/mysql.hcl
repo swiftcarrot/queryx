@@ -2,8 +2,11 @@ database "db" {
   adapter   = "mysql"
   time_zone = "Asia/Shanghai"
 
-  config "test" {
+  config "development" {
     url = "mysql://root:@127.0.0.1:3306/queryx_test"
+  }
+  config "test" {
+    url = env("DATABASE_URL")
   }
 
   generator "client-golang" {
