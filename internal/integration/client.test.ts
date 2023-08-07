@@ -1,12 +1,11 @@
 import { test, expect, beforeAll } from "vitest";
-import { newClientWithEnv, QXClient, UserChange } from "./db";
+import { newClient, QXClient, UserChange } from "./db";
 import { format } from "date-fns";
-import mysql, { RowDataPacket } from "mysql2/promise";
 
 let c: QXClient;
 
 beforeAll(async () => {
-  c = newClientWithEnv("test");
+  c = newClient();
 });
 
 test("queryOne", async () => {
