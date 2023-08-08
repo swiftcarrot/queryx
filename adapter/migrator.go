@@ -42,10 +42,6 @@ func NewMigrator(adapter Adapter) (*Migrator, error) {
 
 func (m *Migrator) RunMigration(mg *Migration) error {
 	fmt.Println("run", mg.Version, mg.Path)
-	apapter := m.Adapter.GetAdapter()
-	if apapter == "" {
-		return fmt.Errorf("the dbName can not be nil")
-	}
 	f, err := os.ReadFile(mg.Path)
 	if err != nil {
 		return err
@@ -92,36 +88,16 @@ func (m *Migrator) Up() error {
 
 func (m *Migrator) exists(ctx context.Context, version string) (bool, error) {
 	exists := true
-	adapter := m.Adapter.GetAdapter()
-	if adapter == "" {
-		return false, fmt.Errorf("the dbName can not be nil")
+	rows, err := m.Adapter.QueryVersion(ctx, version)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			exists = false
+		} else {
+			return false, err
+		}
 	}
-	if adapter == "postgresql" || adapter == "sqlite" {
-		rows, err := m.Adapter.QueryContext(ctx, "select version from schema_migrations where version = $1", version)
-		if err != nil {
-			// TODO: fix this
-			if err == sql.ErrNoRows {
-				exists = false
-			} else {
-				return false, err
-			}
-		}
-		if !rows.Next() {
-			exists = false
-		}
-	} else if adapter == "mysql" {
-		rows, err := m.Adapter.QueryContext(ctx, "select version from schema_migrations where version = ?", version)
-		if err != nil {
-			// TODO: fix this
-			if err == sql.ErrNoRows {
-				exists = false
-			} else {
-				return false, err
-			}
-		}
-		if !rows.Next() {
-			exists = false
-		}
+	if !rows.Next() {
+		exists = false
 	}
 	return exists, nil
 }
@@ -146,11 +122,6 @@ func (m *Migrator) UpWithVersion(version string) error {
 		}
 
 		if !exists {
-			// TODO: transaction support
-			// adapter.Transaction(func(tx *Transaction) error {
-			// 	return nil
-			// })
-
 			if err := m.RunMigration(um); err != nil {
 				return err
 			}

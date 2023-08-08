@@ -221,10 +221,6 @@ func (db *Database) configFromBlock(block *hcl.Block, ctx *hcl.EvalContext) (*Co
 			config.Password = value.AsString()
 		case "encoding":
 			config.Encoding = value.AsString()
-		// case "pool":
-		// 	config.Pool = value.AsString()
-		// case "timeout":
-		// 	config.Timeout = value.AsString()
 		case "socket":
 			config.Socket = value.AsString()
 		case "raw_options":

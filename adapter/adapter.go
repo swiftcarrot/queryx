@@ -15,11 +15,11 @@ type Adapter interface {
 	CreateMigrationsTable(ctx context.Context) error
 	ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error)
 	QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error)
-	GetAdapter() string
-	GetDBName() string
+	QueryVersion(ctx context.Context, version string) (*sql.Rows, error)
 }
 
-func NewAdapter(config *schema.Config) (Adapter, error) {
+func NewAdapter(cfg *schema.Config) (Adapter, error) {
+	config := NewConfig(cfg)
 	if config.Adapter == "postgresql" {
 		return NewPostgreSQLAdapter(config), nil
 	} else if config.Adapter == "mysql" {
