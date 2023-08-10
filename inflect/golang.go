@@ -1,8 +1,16 @@
 package inflect
 
 import (
+	"fmt"
 	"log"
+	"strings"
 )
+
+// type abbreviation used for a method's receiver variable
+// https://github.com/golang/go/wiki/CodeReviewComments#receiver-names
+func GoReceiver(typ string) string {
+	return strings.ToLower(typ[0:1])
+}
 
 // avoid go keyword with syntax error
 func goKeywordFix(s string) string {
@@ -40,7 +48,7 @@ func goModelType(t string, null bool) string {
 		case "json", "jsonb":
 			return "queryx.JSON"
 		default:
-			log.Fatal("not found", t)
+			log.Fatal(fmt.Errorf("unhandled data type %s in goModelType", t))
 			return ""
 		}
 	} else {
@@ -66,7 +74,7 @@ func goModelType(t string, null bool) string {
 		case "json", "jsonb":
 			return "queryx.JSON"
 		default:
-			log.Fatal("not found", t)
+			log.Fatal(fmt.Errorf("unhandled data type %s in goModelType", t))
 			return ""
 		}
 	}
@@ -96,7 +104,8 @@ func goType(t string) string {
 	case "json", "jsonb":
 		return "JSON"
 	default:
-		return "" // TODO: raise error
+		log.Fatal(fmt.Errorf("unhandled data type %s in goType", t))
+		return ""
 	}
 }
 
@@ -109,24 +118,14 @@ func goChangeSetType(t string) string {
 		return "bool"
 	case "integer":
 		return "int32"
-	case "string":
-		return "string"
-	case "text":
-		return "string"
-	case "datetime":
-		return "string"
-	case "date":
-		return "string"
-	case "time":
-		return "string"
-	case "uuid":
+	case "string", "text", "date", "time", "datetime", "uuid":
 		return "string"
 	case "float":
 		return "float64"
 	case "json", "jsonb":
 		return "map[string]interface{}"
 	default:
-		log.Fatal("unknown type in goChangeSetType", t) // TODO: error handling
+		log.Fatal(fmt.Errorf("unhandled data type %s in goChangeSetType", t))
 		return ""
 	}
 }

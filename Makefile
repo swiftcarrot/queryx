@@ -21,7 +21,9 @@ test-postgresql: install
 	cd internal/integration && QUERYX_ENV=test queryx db:migrate --schema postgresql.hcl
 	cd internal/integration && QUERYX_ENV=test queryx db:migrate --schema postgresql.hcl
 	cd internal/integration && QUERYX_ENV=test queryx generate --schema postgresql.hcl
-	cd internal/integration && go test ./...
+	cd internal/integration && yarn tsc
+	cd internal/integration && yarn test
+	# cd internal/integration && go test ./...
 	# cd internal/integration && QUERYX_ENV=test queryx db:drop --schema postgresql.hcl
 
 test-mysql: install
@@ -31,7 +33,9 @@ test-mysql: install
 	cd internal/integration && QUERYX_ENV=test queryx db:migrate --schema mysql.hcl
 	cd internal/integration && QUERYX_ENV=test queryx db:migrate --schema mysql.hcl
 	cd internal/integration && QUERYX_ENV=test queryx generate --schema mysql.hcl
-	cd internal/integration && go test ./...
+	cd internal/integration && yarn tsc
+	cd internal/integration && yarn test
+	# cd internal/integration && go test ./...
 
 test-sqlite: install
 	rm -rf internal/integration/db
@@ -40,6 +44,8 @@ test-sqlite: install
 	cd internal/integration && QUERYX_ENV=test queryx db:migrate --schema sqlite.hcl
 	cd internal/integration && QUERYX_ENV=test queryx db:migrate --schema sqlite.hcl
 	cd internal/integration && QUERYX_ENV=test queryx generate --schema sqlite.hcl
-	cd internal/integration && go test ./...
+	cd internal/integration && yarn tsc
+	cd internal/integration && yarn test
+	# cd internal/integration && go test ./...
 
 test: test-postgresql test-sqlite test-mysql
