@@ -43,15 +43,15 @@ export class Adapter {
   }
 
   async beginTx() {
-    await this.db.exec("BEGIN");
+    await this.exec("BEGIN");
   }
 
   async commit() {
-    await this.db.exec("COMMIT");
+    await this.exec("COMMIT");
   }
 
   async rollback() {
-    await this.db.exec("ROLLBACK");
+    await this.exec("ROLLBACK");
   }
 }
 
