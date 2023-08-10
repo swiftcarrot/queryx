@@ -12,8 +12,10 @@ import type { {{ $h.ModelName }} } from "../{{ $h.ModelName | snake }}";
 import type { {{ $h.ModelName }} } from "../{{ $h.ModelName | snake }}";
 {{- end }}
 
+export interface {{ $.model.Name }}Row {}
+
 export class {{ $.model.Name }} {
-	{{- range $c := .model.Columns }}
+	{{- range $c := $.model.Columns }}
   public {{ $c.Name | camel }}: {{ tsType $c.Type }}{{ if $c.Null }} | null{{ end }};
   {{- end }}
 	{{- range $b := $.model.BelongsTo }}
