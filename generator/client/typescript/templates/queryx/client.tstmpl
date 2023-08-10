@@ -10,7 +10,7 @@ import { Clause } from "./clause";
 
 export class QXClient {
   public config: Config;
-  private adapter: Adapter;
+  public adapter: Adapter;
 	{{- range $m := $.client.Models }}
 	public {{ $m.Name | camel }}: Table;
 	{{- range $c := .Columns }}
@@ -50,7 +50,7 @@ export class QXClient {
 
   async tx() {
     const tx = new Tx(this.config);
-    await tx.exec("BEGIN");
+    await tx.adapter.beginTx();
     return tx;
   }
 
@@ -69,10 +69,11 @@ export class Tx extends QXClient {
   }
 
   commit() {
-    return this.exec("COMMIT");
+    return this.adapter.commit();
   }
+
   rollback() {
-    return this.exec("ROLLBACK");
+    return this.adapter.rollback();
   }
 }
 

@@ -32,6 +32,18 @@ export class Adapter {
     let res = stmt.run(...args1);
     return res.changes;
   }
+
+  async beginTx() {
+    await this.db.exec("BEGIN");
+  }
+
+  async commit() {
+    await this.db.exec("COMMIT");
+  }
+
+  async rollback() {
+    await this.db.exec("ROLLBACK");
+  }
 }
 
 export function rebind<T extends any[] = any[]>(query: string, args?: T) {

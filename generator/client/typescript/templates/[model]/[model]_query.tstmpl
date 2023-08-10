@@ -58,6 +58,21 @@ export class {{ $.model.Name }}Query {
     {{- end }}
 
     let [columns, values] = change.changes();
+    {{- if eq $.client.Adapter "mysql" }}
+    let [query, args] = newInsert()
+      .into("{{ $.model.TableName }}")
+      .columns(...columns)
+      .values(...values)
+      .toSQL();
+    let res = await this.client.adapter._exec(query, ...args);
+    {{- if $.model.DefaultPrimaryKey }}
+    let filter = this.client.{{ $.model.Name | camel }}ID.eq(res.insertId);
+    let record = await this.where(filter).first();
+    {{- else }}
+    let record = new {{ $.model.Name }}(this.client);
+    record.applyChange(input);
+    {{- end }}
+    {{- else }}
     let [query, args] = newInsert()
       .into("{{ $.model.TableName }}")
       .columns(...columns)
@@ -70,6 +85,7 @@ export class {{ $.model.Name }}Query {
 
     {{- range $c := $.model.Columns }}
     record.{{ $c.Name | camel }} = adapterScan("{{ $c.Type }}", row.{{ $c.Name }});
+    {{- end }}
     {{- end }}
 
     return record;
