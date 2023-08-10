@@ -15,18 +15,18 @@ import type { {{ $h.ModelName }} } from "../{{ $h.ModelName | snake }}";
 export interface {{ $.model.Name }}Row {}
 
 export class {{ $.model.Name }} {
-	{{- range $c := $.model.Columns }}
+  {{- range $c := $.model.Columns }}
   public {{ $c.Name | camel }}: {{ tsType $c.Type }}{{ if $c.Null }} | null{{ end }} = null;
   {{- end }}
-	{{- range $b := $.model.BelongsTo }}
+  {{- range $b := $.model.BelongsTo }}
   public {{ $b.Name | camel }}: {{ $b.ModelName }} | null;
   {{- end }}
-	{{- range $h := $.model.HasMany }}
+  {{- range $h := $.model.HasMany }}
   public {{ $h.Name | camel }}: {{ $h.ModelName }}[] | null;
-	{{- end }}
-	{{- range $h := $.model.HasOne }}
+  {{- end }}
+  {{- range $h := $.model.HasOne }}
   public {{ $h.Name | camel }}: {{ $h.ModelName }} | null;
-	{{- end }}
+  {{- end }}
   private _client: QXClient;
 
   constructor(client: QXClient) {
@@ -58,12 +58,12 @@ export class {{ $.model.Name }} {
 
   {{- if $.model.PrimaryKey }}
   async update(input: {{ $.model.Name }}ChangeInput) {
-	  {{- if $.model.Timestamps }}
+    {{- if $.model.Timestamps }}
     let now = new Date().toISOString();
-	  if (input.updatedAt === undefined) {
-		  input.updatedAt = now;
-	  }
-	  {{- end }}
+    if (input.updatedAt === undefined) {
+      input.updatedAt = now;
+    }
+    {{- end }}
     let filter = this._client.{{ $.model.Name | camel }}ID.eq(this.id);
     await this._client.query{{ $.model.Name }}().where(filter).updateAll(input);
     this.applyChange(input);

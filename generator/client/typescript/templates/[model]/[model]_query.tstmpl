@@ -16,21 +16,21 @@ import type { {{ pascal $h.ModelName }} } from "../{{ snake $h.ModelName }}";
 {{- end }}
 
 {{- define "primary_key_params" }}
-	{{- range $i, $c := $.Columns -}}
-		{{ if $i }}, {{ end }}{{ $c.Name | camel }}: {{ tsType $c.Type }}
-	{{- end -}}
+  {{- range $i, $c := $.Columns -}}
+    {{ if $i }}, {{ end }}{{ $c.Name | camel }}: {{ tsType $c.Type }}
+  {{- end -}}
 {{- end }}
 
 {{- define "primary_key_where" }}
-	{{- if gt (len $.PrimaryKey.Columns) 1 -}}
-		this.client.and(
-		{{- range $i, $c := index $.PrimaryKey.Columns -}}
-			{{ if $i }}, {{ end }}this.client.{{ $.Name | camel }}{{ $c.Name | pascal }}.eq({{ $c.Name | camel }})
-		{{- end -}})
-	{{- else -}}
-		{{- $c := index $.PrimaryKey.Columns 0 -}}
-		this.client.{{ .Name | camel }}{{ $c.Name | pascal }}.eq({{ $c.Name | camel }})
-	{{- end -}}
+  {{- if gt (len $.PrimaryKey.Columns) 1 -}}
+    this.client.and(
+    {{- range $i, $c := index $.PrimaryKey.Columns -}}
+      {{ if $i }}, {{ end }}this.client.{{ $.Name | camel }}{{ $c.Name | pascal }}.eq({{ $c.Name | camel }})
+    {{- end -}})
+  {{- else -}}
+    {{- $c := index $.PrimaryKey.Columns 0 -}}
+    this.client.{{ .Name | camel }}{{ $c.Name | pascal }}.eq({{ $c.Name | camel }})
+  {{- end -}}
 {{- end }}
 
 export class {{ $.model.Name }}Query {
@@ -216,8 +216,8 @@ export class {{ $.model.Name }}Query {
   private async _preload{{ pascal $h.Name }}(records: {{ $.model.Name }}[]) {
     let ids = records.map((record) => record.id);
 
-	  {{- if $h.Through }}
-	  {{- $m := $h.Through | singular | pascal }}
+    {{- if $h.Through }}
+    {{- $m := $h.Through | singular | pascal }}
     let rows1 = await this.client
       .query{{ $m }}()
       .where(this.client.{{ camel $m }}{{ $.model.Name }}ID.in(ids))
@@ -368,12 +368,12 @@ export class {{ $.model.Name }}Query {
 
   async updateAll(input: {{ $.model.Name }}ChangeInput) {
     let change = new {{ $.model.Name }}Change(input);
-	  {{- if $.model.Timestamps }}
+    {{- if $.model.Timestamps }}
     let now = new Date().toISOString();
-	  if (change.updatedAt === undefined) {
-		  change.setUpdatedAt(now)
-	  }
-	  {{- end }}
+    if (change.updatedAt === undefined) {
+      change.setUpdatedAt(now)
+    }
+    {{- end }}
     let [columns, values] = change.changes();
     let [query, args] = this.selectStatement
       .update()
