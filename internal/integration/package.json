@@ -1,0 +1,20 @@
+{
+  "name": "integration",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@types/better-sqlite3": "^7.6.4",
+    "@types/node": "^20.4.5",
+    "@types/pg": "^8.10.2",
+    "better-sqlite3": "^8.5.0",
+    "date-fns": "^2.30.0",
+    "mysql2": "^3.5.2",
+    "pg": "^8.11.1",
+    "typescript": "^5.1.6",
+    "vitest": "^0.32.2"
+  }
+}

@@ -3,7 +3,7 @@
 [English](README.md) | [中文](README_zh.md)
 
 > **Warning**
-> This project is currently in beta (v0), although it has been battled tested in internal projects. Currently, it only supports golang code generation. We plan to release support for TypeScript code generation. Feel free to [open an issue](https://github.com/swiftcarrot/queryx/issues) or [start a discussion](https://github.com/swiftcarrot/queryx/discussions) if you have any questions.
+> This project is currently in beta (v0), although it has been battled tested in internal projects. Feel free to [open an issue](https://github.com/swiftcarrot/queryx/issues) or [start a discussion](https://github.com/swiftcarrot/queryx/discussions) if you have any questions.
 
 Queryx is schema-first and type-safe ORM with code generation.
 
@@ -45,7 +45,7 @@ database "db" {
   adapter = "postgresql"
 
   config "development" {
-    url = "postgres://postgres:postgres@localhost:5432/blog_development?sslmode=disable"
+    url = "postgresql://postgres:postgres@localhost:5432/blog_development?sslmode=disable"
   }
 
   generator "client-golang" {}
@@ -72,7 +72,7 @@ database "db" {
   adapter = "mysql"
 
   config "development" {
-    url = "root@tcp(localhost:3306)/queryx_test?parseTime=true"
+    url = "mysql://root:@127.0.0.1:3306/blog_development"
   }
 }
 ```
@@ -83,8 +83,8 @@ Example for SQLite database:
 database "db" {
   adapter = "sqlite"
 
-  config "test" {
-    url = "file:test.sqlite3"
+  config "development" {
+    url = "sqlite:blog_development.sqlite3"
   }
 }
 ```

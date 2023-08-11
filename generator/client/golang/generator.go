@@ -17,10 +17,10 @@ import (
 //go:embed templates
 var templates embed.FS
 
-func Run(generatorConfig *schema.Generator, schema *schema.Schema, args []string) error {
-	g := &generator.Generator{}
+func Run(g *generator.Generator, generatorConfig *schema.Generator, args []string) error {
+	schema := g.Schema
 	database := schema.Databases[0]
-	dbName := database.Name
+	dir := database.Name
 
 	if err := g.LoadTemplates(templates, database.Adapter); err != nil {
 		return err
@@ -52,12 +52,12 @@ func Run(generatorConfig *schema.Generator, schema *schema.Schema, args []string
 	}
 	g.Templates = templates
 
-	if err := g.Generate(schema); err != nil {
+	if err := g.Generate(); err != nil {
 		return err
 	}
 
 	fmt.Println("Running goimports...")
-	if err := goimports(dbName); err != nil {
+	if err := goimports(dir); err != nil {
 		return err
 	}
 

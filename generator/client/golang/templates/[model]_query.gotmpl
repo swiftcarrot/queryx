@@ -70,7 +70,7 @@ func (q *{{ $.model.Name }}Query) Create(change *queryx.{{ $.model.Name }}Change
 		schema: q.schema,
 		queries: q.queries,
 	}
-	{{- if eq $.model.Timestamps true }}
+	{{- if $.model.Timestamps }}
 	now := queryx.Now("2006-01-02 15:04:05.000")
 	if !change.CreatedAt.Set {
 		change.SetCreatedAt(now)
@@ -86,7 +86,7 @@ func (q *{{ $.model.Name }}Query) Create(change *queryx.{{ $.model.Name }}Change
 		Into("{{ $.model.TableName }}").
 		Columns(columns...).
 		Values(values...).
-		Returning("{{range $i, $e := .model.Columns}}{{if $i}},{{end}}{{.Name}}{{end}}").ToSQL()
+		Returning("*").ToSQL()
 	err := q.adapter.QueryOne(query, args...).Scan(record)
 	if err != nil {
 		return nil, err

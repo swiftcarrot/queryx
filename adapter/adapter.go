@@ -27,5 +27,6 @@ func NewAdapter(cfg *schema.Config) (Adapter, error) {
 	} else if config.Adapter == "sqlite" {
 		return NewSQLiteAdapter(config), nil
 	}
+
 	return nil, fmt.Errorf("unsupported adapter: %q", config.Adapter)
 }
