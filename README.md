@@ -72,7 +72,7 @@ database "db" {
   adapter = "mysql"
 
   config "development" {
-    url = "root@tcp(localhost:3306)/queryx_test?parseTime=true"
+    url = "mysql://root:@127.0.0.1:3306/queryx_test"
   }
 }
 ```
@@ -84,7 +84,7 @@ database "db" {
   adapter = "sqlite"
 
   config "test" {
-    url = "file:test.sqlite3"
+    url = "sqlite:test.sqlite3"
   }
 }
 ```
