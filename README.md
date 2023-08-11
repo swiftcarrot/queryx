@@ -6,7 +6,7 @@
 > This project is currently in beta (v0), although it has been battled tested in internal projects. Feel free to [open an issue](https://github.com/swiftcarrot/queryx/issues) or [start a discussion](https://github.com/swiftcarrot/queryx/discussions) if you have any questions.
 
 > **Note**
-> TypeScript support has been released! You can now use queryx with TypeScript in your project by following the instructions provided [here](/docs/generator-typescript-client.md).
+> TypeScript support has been released! You can now use queryx with TypeScript in your project by following the instructions provided [here](docs/generator-typescript-client.md).
 
 Queryx is schema-first and type-safe ORM with code generation.
 
