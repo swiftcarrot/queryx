@@ -97,14 +97,14 @@ jobs:
         run: |
           cd internal/integration
           yarn install
-      # - name: yarn tsc
-      #   run: |
-      #     cd internal/integration
-      #     yarn tsc
       - name: yarn test
         run: |
           cd internal/integration
           yarn test
+      - name: yarn tsc
+        run: |
+          cd internal/integration
+          yarn tsc
   mysql-golang:
     needs: [build]
     runs-on: ubuntu-latest
@@ -183,14 +183,14 @@ jobs:
         run: |
           cd internal/integration
           yarn install
-      # - name: yarn tsc
-      #   run: |
-      #     cd internal/integration
-      #     yarn tsc
       - name: yarn test
         run: |
           cd internal/integration
           yarn test
+      - name: yarn tsc
+        run: |
+          cd internal/integration
+          yarn tsc
   sqlite-golang:
     needs: [build]
     runs-on: ubuntu-latest
@@ -241,11 +241,11 @@ jobs:
         run: |
           cd internal/integration
           yarn install
-      # - name: yarn tsc
-      #   run: |
-      #     cd internal/integration
-      #     yarn tsc
       - name: yarn test
         run: |
           cd internal/integration
           yarn test
+      - name: yarn tsc
+        run: |
+          cd internal/integration
+          yarn tsc
