@@ -32,7 +32,7 @@ func (c *JSONColumn) NotNull() *Clause {
 
 func (c *JSONColumn) EQ(k string, v interface{}) *Clause {
 	return &Clause{
-		fragment: fmt.Sprintf("%s.%s -> '%s' = ?", c.Table.Name, c.Name, k),
+		fragment: fmt.Sprintf("%s.%s ->> '%s' = ?", c.Table.Name, c.Name, k),
 		args:     []interface{}{v},
 	}
 }
