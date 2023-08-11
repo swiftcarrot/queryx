@@ -77,12 +77,12 @@ export class Tx extends QXClient {
   }
 }
 
-export const newClient = async () => {
+export const newClient = () => {
   let env = getenv("QUERYX_ENV") || "development";
   return newClientWithEnv(env);
 };
 
-export const newClientWithEnv = async (env: Env) => {
+export const newClientWithEnv = (env: Env) => {
   let config = newConfig(env);
   let client = new QXClient(config);
   return client;

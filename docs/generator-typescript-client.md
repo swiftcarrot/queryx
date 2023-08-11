@@ -33,7 +33,7 @@ Once you have installed the required dependencies, you can start using the gener
 ```typescript
 import { newClient } from "./db";
 
-let client = await newClient();
+let client = newClient();
 let user = await client.queryUser().create({ name: "user name" });
 await user.update({ name: "new user name" });
 ```

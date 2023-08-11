@@ -5,7 +5,7 @@ import { format } from "date-fns";
 let c: QXClient;
 
 beforeAll(async () => {
-  c = await newClient();
+  c = newClient();
 });
 
 test("queryOne", async () => {
