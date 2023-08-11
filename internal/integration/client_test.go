@@ -237,6 +237,10 @@ func TestJSON(t *testing.T) {
 	// numbers are unmarshalled into float64 by default
 	require.Equal(t, float64(payload["height"].(int)), user.Payload.Val["height"])
 	require.Equal(t, float64(payload["weight"].(int)), user.Payload.Val["weight"])
+
+	user, err = c.QueryUser().Where(c.UserPayload.EQ("theme", "dark")).First()
+	require.NoError(t, err)
+	require.Equal(t, float64(170), user.Payload.Val["height"])
 }
 
 func TestCompositePrimaryKey(t *testing.T) {
