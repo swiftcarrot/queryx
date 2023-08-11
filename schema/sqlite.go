@@ -80,6 +80,9 @@ func (d *Database) CreateSQLiteSchema(dbName string) *schema.Schema {
 			}
 
 			col.SetNull(c.Null)
+			if c.Comment != "" {
+				col.SetComment(c.Comment)
+			}
 			t.AddColumns(col)
 			columnMap[c.Name] = col
 		}
@@ -108,6 +111,9 @@ func (d *Database) CreateSQLiteSchema(dbName string) *schema.Schema {
 			t.AddIndexes(index)
 		}
 
+		if model.Comment != "" {
+			t.SetComment(model.Comment)
+		}
 		public.AddTables(t)
 		public.Name = "main"
 	}
