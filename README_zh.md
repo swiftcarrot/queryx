@@ -5,7 +5,7 @@
 > **Warning**
 > 该项目目前处于 Beta 版本（v0），虽然已在内部项目中进行了测试。目前，它仅支持生成 golang 代码。我们计划发布支持生成 TypeScript 代码的功能。 如果您有任何问题，请随时 [提出 issue](https://github.com/swiftcarrot/queryx/issues) 或 [展开讨论](https://github.com/swiftcarrot/queryx/discussions)。
 
-> TypeScript 支持已发布！现在可以在项目中使用 TypeScript 来使用 queryx，[查看文档](docs/generator-typescript-client.md)进行操作。
+> TypeScript 支持已发布！现在可以在项目中使用 TypeScript 来使用 queryx，[查看文档](https://github.com/swiftcarrot/queryx/blob/main/docs/generator-typescript-client.md)进行操作。
 
 <img width="400" alt="image" src="https://github.com/swiftcarrot/queryx/assets/1039026/db0f79b9-4bc8-4beb-ab28-7a8de7d8f8e9">
 
