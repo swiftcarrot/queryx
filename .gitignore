@@ -1,3 +1,5 @@
+internal/integration/db
+node_modules
 /bin
 .idea
 *.sqlite3

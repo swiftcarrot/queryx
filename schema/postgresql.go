@@ -115,8 +115,8 @@ func (d *Database) CreatePostgreSQLSchema(dbName string) *schema.Schema {
 			columnMap[c.Name] = col
 		}
 
-		cols := []*schema.Column{}
 		if model.PrimaryKey != nil {
+			cols := []*schema.Column{}
 			for _, name := range model.PrimaryKey.ColumnNames {
 				cols = append(cols, columnMap[name])
 			}

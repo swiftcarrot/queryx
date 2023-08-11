@@ -8,22 +8,21 @@ import (
 	"ariga.io/atlas/sql/mysql"
 	sqlschema "ariga.io/atlas/sql/schema"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/swiftcarrot/queryx/schema"
 )
 
 type MySQLAdapter struct {
 	*sql.DB
-	Config *schema.Config
+	Config *Config
 }
 
-func NewMySQLAdapter(config *schema.Config) *MySQLAdapter {
+func NewMySQLAdapter(config *Config) *MySQLAdapter {
 	return &MySQLAdapter{
 		Config: config,
 	}
 }
 
 func (a *MySQLAdapter) Open() error {
-	db, err := sql.Open("mysql", a.Config.ConnectionURL(true))
+	db, err := sql.Open("mysql", a.Config.URL)
 	if err != nil {
 		return err
 	}
@@ -32,7 +31,7 @@ func (a *MySQLAdapter) Open() error {
 }
 
 func (a *MySQLAdapter) CreateDatabase() error {
-	db, err := sql.Open("mysql", a.Config.ConnectionURL(false))
+	db, err := sql.Open("mysql", a.Config.URL2)
 	if err != nil {
 		return err
 	}
@@ -51,7 +50,7 @@ func (a *MySQLAdapter) CreateDatabase() error {
 }
 
 func (a *MySQLAdapter) DropDatabase() error {
-	db, err := sql.Open("mysql", a.Config.ConnectionURL(false))
+	db, err := sql.Open("mysql", a.Config.URL2)
 	if err != nil {
 		return err
 	}
@@ -76,17 +75,12 @@ func (a *MySQLAdapter) CreateMigrationsTable(ctx context.Context) error {
 		return err
 	}
 
-	dbName := a.GetDBName()
-	if dbName == "" {
-		return fmt.Errorf("the ad can not be nil")
-	}
-	from, err := driver.InspectSchema(ctx, dbName, &sqlschema.InspectOptions{
+	from, err := driver.InspectSchema(ctx, a.Config.Database, &sqlschema.InspectOptions{
 		Tables: []string{"schema_migrations"},
 	})
 	if err != nil {
 		return err
 	}
-	_ = a.Config.ConnectionURL(false)
 	version := sqlschema.NewStringColumn("version", "varchar(256)")
 	to := sqlschema.New(a.Config.Database).AddTables(
 		sqlschema.NewTable("schema_migrations").AddColumns(
@@ -105,11 +99,6 @@ func (a *MySQLAdapter) CreateMigrationsTable(ctx context.Context) error {
 	return nil
 }
 
-func (a *MySQLAdapter) GetDBName() string {
-	a.Config.ConnectionURL(false)
-	return a.Config.Database
-}
-
-func (a *MySQLAdapter) GetAdapter() string {
-	return a.Config.Adapter
+func (a *MySQLAdapter) QueryVersion(ctx context.Context, version string) (*sql.Rows, error) {
+	return a.DB.QueryContext(ctx, "select version from schema_migrations where version = ?", version)
 }

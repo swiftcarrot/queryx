@@ -1,2 +1,4 @@
 *.go linguist-language=Go linguist-generated=false
 *.gotmpl linguist-language=Go linguist-generated=false
+*.ts linguist-language=TypeScript linguist-generated=false
+*.tstmpl linguist-language=TypeScript linguist-generated=false

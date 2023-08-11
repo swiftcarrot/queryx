@@ -14,7 +14,7 @@ var hclSchema = &hcl.BodySchema{
 	},
 }
 
-var hclClient = &hcl.BodySchema{
+var hclDatabase = &hcl.BodySchema{
 	Attributes: []hcl.AttributeSchema{
 		{Name: "adapter"},
 		{Name: "time_zone", Required: false},
@@ -23,6 +23,12 @@ var hclClient = &hcl.BodySchema{
 		{Type: "config", LabelNames: []string{"name"}},
 		{Type: "generator", LabelNames: []string{"name"}},
 		{Type: "model", LabelNames: []string{"name"}},
+	},
+}
+
+var hclGenerator = &hcl.BodySchema{
+	Attributes: []hcl.AttributeSchema{
+		{Name: "test"},
 	},
 }
 
@@ -126,7 +132,7 @@ func (s *Schema) databaseFromBlock(block *hcl.Block, ctx *hcl.EvalContext) (*Dat
 	name := block.Labels[0]
 	database := s.NewDatabase(name)
 
-	content, d := block.Body.Content(hclClient)
+	content, d := block.Body.Content(hclDatabase)
 	if d.HasErrors() {
 		return nil, d.Errs()[0]
 	}
@@ -214,10 +220,6 @@ func (db *Database) configFromBlock(block *hcl.Block, ctx *hcl.EvalContext) (*Co
 			config.Password = value.AsString()
 		case "encoding":
 			config.Encoding = value.AsString()
-		// case "pool":
-		// 	config.Pool = value.AsString()
-		// case "timeout":
-		// 	config.Timeout = value.AsString()
 		case "socket":
 			config.Socket = value.AsString()
 		case "raw_options":
@@ -230,10 +232,28 @@ func (db *Database) configFromBlock(block *hcl.Block, ctx *hcl.EvalContext) (*Co
 
 func generatorFromBlock(block *hcl.Block, ctx *hcl.EvalContext) (*Generator, error) {
 	name := block.Labels[0]
-
-	return &Generator{
+	generator := &Generator{
 		Name: name,
-	}, nil
+	}
+
+	content, d := block.Body.Content(hclGenerator)
+	if d.HasErrors() {
+		return nil, d.Errs()[0]
+	}
+
+	for name, attr := range content.Attributes {
+		value, d := attr.Expr.Value(ctx)
+		if d.HasErrors() {
+			return nil, d.Errs()[0]
+		}
+
+		switch name {
+		case "test":
+			generator.Test = valueAsBool(value)
+		}
+	}
+
+	return generator, nil
 }
 
 func (db *Database) modelFromBlock(block *hcl.Block, ctx *hcl.EvalContext) (*Model, error) {
@@ -548,13 +568,11 @@ var env = function.New(&function.Spec{
 func Parse(body hcl.Body) (*Schema, error) {
 	ctx := &hcl.EvalContext{
 		Variables: map[string]cty.Value{
-			"id":        cty.StringVal("id"),
 			"string":    cty.StringVal("string"),
 			"text":      cty.StringVal("text"),
 			"boolean":   cty.StringVal("boolean"),
 			"date":      cty.StringVal("date"),
 			"datetime":  cty.StringVal("datetime"),
-			"decimal":   cty.StringVal("decimal"),
 			"float":     cty.StringVal("float"),
 			"integer":   cty.StringVal("integer"),
 			"bigint":    cty.StringVal("bigint"),

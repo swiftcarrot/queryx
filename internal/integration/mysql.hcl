@@ -2,11 +2,19 @@ database "db" {
   adapter   = "mysql"
   time_zone = "Asia/Shanghai"
 
+  config "development" {
+    url = "mysql://root:@127.0.0.1:3306/queryx_test"
+  }
   config "test" {
-    url = "root@tcp(localhost:3306)/queryx_test?parseTime=true&loc=Asia%2FShanghai"
+    url = env("DATABASE_URL")
   }
 
-  generator "client-golang" {}
+  generator "client-golang" {
+    test = true
+  }
+  generator "client-typescript" {
+    test = true
+  }
 
   model "User" {
     has_one "account" {}
@@ -64,6 +72,9 @@ database "db" {
     }
     column "content" {
       type = text
+    }
+    column "payload" {
+      type = json
     }
   }
 

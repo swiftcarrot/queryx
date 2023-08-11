@@ -45,7 +45,7 @@ func findSchemaChanges(a string, db adapter.Adapter, database *schema.Database) 
 		environment = "development"
 	}
 	config := database.LoadConfig(environment)
-	dbName := config.GetDatabaseName()
+	dbName := adapter.NewConfig(config).Database
 
 	if a == "postgresql" {
 		driver, err = postgres.Open(db)
@@ -76,13 +76,13 @@ func findSchemaChanges(a string, db adapter.Adapter, database *schema.Database) 
 		if err != nil {
 			return nil, err
 		}
-		from, err = driver.InspectSchema(ctx, dbName, &sqlschema.InspectOptions{
+		from, err = driver.InspectSchema(ctx, "", &sqlschema.InspectOptions{
 			Tables: database.Tables(),
 		})
 		if err != nil {
 			return nil, err
 		}
-		desired = database.CreateSQLiteSchema(dbName)
+		desired = database.CreateSQLiteSchema("")
 	}
 
 	changes, err := driver.SchemaDiff(from, desired)

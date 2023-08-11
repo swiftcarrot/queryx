@@ -1,5 +1,15 @@
 package inflect
 
+import (
+	"strings"
+)
+
+// type abbreviation used for a method's receiver variable
+// https://github.com/golang/go/wiki/CodeReviewComments#receiver-names
+func GoReceiver(typ string) string {
+	return strings.ToLower(typ[0:1])
+}
+
 // avoid go keyword with syntax error
 func goKeywordFix(s string) string {
 	switch s {
@@ -109,17 +119,7 @@ func goChangeSetType(t string) string {
 		return "bool"
 	case "integer":
 		return "int32"
-	case "string":
-		return "string"
-	case "text":
-		return "string"
-	case "datetime":
-		return "string"
-	case "date":
-		return "string"
-	case "time":
-		return "string"
-	case "uuid":
+	case "string", "text", "date", "time", "datetime", "uuid":
 		return "string"
 	case "float":
 		return "float64"

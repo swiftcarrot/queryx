@@ -3,6 +3,7 @@ package integration
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"log"
 	"testing"
 	"time"
@@ -13,6 +14,14 @@ import (
 )
 
 var c *db.QXClient
+
+func init() {
+	client, err := db.NewClient()
+	if err != nil {
+		log.Fatal(err)
+	}
+	c = client
+}
 
 func TestQueryOne(t *testing.T) {
 	user, err := c.QueryUser().Create(c.ChangeUser().SetName("test"))
@@ -107,6 +116,18 @@ func TestFind(t *testing.T) {
 	require.Nil(t, tag)
 }
 
+func TestOrder(t *testing.T) {
+	_, err := c.QueryTag().DeleteAll()
+	require.NoError(t, err)
+	tag1, err := c.QueryTag().Create(c.ChangeTag().SetName("tag1"))
+	require.NoError(t, err)
+	tag2, err := c.QueryTag().Create(c.ChangeTag().SetName("tag2"))
+	require.NoError(t, err)
+	tags, err := c.QueryTag().Order("id desc").All()
+	require.NoError(t, err)
+	require.Equal(t, []*db.Tag{tag2, tag1}, tags)
+}
+
 func TestFirst(t *testing.T) {
 	_, err := c.QueryTag().DeleteAll()
 	require.NoError(t, err)
@@ -127,15 +148,15 @@ func TestFirst(t *testing.T) {
 }
 
 func TestTime(t *testing.T) {
-	user, err := c.QueryUser().Create(c.ChangeUser().SetTime("12:12:12"))
+	user, err := c.QueryUser().Create(c.ChangeUser().SetTime("12:10:09"))
 	require.NoError(t, err)
-	require.Equal(t, "12:12:12", user.Time.Val.Format("15:04:05"))
+	require.Equal(t, "12:10:09", user.Time.Val.Format("15:04:05"))
 }
 
 func TestDate(t *testing.T) {
-	user, err := c.QueryUser().Create(c.ChangeUser().SetDate("2012-12-12"))
+	user, err := c.QueryUser().Create(c.ChangeUser().SetDate("2012-11-10"))
 	require.NoError(t, err)
-	require.Equal(t, "2012-12-12", user.Date.Val.Format("2006-01-02"))
+	require.Equal(t, "2012-11-10", user.Date.Val.Format("2006-01-02"))
 }
 
 func TestDatetime(t *testing.T) {
@@ -208,7 +229,10 @@ func TestJSON(t *testing.T) {
 	payload["theme"] = "dark"
 	payload["height"] = 170
 	payload["weight"] = 65
-	user, _ := c.QueryUser().Create(c.ChangeUser().SetPayload(payload))
+	user, err := c.QueryUser().Create(c.ChangeUser().SetPayload(payload))
+	require.NoError(t, err)
+	user, err = c.QueryUser().Find(user.ID)
+	require.NoError(t, err)
 	require.Equal(t, payload["theme"], user.Payload.Val["theme"])
 	// numbers are unmarshalled into float64 by default
 	require.Equal(t, float64(payload["height"].(int)), user.Payload.Val["height"])
@@ -231,7 +255,8 @@ func TestCompositePrimaryKey(t *testing.T) {
 	require.Equal(t, "key", code.Key)
 }
 
-func TestNoPrimaryKey(t *testing.T) {
+func TestWithoutPrimaryKey(t *testing.T) {
+	// TODO: test missing Delete() and Find() on ClientQuery and Client
 	client, err := c.QueryClient().Create(c.ChangeClient().SetName("client"))
 	require.NoError(t, err)
 	require.Equal(t, "client", client.Name.Val)
@@ -282,7 +307,7 @@ func TestAllEmpty(t *testing.T) {
 	require.Equal(t, 0, len(users))
 }
 
-func TestInEmptySlice(t *testing.T) {
+func TestInEmpty(t *testing.T) {
 	_, err := c.QueryUser().DeleteAll()
 	require.NoError(t, err)
 	users, err := c.QueryUser().Where(c.UserID.In([]int64{})).All()
@@ -373,7 +398,7 @@ func TestPreload(t *testing.T) {
 	require.Equal(t, userPost1.ID, post.UserPosts[0].ID)
 }
 
-func TestTx(t *testing.T) {
+func TestTransaction(t *testing.T) {
 	tag1, _ := c.QueryTag().Create(c.ChangeTag().SetName("tag1"))
 	require.Equal(t, "tag1", tag1.Name.Val)
 
@@ -417,6 +442,14 @@ func TestChangeJSON(t *testing.T) {
 	require.False(t, userChange.Age.Set)
 }
 
+func TestModelJSON(t *testing.T) {
+	tag, err := c.QueryTag().Create(c.ChangeTag().SetName("test"))
+	require.NoError(t, err)
+	b, err := json.Marshal(tag)
+	require.NoError(t, err)
+	require.Equal(t, fmt.Sprintf(`{"id":%d,"name":"test"}`, tag.ID), string(b))
+}
+
 func TestModelStringer(t *testing.T) {
 	client, err := c.QueryClient().Create(c.ChangeClient().SetName("test"))
 	require.NoError(t, err)
@@ -425,12 +458,4 @@ func TestModelStringer(t *testing.T) {
 	client, err = c.QueryClient().Create(c.ChangeClient().SetName("test").SetFloat(51.1234))
 	require.NoError(t, err)
 	require.Equal(t, `(Client name: "test", float: 51.1234)`, client.String())
-}
-
-func init() {
-	client, err := db.NewClientWithEnv("test")
-	if err != nil {
-		log.Fatal(err)
-	}
-	c = client
 }

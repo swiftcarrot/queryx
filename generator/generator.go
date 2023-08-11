@@ -16,13 +16,21 @@ import (
 
 type Generator struct {
 	Adapter   string
-	template  *template.Template
-	Templates map[string]*template.Template
+	Templates []*template.Template
+	Schema    *schema.Schema
+	created   []string
 }
 
-// load template files from go embed
+func NewGenerator(schema *schema.Schema) *Generator {
+	return &Generator{
+		Schema:  schema,
+		created: make([]string, 0),
+	}
+}
+
 func (g *Generator) LoadTemplates(src embed.FS, adapter string) error {
-	t := template.New("templates").Funcs(inflect.TemplateFunctions)
+	// TODO: clean templates implicitly
+	g.Templates = []*template.Template{}
 
 	if err := fs.WalkDir(src, "templates", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -41,25 +49,27 @@ func (g *Generator) LoadTemplates(src embed.FS, adapter string) error {
 
 		ss := strings.Split(templateName, ".")
 		if len(ss) > 2 {
-			if ss[1] == adapter {
-				templateName = ss[0] + "." + ss[2]
-			} else {
-				return nil
+			if stringInSlice(ss[len(ss)-2], []string{"postgresql", "mysql", "sqlite"}) {
+				if ss[len(ss)-2] == adapter {
+					templateName = strings.Join(ss[:len(ss)-2], ".") + "." + ss[len(ss)-1]
+				} else {
+					return nil
+				}
 			}
 		}
 
-		tmpl := t.New(templateName)
-		_, err = tmpl.Parse(string(buf))
+		tmpl := template.New(templateName).Funcs(inflect.TemplateFunctions)
+		tmpl, err = tmpl.Parse(string(buf))
 		if err != nil {
 			return fmt.Errorf("parsing template '%s': %w", path, err)
 		}
+
+		g.Templates = append(g.Templates, tmpl)
 
 		return nil
 	}); err != nil {
 		return err
 	}
-
-	g.template = t
 
 	return nil
 }
@@ -95,22 +105,18 @@ func stringInSlice(str string, list []string) bool {
 	return false
 }
 
-func (g *Generator) Generate(schema *schema.Schema) error {
-	database := schema.Databases[0]
+func (g *Generator) Generate() error {
+	database := g.Schema.Databases[0]
 	dir := database.Name
-	created := []string{}
 
-	for _, tpl := range g.template.Templates() {
+	for _, tpl := range g.Templates {
 		name := tpl.Name()
-		if name == "templates" || !strings.Contains(name, ".") { // TODO: ignore templates defined in templates
-			continue
-		}
 
 		if strings.Contains(name, "[model]") {
 			for _, model := range database.Models {
 				n := strings.ReplaceAll(name, "[model]", inflect.Snake(model.Name))
 				f := path.Join(dir, n)
-				created = append(created, f)
+				g.created = append(g.created, f)
 
 				data := map[string]interface{}{
 					"packageName": dir,
@@ -123,7 +129,7 @@ func (g *Generator) Generate(schema *schema.Schema) error {
 			}
 		} else {
 			f := path.Join(dir, name)
-			created = append(created, f)
+			g.created = append(g.created, f)
 			data := map[string]interface{}{
 				"packageName": dir,
 				"client":      database,
@@ -134,6 +140,13 @@ func (g *Generator) Generate(schema *schema.Schema) error {
 		}
 	}
 
+	return nil
+}
+
+func (g *Generator) Clean() error {
+	database := g.Schema.Databases[0]
+	dir := database.Name
+
 	deleted := []string{}
 	files, err := readDir(dir)
 
@@ -141,7 +154,7 @@ func (g *Generator) Generate(schema *schema.Schema) error {
 		return err
 	}
 	for _, f := range files {
-		if !stringInSlice(f, created) {
+		if !stringInSlice(f, g.created) {
 			deleted = append(deleted, f)
 		}
 	}
@@ -149,7 +162,6 @@ func (g *Generator) Generate(schema *schema.Schema) error {
 		os.Remove(f)
 		fmt.Println("Deleted", f)
 	}
-
 	return nil
 }
 

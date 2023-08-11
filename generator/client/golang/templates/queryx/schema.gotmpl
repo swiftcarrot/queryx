@@ -3,11 +3,11 @@
 package queryx
 
 type Schema struct {
-	{{- range $m := .client.Models }}
-    	{{ $m.Name }} *Table
-   		{{- range .Columns }}
-    		{{ $m.Name }}{{ firstWordUpperCamel .Name }} *{{goType .Type}}Column
-    	{{- end}}
+	{{- range $m := $.client.Models }}
+		{{ $m.Name }} *Table
+		{{- range .Columns }}
+		{{ $m.Name }}{{ firstWordUpperCamel .Name }} *{{goType .Type}}Column
+		{{- end}}
 	{{- end}}
 }
 
