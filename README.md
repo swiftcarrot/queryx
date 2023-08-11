@@ -45,7 +45,7 @@ database "db" {
   adapter = "postgresql"
 
   config "development" {
-    url = "postgres://postgres:postgres@localhost:5432/blog_development?sslmode=disable"
+    url = "postgresql://postgres:postgres@localhost:5432/blog_development?sslmode=disable"
   }
 
   generator "client-golang" {}
@@ -72,7 +72,7 @@ database "db" {
   adapter = "mysql"
 
   config "development" {
-    url = "mysql://root:@127.0.0.1:3306/queryx_test"
+    url = "mysql://root:@127.0.0.1:3306/blog_development"
   }
 }
 ```
@@ -83,8 +83,8 @@ Example for SQLite database:
 database "db" {
   adapter = "sqlite"
 
-  config "test" {
-    url = "sqlite:test.sqlite3"
+  config "development" {
+    url = "sqlite:blog_development.sqlite3"
   }
 }
 ```
