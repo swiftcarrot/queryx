@@ -3,7 +3,7 @@
 [English](README.md) | [中文](README_zh.md)
 
 > **Warning**
-> This project is currently in beta (v0), although it has been battled tested in internal projects. Currently, it only supports golang code generation. We plan to release support for TypeScript code generation. Feel free to [open an issue](https://github.com/swiftcarrot/queryx/issues) or [start a discussion](https://github.com/swiftcarrot/queryx/discussions) if you have any questions.
+> This project is currently in beta (v0), although it has been battled tested in internal projects. Feel free to [open an issue](https://github.com/swiftcarrot/queryx/issues) or [start a discussion](https://github.com/swiftcarrot/queryx/discussions) if you have any questions.
 
 Queryx is schema-first and type-safe ORM with code generation.
 
