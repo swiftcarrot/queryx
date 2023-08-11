@@ -30,23 +30,23 @@ type {{ $.model.Name }} struct {
 
 // String implements the stringer interface.
 func ({{ $m }} *{{.model.Name}}) String() string {
-	var str strings.Builder
-	str.WriteString("({{ $.model.Name }} ")
+	var b strings.Builder
+	b.WriteString("({{ $.model.Name }} ")
 	{{- range $i, $c := $.model.Columns }}
 	{{- if $c.Null }}
-	str.WriteString(fmt.Sprintf("{{ $c.Name }}: %s", {{ $m }}.{{ pascal $c.Name }}))
+	b.WriteString(fmt.Sprintf("{{ $c.Name }}: %s", {{ $m }}.{{ pascal $c.Name }}))
 	{{- else if eq $c.Type "string" }}
-	str.WriteString(fmt.Sprintf(`{{ $c.Name }}: "%s"`, {{ $m }}.{{ pascal $c.Name }}))
+	b.WriteString(fmt.Sprintf(`{{ $c.Name }}: "%s"`, {{ $m }}.{{ pascal $c.Name }}))
 	{{- else }}
-	str.WriteString(fmt.Sprintf("{{ $c.Name }}: %v", {{ $m }}.{{ pascal $c.Name }}))
+	b.WriteString(fmt.Sprintf("{{ $c.Name }}: %v", {{ $m }}.{{ pascal $c.Name }}))
 	{{- end }}
 	{{- $l := len $.model.Columns }}
 	{{- if ne $i (sub $l 1) }}
-	str.WriteString(", ")
+	b.WriteString(", ")
 	{{- end }}
 	{{- end }}
-	str.WriteString(")")
-	return str.String()
+	b.WriteString(")")
+	return b.String()
 }
 
 func ({{ $m }} *{{.model.Name}}) applyChange(change *queryx.{{.model.Name}}Change) error {
