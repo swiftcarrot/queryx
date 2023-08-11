@@ -3,7 +3,7 @@ database "db" {
   time_zone = "Asia/Shanghai"
 
   config "development" {
-    url = "mysql://root:123456@127.0.0.1:3306/queryx_test"
+    url = "mysql://root@127.0.0.1:3306/queryx_test"
   }
   config "test" {
     url = env("DATABASE_URL")
