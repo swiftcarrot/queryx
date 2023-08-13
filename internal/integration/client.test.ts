@@ -137,7 +137,6 @@ test("timestamps", async () => {
   expect(user.createdAt).toEqual(user.updatedAt);
 
   await user.update({ name: "new name" });
-  console.log(user.createdAt, user.updatedAt);
   expect(user.updatedAt > user.createdAt).toBe(true);
 });
 

@@ -13,21 +13,18 @@ export class Adapter {
 
   query<R>(query: string, ...args: any[]): R[] {
     let [query1, args1] = rebind(query, args);
-    console.log(query1, args1);
     let stmt = this.db.prepare(query1);
     return stmt.all(...args1) as R[];
   }
 
   queryOne<R>(query: string, ...args: any[]): R {
     let [query1, args1] = rebind(query, args);
-    console.log(query1, args1);
     let stmt = this.db.prepare(query1);
     return stmt.get(...args1) as R;
   }
 
   async exec(query: string, ...args: any[]) {
     let [query1, args1] = rebind(query, args);
-    console.log(query1, args1);
     let stmt = this.db.prepare(query1);
     let res = stmt.run(...args1);
     return res.changes;

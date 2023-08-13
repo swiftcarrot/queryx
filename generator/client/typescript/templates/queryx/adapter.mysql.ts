@@ -14,25 +14,21 @@ export class Adapter {
   }
 
   async query<R>(query: string, ...args: any[]) {
-    console.log(query, args);
     let [rows] = await this.db.query<R & RowDataPacket[]>(query, args);
     return rows;
   }
 
   async queryOne<R>(query: string, ...args: any[]) {
-    console.log(query, args);
     let [rows] = await this.db.query<R & RowDataPacket[]>(query, args);
     return rows[0] || null;
   }
 
   async exec(query: string, ...args: any[]) {
-    console.log(query, args);
     let [res] = await this.db.execute<ResultSetHeader>(query, args);
     return res.affectedRows;
   }
 
   async _exec(query: string, ...args: any[]) {
-    console.log(query, args);
     let [res] = await this.db.execute<ResultSetHeader>(query, args);
     return res;
   }
@@ -49,8 +45,6 @@ export class Adapter {
     await this.db.query("ROLLBACK");
   }
 }
-
-export function rebind<T extends any[] = any[]>(query: string, args?: T) {}
 
 export function adapterValue(type: string, value: any) {
   switch (type) {

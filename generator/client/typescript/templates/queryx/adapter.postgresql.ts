@@ -20,7 +20,6 @@ export class Adapter {
     args?: I
   ) {
     let [query1, args1] = rebind<I>(query, args);
-    console.log(query1, args1);
     return this.db.query<R, I>(query1, args1);
   }
 

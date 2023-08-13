@@ -9,9 +9,9 @@ database "db" {
     url = env("DATABASE_URL")
   }
 
-  generator "client-golang" {
-    test = true
-  }
+  // generator "client-golang" {
+  //   test = true
+  // }
   generator "client-typescript" {
     test = true
   }
