@@ -171,7 +171,7 @@ func readDir(dir string) ([]string, error) {
 		if err != nil {
 			return err
 		}
-		if info.IsDir() && info.Name() == "migrations" {
+		if info.IsDir() && info.Name() == "migrate" {
 			return filepath.SkipDir
 		}
 		if !info.IsDir() {

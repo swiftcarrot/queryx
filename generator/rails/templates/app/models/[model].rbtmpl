@@ -1,0 +1,11 @@
+class {{ $.model.Name }} < ApplicationRecord
+{{- range $b := $.model.BelongsTo }}
+  belongs_to :{{ $b.Name }}
+{{- end }}
+{{- range $h := $.model.HasMany }}
+  has_many :{{ $h.Name }}{{- if $h.Through }}, through: :{{ $h.Through }}{{- end }}
+{{- end }}
+{{- range $h := $.model.HasOne }}
+  has_one :{{ $h.Name }}{{- if $h.Through }}, through: :{{ $h.Through }}{{- end }}
+{{- end }}
+end

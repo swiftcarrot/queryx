@@ -36,6 +36,9 @@ var TemplateFunctions = template.FuncMap{
 
 	"tsType":          tsType,
 	"tsChangeSetType": tsChangeSetType,
+
+	"railsAdapter": RailsAdapter,
+	"railsURL":     RailsURL,
 }
 
 func sub(a int, b int) int {

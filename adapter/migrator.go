@@ -22,7 +22,7 @@ type Migrator struct {
 
 func NewMigrator(adapter Adapter) (*Migrator, error) {
 	// TODO: set from config
-	migrationsPath := "./db/migrations"
+	migrationsPath := "./db/migrate"
 	migrationsTable := "schema_migrations"
 	os.MkdirAll(migrationsPath, 0766)
 

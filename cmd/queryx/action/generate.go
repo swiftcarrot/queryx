@@ -7,6 +7,7 @@ import (
 	"github.com/swiftcarrot/queryx/generator"
 	"github.com/swiftcarrot/queryx/generator/client/golang"
 	"github.com/swiftcarrot/queryx/generator/client/typescript"
+	"github.com/swiftcarrot/queryx/generator/rails"
 )
 
 var generateCmd = &cobra.Command{
@@ -33,6 +34,10 @@ var generateCmd = &cobra.Command{
 				}
 			case "client-typescript":
 				if err := typescript.Run(g, generator, args); err != nil {
+					return err
+				}
+			case "rails":
+				if err := rails.Run(g, generator, args); err != nil {
 					return err
 				}
 			default:

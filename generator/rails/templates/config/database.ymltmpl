@@ -1,0 +1,5 @@
+{{- range $c := $.client.Configs }}
+{{- $c.Environment }}:
+  adapter: {{ railsAdapter $c.Adapter }}
+  url: {{ if $c.URL.EnvKey }}<%= ENV["{{ $c.URL.EnvKey }}"] %>{{ else }}{{ railsURL $c.Adapter $c.URL.Value }}{{ end }}
+{{ end }}
