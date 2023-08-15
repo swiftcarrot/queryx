@@ -226,10 +226,10 @@ func dbMigrateGenerate() error {
 		version = time.Now().Format("20060102150405")
 	}
 
-	if err := createFile(fmt.Sprintf("%s/migrations/%s_%s.up.sql", database.Name, version, name), up); err != nil {
+	if err := createFile(fmt.Sprintf("%s/migrate/%s_%s.up.sql", database.Name, version, name), up); err != nil {
 		return err
 	}
-	if err := createFile(fmt.Sprintf("%s/migrations/%s_%s.down.sql", database.Name, version, name), down); err != nil {
+	if err := createFile(fmt.Sprintf("%s/migrate/%s_%s.down.sql", database.Name, version, name), down); err != nil {
 		return err
 	}
 	return nil

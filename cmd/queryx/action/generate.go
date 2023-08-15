@@ -49,9 +49,9 @@ var generateCmd = &cobra.Command{
 			return fmt.Errorf("no generator is found in schema file")
 		}
 
-		if err := g.Clean(); err != nil {
-			return err
-		}
+		// if err := g.Clean(); err != nil {
+		// 	return err
+		// }
 
 		return nil
 	},
