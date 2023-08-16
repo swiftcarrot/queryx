@@ -154,6 +154,7 @@ func (g *Generator) Clean() error {
 		return err
 	}
 	for _, f := range files {
+		f = strings.ReplaceAll(f, "\\", "/")
 		if !stringInSlice(f, g.created) {
 			deleted = append(deleted, f)
 		}
