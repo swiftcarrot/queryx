@@ -19,9 +19,9 @@ jobs:
           DATABASE_URL: sqlite:test.sqlite3
         run: |
           cd internal/integration
-          queryx.exe db:migrate --schema sqlite.hcl
-          queryx.exe db:migrate --schema sqlite.hcl
-          queryx.exe generate --schema sqlite.hcl
+          ..\..\queryx.exe db:migrate --schema sqlite.hcl
+          ..\..\queryx.exe db:migrate --schema sqlite.hcl
+          ..\..\queryx.exe generate --schema sqlite.hcl
       - name: go test
         run: |
           cd internal/integration
