@@ -11,8 +11,8 @@ jobs:
       - name: Test
         run: |
           go test $(go list ./... | grep -Ev "generator|internal") -race -coverprofile=coverage.txt -covermode=atomic
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+      # - name: Upload coverage to Codecov
+      #   uses: codecov/codecov-action@v3
       - name: Build
         run: go build -o /usr/local/bin/queryx cmd/queryx/main.go
       - uses: actions/upload-artifact@v3
