@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 	"text/template"
@@ -115,7 +114,7 @@ func (g *Generator) Generate() error {
 		if strings.Contains(name, "[model]") {
 			for _, model := range database.Models {
 				n := strings.ReplaceAll(name, "[model]", inflect.Snake(model.Name))
-				f := path.Join(dir, n)
+				f := filepath.Join(dir, n)
 				g.created = append(g.created, f)
 
 				data := map[string]interface{}{
@@ -128,7 +127,7 @@ func (g *Generator) Generate() error {
 				}
 			}
 		} else {
-			f := path.Join(dir, name)
+			f := filepath.Join(dir, name)
 			g.created = append(g.created, f)
 			data := map[string]interface{}{
 				"packageName": dir,
@@ -154,7 +153,7 @@ func (g *Generator) Clean() error {
 		return err
 	}
 	for _, f := range files {
-		f = strings.ReplaceAll(f, "\\", "/")
+		// f = strings.ReplaceAll(f, "\\", "/")
 		if !stringInSlice(f, g.created) {
 			deleted = append(deleted, f)
 		}
