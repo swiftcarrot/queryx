@@ -1,0 +1,19 @@
+{
+  "name": "website",
+  "version": "0.0.1",
+  "description": "Queryx website",
+  "main": "index.js",
+  "authors": {
+    "name": "",
+    "email": ""
+  },
+  "repository": "git@github.com:swiftcarrot/queryx.git/website",
+  "scripts": {
+    "dev": "vuepress dev src",
+    "build": "vuepress build src"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "vuepress": "^1.5.3"
+  }
+}
