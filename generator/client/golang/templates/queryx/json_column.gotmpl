@@ -30,18 +30,13 @@ func (c *JSONColumn) NotNull() *Clause {
 	}
 }
 
-{{- if eq .client.Adapter "mysql" }}
 func (c *JSONColumn) EQ(k string, v interface{}) *Clause {
 	return &Clause{
+	    {{- if eq .client.Adapter "mysql" }}
 		fragment: fmt.Sprintf("%s.%s -> '$.%s' = ?", c.Table.Name, c.Name, k),
-		args:     []interface{}{v},
-	}
-}
-{{- else}}
-func (c *JSONColumn) EQ(k string, v interface{}) *Clause {
-	return &Clause{
+		{{- else}}
 		fragment: fmt.Sprintf("%s.%s ->> '%s' = ?", c.Table.Name, c.Name, k),
+		{{- end}}
 		args:     []interface{}{v},
 	}
 }
-{{- end}}
