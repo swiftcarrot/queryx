@@ -3,11 +3,7 @@
   "version": "0.0.1",
   "description": "Queryx website",
   "main": "index.js",
-  "authors": {
-    "name": "",
-    "email": ""
-  },
-  "repository": "git@github.com:swiftcarrot/queryx.git/website",
+  "repository": "git@github.com:swiftcarrot/queryx.git",
   "scripts": {
     "dev": "vuepress dev src",
     "build": "vuepress build src"
