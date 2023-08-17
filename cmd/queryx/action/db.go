@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -226,10 +227,13 @@ func dbMigrateGenerate() error {
 		version = time.Now().Format("20060102150405")
 	}
 
-	if err := createFile(fmt.Sprintf("%s/migrations/%s_%s.up.sql", database.Name, version, name), up); err != nil {
+	upFile := filepath.Join(database.Name, "migrations", fmt.Sprintf("%s_%s.up.sql", version, name))
+	downFile := filepath.Join(database.Name, "migrations", fmt.Sprintf("%s_%s.down.sql", version, name))
+
+	if err := createFile(upFile, up); err != nil {
 		return err
 	}
-	if err := createFile(fmt.Sprintf("%s/migrations/%s_%s.down.sql", database.Name, version, name), down); err != nil {
+	if err := createFile(downFile, down); err != nil {
 		return err
 	}
 	return nil
