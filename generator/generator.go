@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 	"text/template"
@@ -111,7 +110,7 @@ func (g *Generator) Generate(transform func([]byte) []byte, goModPath string) er
 		if strings.Contains(name, "[model]") {
 			for _, model := range database.Models {
 				n := strings.ReplaceAll(name, "[model]", inflect.Snake(model.Name))
-				f := path.Join(dir, n)
+				f := filepath.Join(dir, n)
 				g.created = append(g.created, f)
 
 				data := map[string]interface{}{
@@ -125,7 +124,7 @@ func (g *Generator) Generate(transform func([]byte) []byte, goModPath string) er
 				}
 			}
 		} else {
-			f := path.Join(dir, name)
+			f := filepath.Join(dir, name)
 			g.created = append(g.created, f)
 			data := map[string]interface{}{
 				"packageName": dir,
