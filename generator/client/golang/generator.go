@@ -3,6 +3,7 @@ package golang
 import (
 	"embed"
 	"go/format"
+	"log"
 	"os"
 	"path"
 	"path/filepath"
@@ -83,7 +84,7 @@ func Run(g *generator.Generator, generatorConfig *schema.Generator, args []strin
 func transform(b []byte) []byte {
 	b, err := format.Source(b)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	return b
 }
