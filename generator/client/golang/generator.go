@@ -76,8 +76,6 @@ func Run(g *generator.Generator, generatorConfig *schema.Generator, args []strin
 		return err
 	}
 
-	// TODO: compare generate time with rex-iot (with goimports time, 13.31s)
-
 	return nil
 }
 

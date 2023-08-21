@@ -3,7 +3,10 @@
 package queryx
 
 import (
-	{{- if eq $.client.Adapter "mysql" }}"net/url"{{- end }}
+	{{- if eq $.client.Adapter "mysql" }}
+	"net/url"
+	"fmt"
+	{{- end }}
 	{{- if eq $.client.Adapter "sqlite" }}"strings"{{- end }}
 )
 
