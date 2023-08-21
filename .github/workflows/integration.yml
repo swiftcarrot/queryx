@@ -10,9 +10,9 @@ jobs:
           go-version: 1.19
       - name: Test
         run: |
-          go test -v github.com/swiftcarrot/queryx/schema
-          go test -v github.com/swiftcarrot/queryx/inflect
-          go test -v github.com/swiftcarrot/queryx/adapter
+          go test $(go list ./... | grep -Ev "generator|internal") -race -coverprofile=coverage.txt -covermode=atomic
+      # - name: Upload coverage to Codecov
+      #   uses: codecov/codecov-action@v3
       - name: Build
         run: go build -o /usr/local/bin/queryx cmd/queryx/main.go
       - uses: actions/upload-artifact@v3

@@ -3,9 +3,13 @@
 package {{ $.packageName }}
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
+	"log"
 	"os"
+
+	"{{ $.goModPath }}/{{ $.packageName }}/queryx"
 )
 
 type Queries interface {
