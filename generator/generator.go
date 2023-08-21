@@ -1,6 +1,7 @@
 package generator
 
 import (
+	"bytes"
 	"embed"
 	"fmt"
 	"io/fs"
@@ -29,7 +30,7 @@ func NewGenerator(schema *schema.Schema) *Generator {
 }
 
 func (g *Generator) LoadTemplates(src embed.FS, adapter string) error {
-	// TODO: clean templates implicitly
+	// TODO: clean templates explicitly
 	g.Templates = []*template.Template{}
 
 	if err := fs.WalkDir(src, "templates", func(path string, d fs.DirEntry, err error) error {
@@ -74,7 +75,7 @@ func (g *Generator) LoadTemplates(src embed.FS, adapter string) error {
 	return nil
 }
 
-func (g *Generator) CreateFile(f string, tpl *template.Template, data interface{}) error {
+func (g *Generator) CreateFile(f string, tpl *template.Template, data interface{}, transform func([]byte) []byte) error {
 	fmt.Println("Created", f)
 
 	dir := filepath.Dir(f)
@@ -84,28 +85,23 @@ func (g *Generator) CreateFile(f string, tpl *template.Template, data interface{
 		}
 	}
 
-	wr, err := os.Create(f)
-	if err != nil {
+	var buf bytes.Buffer
+
+	if err := tpl.Execute(&buf, data); err != nil {
 		return err
 	}
 
-	if err := tpl.Execute(wr, data); err != nil {
-		return err
+	if transform != nil {
+		if err := os.WriteFile(f, transform(buf.Bytes()), os.ModePerm); err != nil {
+			return err
+		}
 	}
 
 	return nil
 }
 
-func stringInSlice(str string, list []string) bool {
-	for _, v := range list {
-		if v == str {
-			return true
-		}
-	}
-	return false
-}
-
-func (g *Generator) Generate() error {
+// TODO: Generate() with extra data from different generators
+func (g *Generator) Generate(transform func([]byte) []byte, goModPath string) error {
 	database := g.Schema.Databases[0]
 	dir := database.Name
 
@@ -122,8 +118,9 @@ func (g *Generator) Generate() error {
 					"packageName": dir,
 					"client":      database,
 					"model":       model,
+					"goModPath":   goModPath,
 				}
-				if err := g.CreateFile(f, tpl, data); err != nil {
+				if err := g.CreateFile(f, tpl, data, transform); err != nil {
 					return err
 				}
 			}
@@ -133,8 +130,9 @@ func (g *Generator) Generate() error {
 			data := map[string]interface{}{
 				"packageName": dir,
 				"client":      database,
+				"goModPath":   goModPath,
 			}
-			if err := g.CreateFile(f, tpl, data); err != nil {
+			if err := g.CreateFile(f, tpl, data, transform); err != nil {
 				return err
 			}
 		}
@@ -183,4 +181,13 @@ func readDir(dir string) ([]string, error) {
 		return nil, err
 	}
 	return files, nil
+}
+
+func stringInSlice(str string, list []string) bool {
+	for _, v := range list {
+		if v == str {
+			return true
+		}
+	}
+	return false
 }

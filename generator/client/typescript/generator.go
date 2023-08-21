@@ -17,9 +17,13 @@ func Run(g *generator.Generator, generatorConfig *schema.Generator, args []strin
 		return err
 	}
 
-	if err := g.Generate(); err != nil {
+	if err := g.Generate(transform, ""); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func transform(b []byte) []byte {
+	return b
 }

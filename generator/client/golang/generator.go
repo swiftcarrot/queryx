@@ -2,16 +2,16 @@ package golang
 
 import (
 	"embed"
-	"fmt"
+	"go/format"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 	"text/template"
 
 	"github.com/swiftcarrot/queryx/generator"
 	"github.com/swiftcarrot/queryx/schema"
-	"golang.org/x/sync/errgroup"
-	"golang.org/x/tools/imports"
+	"golang.org/x/mod/modfile"
 )
 
 //go:embed templates
@@ -20,7 +20,6 @@ var templates embed.FS
 func Run(g *generator.Generator, generatorConfig *schema.Generator, args []string) error {
 	schema := g.Schema
 	database := schema.Databases[0]
-	dir := database.Name
 
 	if err := g.LoadTemplates(templates, database.Adapter); err != nil {
 		return err
@@ -52,20 +51,47 @@ func Run(g *generator.Generator, generatorConfig *schema.Generator, args []strin
 	}
 	g.Templates = templates
 
-	if err := g.Generate(); err != nil {
+	// TODO: wrap this in a function
+	cwd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	roots := findModuleRoot(cwd)
+	f := filepath.Join(roots, "go.mod")
+	content, err := os.ReadFile(f)
+	if err != nil {
+		return err
+	}
+	mf, err := modfile.Parse("go.mod", content, nil)
+	if err != nil {
+		return err
+	}
+	rel, err := filepath.Rel(roots, cwd)
+	if err != nil {
+		return err
+	}
+	goModPath := path.Join(mf.Module.Mod.Path, rel)
+
+	if err := g.Generate(transform, goModPath); err != nil {
 		return err
 	}
 
-	fmt.Println("Running goimports...")
-	if err := goimports(dir); err != nil {
-		return err
-	}
+	// TODO: compare generate time with rex-iot (with goimports time, 13.31s)
 
 	return nil
 }
 
+func transform(b []byte) []byte {
+	b, err := format.Source(b)
+	if err != nil {
+		panic(err)
+	}
+	return b
+}
+
 func typesFromSchema(sch *schema.Schema) map[string]bool {
 	m := map[string]bool{}
+	// TODO: move to schema package
 	typs := []string{"string", "text", "boolean",
 		"date", "time", "datetime", "float",
 		"integer", "bigint", "json", "uuid"}
@@ -88,45 +114,24 @@ func typesFromSchema(sch *schema.Schema) map[string]bool {
 	return m
 }
 
-// run goimports for all go files in target directory
-func goimports(dir string) error {
-	g := new(errgroup.Group)
-	g.SetLimit(20)
+// findModuleRoot finds the module root by looking for go.mod file in the current directory and its parents.
+// This function is copied from https://github.com/golang/go/blob/master/src/cmd/go/internal/modload/init.go
+func findModuleRoot(dir string) (roots string) {
+	if dir == "" {
+		// TODO: add go mod init in docs
+		panic("dir not set") // TODO: improve this error message
+	}
+	dir = filepath.Clean(dir)
 
-	targets := []string{}
-	err := filepath.Walk(dir, func(target string, info os.FileInfo, err error) error {
-		if strings.HasSuffix(target, ".go") {
-			targets = append(targets, target)
+	for {
+		if fi, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil && !fi.IsDir() {
+			return dir
 		}
-		return nil
-	})
-	if err != nil {
-		return err
+		d := filepath.Dir(dir)
+		if d == dir {
+			break
+		}
+		dir = d
 	}
-
-	for _, target := range targets {
-		func(target string) {
-			g.Go(func() error {
-				content, err := os.ReadFile(target)
-				if err != nil {
-					return err
-				}
-				src, err := imports.Process(target, content, nil)
-				if err != nil {
-					return err
-				}
-				if err := os.WriteFile(target, src, 0644); err != nil {
-					return err
-				}
-
-				return nil
-			})
-		}(target)
-	}
-
-	if err := g.Wait(); err != nil {
-		return err
-	}
-
-	return nil
+	return ""
 }
