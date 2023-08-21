@@ -36,8 +36,6 @@ model "Account" {
 }
 ```
 
-![](./docs/has_one.png)
-
 ```go
 c.QueryUser().PreloadAccount().All()
 c.QueryAccount().PreloadUser().All()
@@ -62,8 +60,6 @@ model "Group" {
   }
 }
 ```
-
-![](./docs/has_many.png)
 
 ```go
 c.QueryUser().PreloadGroup().All()
@@ -92,8 +88,6 @@ model "UserPost" {
   belongs_to "post" {}
 }
 ```
-
-![](./docs/has_many_through.png)
 
 ```go
 c.QueryUser().PreloadPosts().All()
