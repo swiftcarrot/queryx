@@ -3,8 +3,11 @@
 package queryx
 
 import (
+	{{- if eq $.client.Adapter "mysql" }}
 	"net/url"
-	"strings"
+	"fmt"
+	{{- end }}
+	{{- if eq $.client.Adapter "sqlite" }}"strings"{{- end }}
 )
 
 type Config struct {
@@ -16,7 +19,7 @@ func NewConfig(env string) *Config {
 	{{- range $c := $.client.Configs }}
 		case "{{ $c.Environment }}":
 			return &Config{
-				URL: fixURL({{ if $c.URL.EnvKey }}os.Getenv("{{ $c.URL.EnvKey }}"){{ else }}"{{ $c.URL.Value }}"{{ end }}),
+				URL: fixURL({{ if $c.URL.EnvKey }}getenv("{{ $c.URL.EnvKey }}"){{ else }}"{{ $c.URL.Value }}"{{ end }}),
 			}
 	{{- end }}
   }
