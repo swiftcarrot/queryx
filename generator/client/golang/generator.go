@@ -71,6 +71,7 @@ func Run(g *generator.Generator, generatorConfig *schema.Generator, args []strin
 		return err
 	}
 	goModPath := path.Join(mf.Module.Mod.Path, rel)
+	goModPath = strings.ReplaceAll(goModPath, "\\", "/")
 
 	if err := g.Generate(transform, goModPath); err != nil {
 		return err
