@@ -7,16 +7,16 @@
 
 > TypeScript 支持已发布！现在可以在项目中使用 TypeScript 来使用 queryx，[查看文档](https://github.com/swiftcarrot/queryx/blob/main/docs/generator-typescript-client.md)进行操作。
 
-<img height="400" alt="image" src="https://github.com/swiftcarrot/queryx/assets/1039026/ae63e986-44bb-4e3d-a63e-38ce45fe8367">
+<img height="400" alt="image" src="https://github.com/swiftcarrot/queryx/assets/1039026/20f00a81-d920-4550-8f6a-6e094edb5d5b">
 
-Queryx 是一个基于模式优先、类型安全的 ORM，具有代码生成功能。
+Queryx 是一个 schema 优先、类型安全的 ORM。
 
 [![go report card](https://goreportcard.com/badge/github.com/swiftcarrot/queryx "go report card")](https://goreportcard.com/report/github.com/swiftcarrot/queryx)
 [![test status](https://github.com/swiftcarrot/queryx/workflows/integration/badge.svg "test status")](https://github.com/swiftcarrot/queryx/actions)
 [![Go.Dev reference](https://img.shields.io/badge/go.dev-reference-blue?logo=go&logoColor=white)](https://pkg.go.dev/github.com/swiftcarrot/queryx)
 
-- **模式优先**: 在 queryx 的模式文件中定义应用程序模型，自动与数据库结构同步。
-- **类型安全**: Queryx 根据模式生成友好的、类型安全的 ORM 方法，这些方法具有自动完成支持，避免出现与类型相关的错误。
+- **Schema 优先**: 在 schema 文件中声明数据库结构和数据类型，自动与数据库结构同步。
+- **类型安全**: 根据 schema 文件生成可读、类型安全的 ORM 方法，支持编辑器自动补全，减少与类型相关的错误。
 
 这个项目的灵感来源于 [Active Record](https://guides.rubyonrails.org/active_record_basics.html) 和 [ent](https://entgo.io/). 数据库模式管理是基于 [Atlas](https://atlasgo.io/)。
 
