@@ -157,7 +157,12 @@ var dbMigrateCmd = &cobra.Command{
 		if err := migrator.FindMigrations(); err != nil {
 			return err
 		}
-		return migrator.Up()
+		if err := migrator.Up(); err != nil {
+			return err
+		}
+
+		// TODO: only generate when there are changes
+		return generate(args)
 	},
 }
 
