@@ -77,6 +77,25 @@ func (c *QXClient) Query{{ $m.Name }}() *{{ $m.Name }}Query {
 }
 {{- end }}
 
+func (c *QXClient) Transaction(f func(t *Tx) error) error {
+	tx, err := c.Tx()
+	if err != nil {
+		return err
+	}
+	err = f(tx)
+	if err != nil {
+		err = tx.Rollback()
+		if err != nil {
+			return err
+		}
+	}
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 type Tx struct {
 	*queryx.Schema
 	*queryx.Adapter
