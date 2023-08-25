@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"testing"
@@ -427,6 +428,42 @@ func TestTransaction(t *testing.T) {
 
 	tag1, _ = c.QueryTag().Find(tag1.ID)
 	require.Equal(t, "tag1-updated", tag1.Name.Val)
+
+	transactionErr := errors.New("sql: transaction has already been committed or rolled back")
+	err := c.Transaction(func(tran *db.Tx) error {
+		_, err := tran.QueryPost().Create(tran.ChangePost().SetTitle("post title .."))
+		if err != nil {
+			return err
+		}
+		_, err = tran.QueryUser().Create(tran.ChangeUser().SetWeight(190.1288))
+		if err != nil {
+			return err
+		}
+		return errors.New("test transaction")
+	})
+	require.Equal(t, err, transactionErr)
+
+	var postID int64
+	var userID int64
+	err = c.Transaction(func(tran *db.Tx) error {
+		p, err := tran.QueryPost().Create(tran.ChangePost().SetTitle("test transaction"))
+		if err != nil {
+			return err
+		}
+		postID = p.ID
+		u, err := tran.QueryUser().Create(tran.ChangeUser().SetWeight(190.1288))
+		if err != nil {
+			return err
+		}
+		userID = u.ID
+		return nil
+	})
+	post, err := c.QueryPost().Where(c.PostID.EQ(postID)).First()
+	require.NoError(t, err)
+	require.Equal(t, "test transaction", post.Title.Val)
+	user, err := c.QueryUser().Where(c.UserID.EQ(userID)).First()
+	require.NoError(t, err)
+	require.Equal(t, 190.1288, user.Weight.Val)
 }
 
 func TestChangeJSON(t *testing.T) {
