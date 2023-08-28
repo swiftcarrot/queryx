@@ -1,0 +1,22 @@
+name: migration
+on: push
+jobs:
+  sqlite:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+      - name: Build
+        run: go build -o /usr/local/bin/queryx cmd/queryx/main.go
+      - name: migrate
+        run: |
+          cd internal/migration
+          queryx db:migrate --schema sqlite.hcl
+      - name: migrate again
+        run: |
+          cd internal/migration
+          sed -i '12i\column "email" { type = string}' sqlite.hcl
+          cat sqlite.hcl
+          queryx db:migrate --schema sqlite.hcl
