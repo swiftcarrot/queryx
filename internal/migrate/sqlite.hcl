@@ -1,7 +1,7 @@
 database "db" {
   adapter = "sqlite"
 
-  config "test" {
+  config "development" {
     url = "sqlite:test.sqlite3"
   }
 
