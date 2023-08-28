@@ -141,6 +141,7 @@ var dbMigrateCmd = &cobra.Command{
 		if err := a.Open(); err != nil {
 			return err
 		}
+		defer a.Close()
 
 		migrator, err := adapter.NewMigrator(a)
 		if err != nil {

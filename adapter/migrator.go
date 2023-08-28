@@ -41,7 +41,7 @@ func NewMigrator(adapter Adapter) (*Migrator, error) {
 }
 
 func (m *Migrator) RunMigration(mg *Migration) error {
-	fmt.Println("run", mg.Version, mg.Path)
+	fmt.Println("Migrating", mg.Path)
 	f, err := os.ReadFile(mg.Path)
 	if err != nil {
 		return err
@@ -51,7 +51,7 @@ func (m *Migrator) RunMigration(mg *Migration) error {
 	for _, line := range strings.Split(sql, "\n") {
 		_, err = m.Adapter.ExecContext(context.Background(), line)
 		if err != nil {
-			return err
+			return fmt.Errorf("migration error: %v", err)
 		}
 	}
 
