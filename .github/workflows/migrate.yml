@@ -13,13 +13,13 @@ jobs:
       - name: migrate
         run: |
           cd internal/migrate
-          queryx db:migrate --schema sqlite.hcl
+          queryx db:migrate --schema sqlite1.hcl
+      - name: sleep
+        run: sleep 1 # so the generated migration files have non-conflicting filenames
       - name: migrate again
         run: |
           cd internal/migrate
-          sed -i '12i\column "email" { type = string }' sqlite.hcl
-          cat sqlite.hcl
-          queryx db:migrate --schema sqlite.hcl
+          queryx db:migrate --schema sqlite2.hcl
       - name: test
         run: |
           cd internal/migrate
