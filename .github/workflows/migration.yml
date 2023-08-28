@@ -11,12 +11,18 @@ jobs:
       - name: Build
         run: go build -o /usr/local/bin/queryx cmd/queryx/main.go
       - name: migrate
+        env:
+          QUERYX_ENV: test
         run: |
           cd internal/migration
           queryx db:migrate --schema sqlite.hcl
       - name: migrate again
+        env:
+          QUERYX_ENV: test
         run: |
           cd internal/migration
           sed -i '12i\column "email" { type = string}' sqlite.hcl
-          cat sqlite.hcl
           queryx db:migrate --schema sqlite.hcl
+      - name: test
+        run: |
+          sqlite3 test.sqlite3 "insert into users(name, email) values('test', 'test@example.com')"
