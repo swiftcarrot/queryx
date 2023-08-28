@@ -10,6 +10,7 @@ import (
 
 type Adapter interface {
 	Open() error
+	Close() error
 	CreateDatabase() error
 	DropDatabase() error
 	CreateMigrationsTable(ctx context.Context) error
