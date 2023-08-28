@@ -1,4 +1,4 @@
-name: migration
+name: migrate
 on: push
 jobs:
   sqlite:
@@ -14,15 +14,16 @@ jobs:
         env:
           QUERYX_ENV: test
         run: |
-          cd internal/migration
+          cd internal/migrate
           queryx db:migrate --schema sqlite.hcl
       - name: migrate again
         env:
           QUERYX_ENV: test
         run: |
-          cd internal/migration
+          cd internal/migrate
           sed -i '12i\column "email" { type = string}' sqlite.hcl
           queryx db:migrate --schema sqlite.hcl
       - name: test
         run: |
+          cd internal/migrate
           sqlite3 test.sqlite3 "insert into users(name, email) values('test', 'test@example.com')"
