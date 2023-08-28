@@ -49,3 +49,10 @@ test-sqlite: install
 	cd internal/integration && go test ./...
 
 test: test-postgresql test-sqlite test-mysql
+
+test-migrate: install
+	rm -rf internal/migrate/db internal/migrate/test.sqlite3
+	cd internal/migrate && queryx db:migrate --schema sqlite1.hcl
+	sleep 1
+	cd internal/migrate && queryx db:migrate --schema sqlite2.hcl
+	cd internal/migrate && sqlite3 test.sqlite3 "insert into users(name, email) values('test', 'test@example.com')"

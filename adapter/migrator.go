@@ -99,6 +99,10 @@ func (m *Migrator) exists(ctx context.Context, version string) (bool, error) {
 	if !rows.Next() {
 		exists = false
 	}
+	if err := rows.Close(); err != nil {
+		return false, fmt.Errorf("closing rows %w", err)
+	}
+
 	return exists, nil
 }
 

@@ -6,6 +6,8 @@ database "db" {
   }
 
   model "User" {
+    timestamps = false
+
     column "name" {
       type = string
     }
