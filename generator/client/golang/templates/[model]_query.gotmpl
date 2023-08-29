@@ -211,7 +211,7 @@ func (q *{{.model.Name}}Query) Where(clause ...*queryx.Clause) *{{.model.Name}}Q
 				q.err=c.Err()
 				} else {
 				q.err = fmt.Errorf("%+v;%+v",q.err,c.Err())
-		    }
+			}
 		}
 	}
 	return q
