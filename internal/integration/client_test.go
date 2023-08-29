@@ -382,6 +382,12 @@ func TestPreload(t *testing.T) {
 	userPost1, _ := c.QueryUserPost().Create(c.ChangeUserPost().SetUserID(user1.ID).SetPostID(post1.ID))
 	userPost2, _ := c.QueryUserPost().Create(c.ChangeUserPost().SetUserID(user1.ID).SetPostID(post2.ID))
 
+	user2, err := c.QueryUser().Find(user1.ID)
+	require.NoError(t, err)
+	err = user2.PreloadUserPosts()
+	require.NoError(t, err)
+	require.Equal(t, 2, len(user2.UserPosts))
+
 	user, _ := c.QueryUser().PreloadPosts().PreloadAccount().Find(user1.ID)
 	require.Equal(t, account1.ID, user.Account.ID)
 
