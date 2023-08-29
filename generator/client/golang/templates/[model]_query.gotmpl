@@ -203,9 +203,17 @@ func (q *{{.model.Name}}Query) FindBySQL(query string, args ...interface{}) ([]*
 	return {{firstWordLowerCamel .model.Name}}s, nil
 }
 
-func (q *{{.model.Name}}Query) Where(clause *queryx.Clause) *{{.model.Name}}Query {
-	q.selectStatement.Where(clause)
-	q.err = clause.Err()
+func (q *{{.model.Name}}Query) Where(clause ...*queryx.Clause) *{{.model.Name}}Query {
+	q.selectStatement.Where(clause...)
+	for _, c := range clause {
+			if c.Err() != nil {
+				if q.err == nil{
+					q.err=c.Err()
+					} else {
+					q.err = fmt.Errorf("%+v;%+v",q.err,c.Err())
+			        }
+			}
+	}
 	return q
 }
 
