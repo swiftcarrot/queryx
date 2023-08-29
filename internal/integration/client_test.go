@@ -321,6 +321,15 @@ func TestInEmpty(t *testing.T) {
 	require.Equal(t, 0, len(users))
 }
 
+func TestMultipleWhere(t *testing.T) {
+	user, err := c.QueryUser().Create(c.ChangeUser().SetWeight(98.0).SetName("name").SetType("type"))
+	require.NoError(t, err)
+	users, err := c.QueryUser().Where(c.UserID.EQ(user.ID)).Where(c.UserName.EQ("name"), c.UserType.EQ("type")).All()
+	require.NoError(t, err)
+	require.NotNil(t, users)
+	require.Equal(t, 1, len(users))
+}
+
 func TestHasManyEmpty(t *testing.T) {
 	user, err := c.QueryUser().Create(c.ChangeUser().SetName("user"))
 	require.NoError(t, err)
