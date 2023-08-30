@@ -135,3 +135,14 @@ func ({{ $m }} *{{ $.model.Name }}) Preload{{ $h.Name | pascal }}() error {
 {{- end }}
 
 {{- end }}
+
+{{- range $h := $.model.HasOne }}
+func ({{ $m }} *{{ $.model.Name }}) Preload{{ pascal $h.Name }}() error {
+	rows, err := {{ $m }}.queries.Query{{ $h.ModelName }}().Where({{ $m }}.schema.{{ $h.ModelName }}{{ $h.ForeignKey | pascal }}.EQ({{ $m }}.ID)).First()
+	if err != nil {
+		return err
+	}
+    {{ $m }}.{{ $h.ModelName }} = rows
+	return nil
+}
+{{- end }}
