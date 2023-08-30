@@ -26,6 +26,20 @@ jobs:
           sqlite3 test.sqlite3 "insert into users(name, email) values('test', 'test@example.com')"
   mysql:
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0.32
+        env:
+          MYSQL_DATABASE: queryx_test
+          MYSQL_ALLOW_EMPTY_PASSWORD: true
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping -uuser_test -pqueryx_test"
+          --health-interval 10s
+          --health-start-period 10s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
@@ -49,6 +63,20 @@ jobs:
           insert into users(name, email) values('test', 'test@example.com')
   postgresql:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14.2
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: queryx_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
