@@ -120,4 +120,4 @@ jobs:
           queryx db:migrate --schema mysql2.hcl
       - name: test
         run: |
-          mysql --protocol=tcp -h localhost  -u root  -e "SELECT * FROM insert into users(name, email) values('test', 'test@example.com')"
+          mysql --protocol=tcp -h localhost  -u root  -e "insert into users(name, email) values('test', 'test@example.com')"
