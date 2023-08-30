@@ -11,5 +11,8 @@ database "db" {
     column "name" {
       type = string
     }
+    column "email" {
+      type = string
+    }
   }
 }
