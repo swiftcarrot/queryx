@@ -32,7 +32,6 @@ func newAdapter() (adapter.Adapter, error) {
 	return adapter.NewAdapter(sch.Databases[0].LoadConfig(environment))
 }
 
-// TODO: should check unapplied migrations
 func findSchemaChanges(a string, db adapter.Adapter, database *schema.Database) ([]*migrate.Change, error) {
 	ctx := context.Background()
 
@@ -141,16 +140,15 @@ var dbMigrateCmd = &cobra.Command{
 		if err := a.Open(); err != nil {
 			return err
 		}
+		// defer a.Close()
 
 		migrator, err := adapter.NewMigrator(a)
 		if err != nil {
 			return err
 		}
-
 		if err := migrator.Up(); err != nil {
 			return err
 		}
-
 		if err := dbMigrateGenerate(); err != nil {
 			return err
 		}
@@ -186,6 +184,7 @@ func dbMigrateGenerate() error {
 	if err := adapter.Open(); err != nil {
 		return err
 	}
+	// defer adapter.Close()
 
 	database := sch.Databases[0]
 	changes, err := findSchemaChanges(sch.Databases[0].Adapter, adapter, database)

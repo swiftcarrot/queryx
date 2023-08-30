@@ -1,4 +1,5 @@
 internal/integration/db
+internal/migrate/db
 node_modules
 /bin
 .idea
