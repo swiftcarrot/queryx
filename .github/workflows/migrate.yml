@@ -80,8 +80,7 @@ jobs:
           queryx db:migrate --schema postgresql2.hcl
       - name: test
         run: |
-          psql -U postgres -d queryx_test
-          insert into users(name, email) values('test', 'test@example.com')
+          PGPASSWORD=postgres psql -U postgres -tc "insert into users(name, email) values('test', 'test@example.com')"
   mysql:
     needs: [ build ]
     runs-on: ubuntu-latest
