@@ -23,9 +23,9 @@ jobs:
         with:
           go-version: 1.19
       - uses: actions/download-artifact@v3
-          with:
-            name: bin
-            path: /usr/local/bin
+        with:
+          name: bin
+          path: /usr/local/bin
       - run: chmod a+x /usr/local/bin/queryx
       - name: migrate
         run: |
@@ -64,9 +64,9 @@ jobs:
         with:
           go-version: 1.19
       - uses: actions/download-artifact@v3
-          with:
-            name: bin
-            path: /usr/local/bin
+        with:
+          name: bin
+          path: /usr/local/bin
       - run: chmod a+x /usr/local/bin/queryx
       - name: migrate
         run: |
@@ -105,9 +105,9 @@ jobs:
         with:
           go-version: 1.19
       - uses: actions/download-artifact@v3
-          with:
-            name: bin
-            path: /usr/local/bin
+        with:
+          name: bin
+          path: /usr/local/bin
       - run: chmod a+x /usr/local/bin/queryx
       - name: migrate
         run: |
