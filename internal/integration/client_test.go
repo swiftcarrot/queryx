@@ -387,6 +387,9 @@ func TestPreload(t *testing.T) {
 	err = user2.PreloadUserPosts()
 	require.NoError(t, err)
 	require.Equal(t, 2, len(user2.UserPosts))
+	err = user2.PreloadAccount()
+	require.NoError(t, err)
+	require.Equal(t, "account1", user2.Account.Name.Val)
 
 	user, _ := c.QueryUser().PreloadPosts().PreloadAccount().Find(user1.ID)
 	require.Equal(t, account1.ID, user.Account.ID)
