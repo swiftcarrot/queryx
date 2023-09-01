@@ -10,6 +10,7 @@ import (
 
 type Adapter interface {
 	Open() error
+	Close() error
 	CreateDatabase() error
 	DropDatabase() error
 	CreateMigrationsTable(ctx context.Context) error
@@ -28,5 +29,6 @@ func NewAdapter(cfg *schema.Config) (Adapter, error) {
 		return NewSQLiteAdapter(config), nil
 	}
 
+	// TODO: list supported adapters
 	return nil, fmt.Errorf("unsupported adapter: %q", config.Adapter)
 }
