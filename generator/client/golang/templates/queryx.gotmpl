@@ -77,8 +77,8 @@ func (c *QXClient) Query{{ $m.Name }}() *{{ $m.Name }}Query {
 }
 {{- end }}
 
-func (c *QXClient) Transaction(f func(t *Tx) error) error {
-	tx, err := c.Tx()
+func (c *QXClient) Transaction(f func(t *Tx) error, opts ...*sql.TxOptions) error {
+	tx, err := c.Tx(opts...)
 	if err != nil {
 		return err
 	}
@@ -103,9 +103,13 @@ type Tx struct {
 	client *QXClient
 }
 
-func (c *QXClient) Tx() (*Tx, error) {
+func (c *QXClient) Tx(opts ...*sql.TxOptions) (*Tx, error) {
+	var opt  *sql.TxOptions
+	if len(opts) > 0 {
+		opt = opts[0]
+	}
 	ctx := context.Background()
-	tx, err := c.db.BeginTx(ctx, nil)
+	tx, err := c.db.BeginTx(ctx, opt)
 	if err != nil {
 		return nil, err
 	}
@@ -124,6 +128,16 @@ func (tx *Tx) Commit() error {
 
 func (tx *Tx) Rollback() error {
 	return tx.tx.Rollback()
+}
+
+func (tx *Tx) SavePoint (sp string) error {
+	_, err := tx.tx.Exec("SAVEPOINT ?",sp)
+	return err
+}
+
+func (tx *Tx) ReleasePoint (rp string) error {
+	_, err := tx.tx.Exec("RELEASE SAVEPOINT ?",rp)
+	return err
 }
 
 {{- range $m := $.client.Models }}
