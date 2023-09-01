@@ -73,7 +73,7 @@ jobs:
           cd internal/migrate
           queryx db:migrate --schema postgresql1.hcl
       - name: sleep
-        run: sleep 1 # so the generated migration files have non-conflicting filenames
+        run: sleep 1
       - name: migrate again
         run: |
           cd internal/migrate
@@ -82,7 +82,7 @@ jobs:
         run: |
           PGPASSWORD=postgres psql -h localhost -U postgres -d queryx_test -tc "insert into users(name, email) values('test', 'test@example.com')"
   mysql:
-    needs: [ build ]
+    needs: [build]
     runs-on: ubuntu-latest
     services:
       mysql:
@@ -113,7 +113,7 @@ jobs:
           cd internal/migrate
           queryx db:migrate --schema mysql1.hcl
       - name: sleep
-        run: sleep 1 # so the generated migration files have non-conflicting filenames
+        run: sleep 1
       - name: migrate again
         run: |
           cd internal/migrate
