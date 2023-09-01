@@ -131,12 +131,17 @@ func (tx *Tx) Rollback() error {
 }
 
 func (tx *Tx) SavePoint (sp string) error {
-	_, err := tx.tx.Exec("SAVEPOINT ?",sp)
+	_, err := tx.tx.Exec(fmt.Sprintf("SAVEPOINT %s", sp))
 	return err
 }
 
 func (tx *Tx) ReleasePoint (rp string) error {
-	_, err := tx.tx.Exec("RELEASE SAVEPOINT ?",rp)
+	_, err := tx.tx.Exec(fmt.Sprintf("RELEASE SAVEPOINT %s",rp))
+	return err
+}
+
+func (tx *Tx) RollbackTo(rt string) error {
+	_, err := tx.tx.Exec(fmt.Sprintf("ROLLBACK TO %s", rt))
 	return err
 }
 

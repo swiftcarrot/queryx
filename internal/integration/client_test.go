@@ -399,7 +399,7 @@ func TestPreload(t *testing.T) {
 	require.Equal(t, userPost1.ID, post.UserPosts[0].ID)
 }
 
-func TestTransaction(t *testing.T) {
+func TestManualTransaction(t *testing.T) {
 	tag1, _ := c.QueryTag().Create(c.ChangeTag().SetName("tag1"))
 	require.Equal(t, "tag1", tag1.Name.Val)
 
@@ -428,7 +428,9 @@ func TestTransaction(t *testing.T) {
 
 	tag1, _ = c.QueryTag().Find(tag1.ID)
 	require.Equal(t, "tag1-updated", tag1.Name.Val)
+}
 
+func TestAutomaticTransaction(t *testing.T) {
 	transactionErr := errors.New("sql: transaction has already been committed or rolled back")
 	err := c.Transaction(func(tran *db.Tx) error {
 		_, err := tran.QueryPost().Create(tran.ChangePost().SetTitle("post title .."))
@@ -464,6 +466,31 @@ func TestTransaction(t *testing.T) {
 	user, err := c.QueryUser().Where(c.UserID.EQ(userID)).First()
 	require.NoError(t, err)
 	require.Equal(t, 190.1288, user.Weight.Val)
+}
+
+func TestSavePoint(t *testing.T) {
+	tx, _ := c.Tx()
+	var tagPoint = "sp_point"
+
+	tx.QueryTag().Create(tx.ChangeTag().SetName("tagPoint1"))
+
+	err := tx.SavePoint(tagPoint)
+	require.NoError(t, err)
+
+	tx.QueryTag().Create(tx.ChangeTag().SetName("tagPoint2"))
+	err = tx.RollbackTo(tagPoint)
+	require.NoError(t, err)
+
+	exists, err := tx.QueryTag().Where(tx.TagName.EQ("tagPoint1")).Exists()
+	require.NoError(t, err)
+	require.Equal(t, true, exists)
+	exists, err = tx.QueryTag().Where(tx.TagName.EQ("tagPoint2")).Exists()
+	require.NoError(t, err)
+	require.Equal(t, false, exists)
+
+	err = tx.ReleasePoint(tagPoint)
+	require.NoError(t, err)
+	tx.Commit()
 }
 
 func TestChangeJSON(t *testing.T) {
