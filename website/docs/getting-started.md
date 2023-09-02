@@ -1,12 +1,3 @@
-# Introduction
-
-Queryx is schema-first and type-safe ORM with code generation.
-
-- **Schema First**: Define application models in a queryx schema file, and it can automatically synchronize with the database structure.
-- **Type Safe**: Queryx generates friendly and type-safe ORM methods based on the schema, which come with autocomplete support and are free from type-related errors.
-
-This project is heavily inspired by [Active Record](https://guides.rubyonrails.org/active_record_basics.html) and [ent](https://entgo.io/). Database schema management is built upon [Atlas](https://atlasgo.io/).
-
 # Getting Started
 
 ## Installation
@@ -14,7 +5,7 @@ This project is heavily inspired by [Active Record](https://guides.rubyonrails.o
 To easily install the latest version of queryx, open your terminal and run the following command:
 
 ```sh
-curl -sf https://raw.githubusercontent.com/swiftcarrot/queryx/main/install.sh  | sh
+curl -sf https://raw.githubusercontent.com/swiftcarrot/queryx/main/install.sh | sh
 ```
 
 You can also build queryx from the source following the instructions [here](/docs/build).
@@ -27,7 +18,7 @@ queryx version
 
 This command will output current installed queryx version if installed successfully.
 
-## Define your first schema
+## Create your first schema
 
 Queryx uses [HCL format](https://github.com/hashicorp/hcl) for schema defintion. Create the following sample `schema.hcl` in the current directory:
 
