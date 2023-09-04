@@ -105,7 +105,7 @@ type Tx struct {
 
 func (c *QXClient) Tx() (*Tx, error) {
 	ctx := context.Background()
-	tx, err := c.db.BeginTx(ctx)
+	tx, err := c.db.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
