@@ -77,8 +77,8 @@ func (c *QXClient) Query{{ $m.Name }}() *{{ $m.Name }}Query {
 }
 {{- end }}
 
-func (c *QXClient) Transaction(f func(t *Tx) error, opts ...*sql.TxOptions) error {
-	tx, err := c.Tx(opts...)
+func (c *QXClient) Transaction(f func(t *Tx) error) error {
+	tx, err := c.Tx()
 	if err != nil {
 		return err
 	}
@@ -103,13 +103,9 @@ type Tx struct {
 	client *QXClient
 }
 
-func (c *QXClient) Tx(opts ...*sql.TxOptions) (*Tx, error) {
-	var opt  *sql.TxOptions
-	if len(opts) > 0 {
-		opt = opts[0]
-	}
+func (c *QXClient) Tx() (*Tx, error) {
 	ctx := context.Background()
-	tx, err := c.db.BeginTx(ctx, opt)
+	tx, err := c.db.BeginTx(ctx)
 	if err != nil {
 		return nil, err
 	}
