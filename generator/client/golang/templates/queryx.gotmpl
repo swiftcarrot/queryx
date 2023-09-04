@@ -130,21 +130,6 @@ func (tx *Tx) Rollback() error {
 	return tx.tx.Rollback()
 }
 
-func (tx *Tx) SavePoint (sp string) error {
-	_, err := tx.tx.Exec(fmt.Sprintf("SAVEPOINT %s", sp))
-	return err
-}
-
-func (tx *Tx) ReleasePoint (rp string) error {
-	_, err := tx.tx.Exec(fmt.Sprintf("RELEASE SAVEPOINT %s",rp))
-	return err
-}
-
-func (tx *Tx) RollbackTo(rt string) error {
-	_, err := tx.tx.Exec(fmt.Sprintf("ROLLBACK TO %s", rt))
-	return err
-}
-
 {{- range $m := $.client.Models }}
 
 func (tx *Tx) Query{{ $m.Name }}() *{{ $m.Name }}Query {
