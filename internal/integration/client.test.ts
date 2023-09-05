@@ -355,6 +355,7 @@ test("AutomaticTransaction", async () => {
   await c.transaction(async function (tx: Tx) {
     let post = await tx.queryPost().create({title: "AutomaticTransaction"});
     let user = await tx.queryUser().create({weight: 190.99});
+    console.log("user.weight....",user.weight)
   } )
 
   exists = await c.queryPost().where(c.postTitle.eq("AutomaticTransaction")).exists();
