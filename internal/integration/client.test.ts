@@ -345,6 +345,24 @@ test("transaction", async () => {
   expect(tag1.name).toEqual("tag1-updated");
 });
 
+test("AutomaticTransaction", async () => {
+  let exists = await c.queryPost().where(c.postTitle.eq("AutomaticTransaction")).exists();
+  expect(exists).toBe(false);
+
+  exists =await c.queryUser().where(c.userWeight.eq(190.99)).exists();
+  expect(exists).toBe(false);
+
+  await c.transaction(async function (tx: Tx) {
+    let post = await tx.queryPost().create({title: "AutomaticTransaction"});
+    let user = await tx.queryUser().create({weight: 190.99});
+  } )
+
+  exists = await c.queryPost().where(c.postTitle.eq("AutomaticTransaction")).exists();
+  expect(exists).toBe(true);
+  exists = await c.queryUser().where(c.userWeight.eq(190.99)).exists();
+  expect(exists).toBe(true);
+});
+
 test("changeJSON", async () => {
   let userChange = new UserChange({
     name: "user name",
