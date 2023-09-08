@@ -345,6 +345,24 @@ test("transaction", async () => {
   expect(tag1.name).toEqual("tag1-updated");
 });
 
+
+test("savepoint", async () => {
+  let tx = await c.tx();
+  let tagPoint = "sp_point"
+
+  await tx.queryTag().create({name:"tagPoint1"})
+  await tx.savePoint(tagPoint)
+
+  await tx.queryTag().create({name: "tagPoint2"})
+  await tx.rollbackTo(tagPoint)
+
+  await tx.queryTag().where(tx.tagName.eq("tagPoint1")).exists()
+  await tx.queryTag().where(tx.tagName.eq("tagPoint2")).exists()
+
+  await tx.releasePoint(tagPoint)
+  await tx.commit()
+});
+
 test("changeJSON", async () => {
   let userChange = new UserChange({
     name: "user name",
