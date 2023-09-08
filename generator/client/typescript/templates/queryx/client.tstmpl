@@ -75,18 +75,6 @@ export class Tx extends QXClient {
   rollback() {
     return this.adapter.rollback();
   }
-
-  savePoint(sp: string){
-     return this.adapter.savePoint(sp)
-  }
-
-  releasePoint(rp: string){
-    return this.adapter.releasePoint(rp)
-  }
-
-  rollbackTo(rt: string){
-    return this.adapter.rollbackTo(rt)
-  }
 }
 
 export const newClient = () => {

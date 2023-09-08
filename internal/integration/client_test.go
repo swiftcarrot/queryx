@@ -429,31 +429,6 @@ func TestTransaction(t *testing.T) {
 	require.Equal(t, "tag1-updated", tag1.Name.Val)
 }
 
-func TestSavePoint(t *testing.T) {
-	tx, _ := c.Tx()
-	var tagPoint = "sp_point"
-
-	tx.QueryTag().Create(tx.ChangeTag().SetName("tagPoint1"))
-
-	err := tx.SavePoint(tagPoint)
-	require.NoError(t, err)
-
-	tx.QueryTag().Create(tx.ChangeTag().SetName("tagPoint2"))
-	err = tx.RollbackTo(tagPoint)
-	require.NoError(t, err)
-
-	exists, err := tx.QueryTag().Where(tx.TagName.EQ("tagPoint1")).Exists()
-	require.NoError(t, err)
-	require.Equal(t, true, exists)
-	exists, err = tx.QueryTag().Where(tx.TagName.EQ("tagPoint2")).Exists()
-	require.NoError(t, err)
-	require.Equal(t, false, exists)
-
-	err = tx.ReleasePoint(tagPoint)
-	require.NoError(t, err)
-	tx.Commit()
-}
-
 func TestChangeJSON(t *testing.T) {
 	s := `{"name":"user name","isAdmin":false}`
 

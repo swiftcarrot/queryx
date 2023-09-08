@@ -48,17 +48,6 @@ export class Adapter {
   async rollback() {
     await this.db.query("ROLLBACK");
   }
-
-  async savePoint(sp: string){
-    await this.exec(`SAVEPOINT ${sp}`);
-  }
-  async releasePoint(rp: string){
-    await this.exec(`RELEASE SAVEPOINT ${rp}`);
-  }
-
-  async rollbackTo(rt: string){
-    await this.exec(`ROLLBACK TO ${rt}`);
-  }
 }
 
 export function rebind<T extends any[] = any[]>(query: string, args?: T) {}
