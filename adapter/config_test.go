@@ -34,7 +34,7 @@ func TestNewMySQLConfig(t *testing.T) {
 	require.Equal(t, "3306", c.Port)
 	require.Equal(t, "queryx_test", c.Database)
 	require.Equal(t, "root:@tcp(localhost:3306)/queryx_test?parseTime=true", c.URL)
-	require.Equal(t, "root@tcp(localhost:3306)/?parseTime=true", c.URL2)
+	require.Equal(t, "root:@tcp(localhost:3306)/?parseTime=true", c.URL2)
 	require.Equal(t, "mysql://root:@localhost:3306/queryx_test?parseTime=true", c.TSFormat())
 
 }
