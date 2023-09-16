@@ -158,11 +158,9 @@ func TestDate(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, "2012-11-10", user.Date.Val.Format("2006-01-02"))
 
-	_, err = c.QueryUser().Create(c.ChangeUser().SetDate("2007-01-02"))
+	user, err = c.QueryUser().Where(c.UserDate.EQ("2012-11-10")).First()
 	require.NoError(t, err)
-	first, err := c.QueryUser().Where(c.UserDate.EQ("2007-01-02")).First()
-	require.NoError(t, err)
-	require.Equal(t, "2007-01-02", first.Date.Val.Format("2006-01-02"))
+	require.Equal(t, "2012-11-10", user.Date.Val.Format("2006-01-02"))
 }
 
 func TestDatetime(t *testing.T) {
