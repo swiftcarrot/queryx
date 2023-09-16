@@ -106,6 +106,9 @@ test("time", async () => {
 test("date", async () => {
   let user = await c.queryUser().create({ date: "2012-11-10" });
   expect(format(user.date!, "yyyy-MM-dd")).toEqual("2012-11-10");
+
+  user = await c.queryUser().where(c.userDate.eq("2012-11-10")).first();
+  expect(format(user.date!, "yyyy-MM-dd")).toEqual("2012-11-10");
 });
 
 test("datetime", async () => {
