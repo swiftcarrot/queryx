@@ -175,6 +175,10 @@ test("json", async () => {
   expect(user.payload!.theme).toEqual(payload.theme);
   expect(user.payload!.height).toEqual(payload.height);
   expect(user.payload!.weight).toEqual(payload.weight);
+
+  let u = await c.queryUser().where(c.raw("payload ->> 'height' = ?",170)).first();
+  expect(u.payload!.theme).toEqual(payload.theme);
+  expect(u.payload!.weight).toEqual(payload.weight);
 });
 
 test("compositePrimaryKey", async () => {
