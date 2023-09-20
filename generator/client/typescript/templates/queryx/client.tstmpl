@@ -48,6 +48,10 @@ export class QXClient {
   }
   {{- end }}
 
+  raw(sql: string, ...values: any[]) {
+     return new Clause(sql, values)
+  }
+
   async tx() {
     const tx = new Tx(this.config);
     await tx.adapter.beginTx();
