@@ -78,8 +78,6 @@ func (c *QXClient) Query{{ $m.Name }}() *{{ $m.Name }}Query {
 {{- end }}
 
 func (c *QXClient) Raw(sql string, values ...interface{}) *queryx.Clause  {
-	s := make([]interface{}, len(values))
-	copy(s,values)
 	return (&queryx.Clause{}).NewClause(sql,s)
 }
 
