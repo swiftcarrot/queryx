@@ -117,3 +117,7 @@ func (tx *Tx) Query{{ $m.Name }}() *{{ $m.Name }}Query {
 	return New{{ $m.Name }}Query(tx.Adapter, tx.Schema, tx)
 }
 {{- end }}
+
+func (tx *Tx) Raw(sql string, values ...interface{}) *queryx.Clause  {
+	return (&queryx.Clause{}).NewClause(sql,values)
+}
