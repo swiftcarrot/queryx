@@ -118,6 +118,6 @@ func (tx *Tx) Query{{ $m.Name }}() *{{ $m.Name }}Query {
 }
 {{- end }}
 
-func (tx *Tx) Raw(sql string, args ...interface{}) *queryx.Clause  {
-	return queryx.NewClause(sql, args)
+func (tx *Tx) Raw(fragment string, args ...interface{}) *queryx.Clause  {
+	return queryx.NewClause(fragment, args)
 }

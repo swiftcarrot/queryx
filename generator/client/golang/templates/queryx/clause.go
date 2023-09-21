@@ -13,9 +13,9 @@ type Clause struct {
 	err      error
 }
 
-func NewClause(f string, args []interface{}) *Clause {
+func NewClause(fragment string, args []interface{}) *Clause {
 	return &Clause{
-		fragment: f,
+		fragment: fragment,
 		args:     args,
 	}
 }
