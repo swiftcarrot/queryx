@@ -13,10 +13,11 @@ type Clause struct {
 	err      error
 }
 
-func (c *Clause) NewClause(f string, args []interface{}) *Clause {
-	c.fragment = f
-	c.args = args
-	return c
+func NewClause(f string, args []interface{}) *Clause {
+	return &Clause{
+		fragment: f,
+		args:     args,
+	}
 }
 
 func (c *Clause) Err() error {

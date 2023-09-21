@@ -77,8 +77,8 @@ func (c *QXClient) Query{{ $m.Name }}() *{{ $m.Name }}Query {
 }
 {{- end }}
 
-func (c *QXClient) Raw(sql string, values ...interface{}) *queryx.Clause  {
-	return (&queryx.Clause{}).NewClause(sql,values)
+func (c *QXClient) Raw(sql string, args ...interface{}) *queryx.Clause  {
+	return queryx.NewClause(sql, args)
 }
 
 type Tx struct {
@@ -118,6 +118,6 @@ func (tx *Tx) Query{{ $m.Name }}() *{{ $m.Name }}Query {
 }
 {{- end }}
 
-func (tx *Tx) Raw(sql string, values ...interface{}) *queryx.Clause  {
-	return (&queryx.Clause{}).NewClause(sql,values)
+func (tx *Tx) Raw(sql string, args ...interface{}) *queryx.Clause  {
+	return queryx.NewClause(sql, args)
 }
