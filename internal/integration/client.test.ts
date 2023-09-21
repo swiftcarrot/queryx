@@ -180,17 +180,6 @@ test("json", async () => {
   expect(user.payload!.weight).toEqual(payload.weight);
 });
 
-test("raw", async () => {
-  await c.queryUser().deleteAll()
-  let user = await c.queryUser().create({name:"test_raw",type:"user"});
-  expect(user.name).toEqual("test_raw");
-  expect(user.type).toEqual("user");
-
-  let users = await c.queryUser().where(c.raw("name = ? and type = ?", "test_raw","user")).all();
-  expect(users[0].name).toEqual("test_raw");
-  expect(users[0].type).toEqual("user");
-});
-
 test("compositePrimaryKey", async () => {
   await c.queryCode().deleteAll();
   let code = await c.queryCode().create({ type: "type", key: "key" });
@@ -261,10 +250,14 @@ test("inEmpty", async () => {
   expect(users).toEqual([]);
 });
 
-test("MultipleWhere", async () => {
+test("Where", async () => {
   let user =  await c.queryUser().create({ weight:"98.0",name: "name" ,type:"type"});
   let users = await c.queryUser().where(c.userID.eq(user.id)).where(c.userName.eq("name"),c.userType.eq("type")).all()
   expect(users.length).toEqual(1);
+
+  let u = await c.queryUser().where(c.raw("name = ? and type = ?", "name","type")).all();
+  expect(u[0].name).toEqual("name");
+  expect(u[0].type).toEqual("type");
 });
 
 test("hasManyEmpty", async () => {

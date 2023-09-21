@@ -243,17 +243,6 @@ func TestJSON(t *testing.T) {
 	require.Equal(t, float64(payload["weight"].(int)), user.Payload.Val["weight"])
 }
 
-func TestRaw(t *testing.T) {
-	_, err := c.QueryUser().DeleteAll()
-	require.NoError(t, err)
-	user, err := c.QueryUser().Create(c.ChangeUser().SetName("test_raw").SetType("user"))
-	require.NoError(t, err)
-	user, err = c.QueryUser().Where(c.Raw("name = ? and type = ?", "test_raw", "user")).First()
-	require.NoError(t, err)
-	require.Equal(t, "test_raw", user.Name.Val)
-	require.Equal(t, "user", user.Type.Val)
-}
-
 func TestCompositePrimaryKey(t *testing.T) {
 	_, _ = c.QueryCode().DeleteAll()
 	code, err := c.QueryCode().Create(c.ChangeCode().SetType("type").SetKey("key"))
@@ -336,13 +325,18 @@ func TestInEmpty(t *testing.T) {
 	require.Equal(t, 0, len(users))
 }
 
-func TestMultipleWhere(t *testing.T) {
+func TestWhere(t *testing.T) {
 	user, err := c.QueryUser().Create(c.ChangeUser().SetWeight(98.0).SetName("name").SetType("type"))
 	require.NoError(t, err)
 	users, err := c.QueryUser().Where(c.UserID.EQ(user.ID)).Where(c.UserName.EQ("name"), c.UserType.EQ("type")).All()
 	require.NoError(t, err)
 	require.NotNil(t, users)
 	require.Equal(t, 1, len(users))
+
+	user, err = c.QueryUser().Where(c.Raw("name = ? and type = ?", "name", "type")).First()
+	require.NoError(t, err)
+	require.Equal(t, "name", user.Name.Val)
+	require.Equal(t, "type", user.Type.Val)
 }
 
 func TestHasManyEmpty(t *testing.T) {
