@@ -251,13 +251,19 @@ test("inEmpty", async () => {
 });
 
 test("where", async () => {
-  let user =  await c.queryUser().create({ weight:"98.0",name: "name" ,type:"type"});
-  let users = await c.queryUser().where(c.userID.eq(user.id)).where(c.userName.eq("name"),c.userType.eq("type")).all()
-  expect(users.length).toEqual(1);
+  let user = await c.queryUser().create({ name: "name", type: "type" });
+  let users = await c
+    .queryUser()
+    .where(c.userID.eq(user.id))
+    .where(c.userName.eq("name"), c.userType.eq("type"))
+    .all();
+  expect(users).toEqual([user]);
 
-  let u = await c.queryUser().where(c.raw("name = ? and type = ?", "name","type")).all();
-  expect(u[0].name).toEqual("name");
-  expect(u[0].type).toEqual("type");
+  users = await c
+    .queryUser()
+    .where(c.raw("name = ? and type = ?", "name", "type"))
+    .all();
+  expect(users).toEqual([user]);
 });
 
 test("hasManyEmpty", async () => {

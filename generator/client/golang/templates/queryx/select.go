@@ -34,21 +34,17 @@ func (s *SelectStatement) From(from string) *SelectStatement {
 	return s
 }
 
-func (s *SelectStatement) Where(expr ...*Clause) *SelectStatement {
-	var fragments []string
-	var args []interface{}
-	if s.where != nil {
-		fragments = append(fragments, fmt.Sprintf("(%s)", s.where.fragment))
-		args = append(args, s.where.args...)
+func (s *SelectStatement) Where(clauses ...*Clause) *SelectStatement {
+	if len(clauses) == 0 {
+		return s
 	}
-	for _, clause := range expr {
-		fragments = append(fragments, fmt.Sprintf("(%s)", clause.fragment))
-		args = append(args, clause.args...)
+
+	if s.where == nil {
+		s.where = clauses[0].And(clauses[1:]...)
+	} else {
+		s.where = s.where.And(clauses...)
 	}
-	s.where = &Clause{
-		fragment: strings.Join(fragments, " AND "),
-		args:     args,
-	}
+
 	return s
 }
 

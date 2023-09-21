@@ -326,17 +326,17 @@ func TestInEmpty(t *testing.T) {
 }
 
 func TestWhere(t *testing.T) {
-	user, err := c.QueryUser().Create(c.ChangeUser().SetWeight(98.0).SetName("name").SetType("type"))
+	user, err := c.QueryUser().Create(c.ChangeUser().SetName("name").SetType("type"))
 	require.NoError(t, err)
 	users, err := c.QueryUser().Where(c.UserID.EQ(user.ID)).Where(c.UserName.EQ("name"), c.UserType.EQ("type")).All()
 	require.NoError(t, err)
-	require.NotNil(t, users)
 	require.Equal(t, 1, len(users))
+	require.Equal(t, user, users[0])
 
-	user, err = c.QueryUser().Where(c.Raw("name = ? and type = ?", "name", "type")).First()
+	users, err = c.QueryUser().Where(c.Raw("name = ? and type = ?", "name", "type")).All()
 	require.NoError(t, err)
-	require.Equal(t, "name", user.Name.Val)
-	require.Equal(t, "type", user.Type.Val)
+	require.Equal(t, 1, len(users))
+	require.Equal(t, user, users[0])
 }
 
 func TestHasManyEmpty(t *testing.T) {

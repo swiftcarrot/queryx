@@ -48,7 +48,7 @@ export class QXClient {
   }
   {{- end }}
 
-  raw(fragment : string, ...args: any[]) {
+  raw(fragment: string, ...args: any[]) {
      return new Clause(fragment, args)
   }
 

@@ -143,8 +143,8 @@ export class {{ $.model.Name }}Query {
   }
 
   where(...clauses: Clause[]) {
-      this.selectStatement.where(...clauses);
-      return this;
+    this.selectStatement.where(...clauses);
+    return this;
   }
 
   select(...selection: string[]) {

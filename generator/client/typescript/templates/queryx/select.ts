@@ -31,18 +31,17 @@ export class SelectStatement {
     return this;
   }
 
-  where(...expr: Clause[]) {
-    let fragments:string[]=[];
-    let args=[];
-    if (this._where !== undefined) {
-      fragments.push(`(${this._where.fragment})`);
-      args.push(...this._where.args);
+  where(...clauses: Clause[]) {
+    if (clauses.length === 0) {
+      return this;
     }
-    for (let i = 0; i < expr.length; i++) {
-      fragments.push(`(${expr[i].fragment})`);
-      args.push(...expr[i].args);
+
+    if (this._where === undefined) {
+      this._where = clauses[0].and(...clauses.slice(1));
+    } else {
+      this._where = this._where.and(...clauses);
     }
-    this._where=new Clause(fragments.join(" AND "),args)
+
     return this;
   }
 

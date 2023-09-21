@@ -25,6 +25,10 @@ func (c *Clause) Err() error {
 }
 
 func (c *Clause) And(clauses ...*Clause) *Clause {
+	if len(clauses) == 0 {
+		return c
+	}
+
 	var fragments []string
 	var args []interface{}
 	clauses = append([]*Clause{c}, clauses...)
@@ -33,13 +37,14 @@ func (c *Clause) And(clauses ...*Clause) *Clause {
 		args = append(args, clause.args...)
 	}
 
-	return &Clause{
-		fragment: strings.Join(fragments, " AND "),
-		args:     args,
-	}
+	return NewClause(strings.Join(fragments, " AND "), args)
 }
 
 func (c *Clause) Or(clauses ...*Clause) *Clause {
+	if len(clauses) == 0 {
+		return c
+	}
+
 	var fragments []string
 	var args []interface{}
 	clauses = append([]*Clause{c}, clauses...)
@@ -48,8 +53,5 @@ func (c *Clause) Or(clauses ...*Clause) *Clause {
 		args = append(args, clause.args...)
 	}
 
-	return &Clause{
-		fragment: strings.Join(fragments, " OR "),
-		args:     args,
-	}
+	return NewClause(strings.Join(fragments, " OR "), args)
 }
