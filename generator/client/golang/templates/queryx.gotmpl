@@ -77,8 +77,8 @@ func (c *QXClient) Query{{ $m.Name }}() *{{ $m.Name }}Query {
 }
 {{- end }}
 
-func (c *QXClient) Raw(sql string, args ...interface{}) *queryx.Clause  {
-	return queryx.NewClause(sql, args)
+func (c *QXClient) Raw(fragment  string, args ...interface{}) *queryx.Clause  {
+	return queryx.NewClause(fragment , args)
 }
 
 type Tx struct {
