@@ -250,7 +250,7 @@ test("inEmpty", async () => {
   expect(users).toEqual([]);
 });
 
-test("Where", async () => {
+test("where", async () => {
   let user =  await c.queryUser().create({ weight:"98.0",name: "name" ,type:"type"});
   let users = await c.queryUser().where(c.userID.eq(user.id)).where(c.userName.eq("name"),c.userType.eq("type")).all()
   expect(users.length).toEqual(1);
