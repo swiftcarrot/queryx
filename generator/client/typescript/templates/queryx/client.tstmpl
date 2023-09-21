@@ -48,8 +48,8 @@ export class QXClient {
   }
   {{- end }}
 
-  raw(sql: string, ...args: any[]) {
-     return new Clause(sql, args)
+  raw(fragment : string, ...args: any[]) {
+     return new Clause(fragment, args)
   }
 
   async tx() {
