@@ -2,6 +2,7 @@
 
 import type { Clause } from "./clause";
 import type { DeleteStatemnet } from "./delete";
+import { Clause } from "./clause";
 import { newDelete } from "./delete";
 import { newUpdate } from "./update";
 
@@ -30,8 +31,18 @@ export class SelectStatement {
     return this;
   }
 
-  where(expr: Clause) {
-    this._where = expr;
+  where(...expr: Clause[]) {
+    let fragments:string[]=[];
+    let args=[];
+    if (this._where !== undefined) {
+      fragments.push(`(${this._where.fragment})`);
+      args.push(...this._where.args);
+    }
+    for (let i = 0; i < expr.length; i++) {
+      fragments.push(`(${expr[i].fragment})`);
+      args.push(...expr[i].args);
+    }
+    this._where=new Clause(fragments.join(" AND "),args)
     return this;
   }
 
