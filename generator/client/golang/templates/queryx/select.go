@@ -34,13 +34,17 @@ func (s *SelectStatement) From(from string) *SelectStatement {
 	return s
 }
 
-func (s *SelectStatement) Where(expr *Clause) *SelectStatement {
-	if s.where != nil {
-		s.where.fragment = fmt.Sprintf("%s AND %s", s.where.fragment, expr.fragment)
-		s.where.args = append(s.where.args, expr.args...)
-	} else {
-		s.where = expr
+func (s *SelectStatement) Where(clauses ...*Clause) *SelectStatement {
+	if len(clauses) == 0 {
+		return s
 	}
+
+	if s.where == nil {
+		s.where = clauses[0].And(clauses[1:]...)
+	} else {
+		s.where = s.where.And(clauses...)
+	}
+
 	return s
 }
 

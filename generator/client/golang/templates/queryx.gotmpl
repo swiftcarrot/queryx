@@ -77,6 +77,10 @@ func (c *QXClient) Query{{ $m.Name }}() *{{ $m.Name }}Query {
 }
 {{- end }}
 
+func (c *QXClient) Raw(fragment string, args ...interface{}) *queryx.Clause  {
+	return queryx.NewClause(fragment, args)
+}
+
 type Tx struct {
 	*queryx.Schema
 	*queryx.Adapter
@@ -113,3 +117,7 @@ func (tx *Tx) Query{{ $m.Name }}() *{{ $m.Name }}Query {
 	return New{{ $m.Name }}Query(tx.Adapter, tx.Schema, tx)
 }
 {{- end }}
+
+func (tx *Tx) Raw(fragment string, args ...interface{}) *queryx.Clause  {
+	return queryx.NewClause(fragment, args)
+}

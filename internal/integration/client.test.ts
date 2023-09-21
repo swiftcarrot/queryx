@@ -250,6 +250,22 @@ test("inEmpty", async () => {
   expect(users).toEqual([]);
 });
 
+test("where", async () => {
+  let user = await c.queryUser().create({ name: "name", type: "type" });
+  let users = await c
+    .queryUser()
+    .where(c.userID.eq(user.id))
+    .where(c.userName.eq("name"), c.userType.eq("type"))
+    .all();
+  expect(users).toEqual([user]);
+
+  users = await c
+    .queryUser()
+    .where(c.raw("name = ? and type = ?", "name", "type"))
+    .all();
+  expect(users).toEqual([user]);
+});
+
 test("hasManyEmpty", async () => {
   let user = await c.queryUser().create({ name: "user" });
   expect(user.userPosts).toBeNull();

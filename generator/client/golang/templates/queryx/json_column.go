@@ -29,10 +29,3 @@ func (c *JSONColumn) NotNull() *Clause {
 		fragment: fmt.Sprintf("%s.%s is not null", c.Table.Name, c.Name),
 	}
 }
-
-func (c *JSONColumn) EQ(k string, v interface{}) *Clause {
-	return &Clause{
-		fragment: fmt.Sprintf("%s.%s -> '%s' = ?", c.Table.Name, c.Name, k),
-		args:     []interface{}{v},
-	}
-}
