@@ -394,6 +394,14 @@ test("transactionBlock", async () => {
 
   tag1 = await c.queryTag().find(tag1.id);
   expect(tag1.name).toEqual("tag1-updated");
+
+  await c.transaction(async function (tx: Tx) {
+  await tx.queryTag().create({ name: "tag5" })
+   await tx.queryTag().create({ name: "tag5" })
+  });
+  let count=await c.queryTag().count();
+  expect(count).toEqual(tag4);
+
 });
 
 test("changeJSON", async () => {

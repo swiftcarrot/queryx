@@ -488,6 +488,23 @@ func TestTransactionBlock(t *testing.T) {
 
 	tag1, _ = c.QueryTag().Find(tag1.ID)
 	require.Equal(t, "tag1-updated", tag1.Name.Val)
+
+	err = c.Transaction(func(tx *db.Tx) error {
+		_, err := tx.QueryTag().Create(c.ChangeTag().SetName("tag5"))
+		if err != nil {
+			return err
+		}
+		_, err = tx.QueryTag().Create(c.ChangeTag().SetName("tag5"))
+		if err != nil {
+			return err
+		}
+
+		return err
+	})
+	count, err := c.QueryTag().Count()
+	require.NoError(t, err)
+	require.Equal(t, total4, count)
+
 }
 
 func TestChangeJSON(t *testing.T) {
