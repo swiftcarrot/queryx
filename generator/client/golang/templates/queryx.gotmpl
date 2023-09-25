@@ -78,12 +78,11 @@ func (c *QXClient) Query{{ $m.Name }}() *{{ $m.Name }}Query {
 {{- end }}
 
 func (c *QXClient) Transaction(f func(t *Tx) error) error {
-	tx, err := c.Tx()
-	if err != nil {
+	if tx, err := c.Tx(); err != nil {
 		return err
 	}
 	defer tx.Rollback()
-	if err = f(tx);err != nil {
+	if err = f(tx); err != nil {
 		return err
 	}
 	return tx.Commit()
