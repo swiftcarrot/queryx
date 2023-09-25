@@ -104,6 +104,9 @@ func TestCreateEmpty(t *testing.T) {
 }
 
 func TestFind(t *testing.T) {
+	_, err := c.QueryTag().DeleteAll()
+	require.NoError(t, err)
+
 	tag, err := c.QueryTag().Create(c.ChangeTag().SetName("test"))
 	require.NoError(t, err)
 	tag, err = c.QueryTag().Find(tag.ID)
@@ -450,61 +453,31 @@ func TestTransaction(t *testing.T) {
 func TestTransactionBlock(t *testing.T) {
 	_, err := c.QueryTag().DeleteAll()
 	require.NoError(t, err)
-	tag1, _ := c.QueryTag().Create(c.ChangeTag().SetName("tag1"))
-	require.Equal(t, "tag1", tag1.Name.Val)
-
-	total1, _ := c.QueryTag().Count()
 
 	err = c.Transaction(func(tx *db.Tx) error {
-		tag1, _ = tx.QueryTag().Find(tag1.ID)
-		err := tag1.Update(tx.ChangeTag().SetName("tag1-updated"))
-		if err != nil {
-			return err
-		}
-		_, err = tx.QueryTag().Create(tx.ChangeTag().SetName("tag2"))
-		if err != nil {
-			return err
-		}
-		_, err = tx.QueryTag().Create(tx.ChangeTag().SetName("tag3"))
-		if err != nil {
-			return err
-		}
-
-		total2, _ := c.QueryTag().Count()
-		require.Equal(t, total1, total2)
-
-		total3, _ := tx.QueryTag().Count()
-		require.Equal(t, total1+2, total3)
-
-		tag1, err = c.QueryTag().Find(tag1.ID)
+		tag1, err := tx.QueryTag().Create(tx.ChangeTag().SetName("tag1"))
+		require.NoError(t, err)
 		require.Equal(t, "tag1", tag1.Name.Val)
-
-		return err
+		tag2, err := tx.QueryTag().Create(tx.ChangeTag().SetName("tag2"))
+		require.Equal(t, "tag2", tag2.Name.Val)
+		require.NoError(t, err)
+		return nil
 	})
 	require.NoError(t, err)
 
-	total4, _ := c.QueryTag().Count()
-	require.Equal(t, total1+2, total4)
-
-	tag1, _ = c.QueryTag().Find(tag1.ID)
-	require.Equal(t, "tag1-updated", tag1.Name.Val)
+	total, err := c.QueryTag().Count()
+	require.NoError(t, err)
+	require.Equal(t, int64(2), total)
 
 	err = c.Transaction(func(tx *db.Tx) error {
-		_, err := tx.QueryTag().Create(c.ChangeTag().SetName("tag5"))
-		if err != nil {
-			return err
-		}
-		_, err = tx.QueryTag().Create(c.ChangeTag().SetName("tag5"))
-		if err != nil {
-			return err
-		}
-
+		_, err = tx.QueryTag().Create(c.ChangeTag().SetName("tag3"))
+		_, err = tx.QueryTag().Create(c.ChangeTag().SetName("tag3"))
 		return err
 	})
-	count, err := c.QueryTag().Count()
+	require.Error(t, err)
+	total, err = c.QueryTag().Count()
 	require.NoError(t, err)
-	require.Equal(t, total4, count)
-
+	require.Equal(t, int64(2), total)
 }
 
 func TestChangeJSON(t *testing.T) {

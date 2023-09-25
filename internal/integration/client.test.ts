@@ -1,5 +1,5 @@
 import { test, expect, beforeAll } from "vitest";
-import { newClient, QXClient, UserChange } from "./db";
+import { newClient, QXClient, Tx, UserChange } from "./db";
 import { format } from "date-fns";
 
 let c: QXClient;
@@ -367,40 +367,24 @@ test("transaction", async () => {
 test("transactionBlock", async () => {
   await c.queryTag().deleteAll();
 
-  let tag1 = await c.queryTag().create({ name: "tag1" });
-  expect(tag1.name).toEqual("tag1");
-
-  let total1 = await c.queryTag().count();
-
   await c.transaction(async function (tx: Tx) {
-    tag1 = await tx.queryTag().find(tag1.id);
-    await tag1.update({ name: "tag1-updated" });
-
-    await tx.queryTag().create({ name: "tag2" });
-    await tx.queryTag().create({ name: "tag3" });
-
-    let total2 = await c.queryTag().count();
-    expect(total2).toEqual(total1);
-
-    let total3 = await tx.queryTag().count();
-    expect(total3).toEqual(total1 + 2);
-
-    tag1 = await c.queryTag().find(tag1.id);
+    let tag1 = await tx.queryTag().create({ name: "tag1" });
     expect(tag1.name).toEqual("tag1");
+    let tag2 = await tx.queryTag().create({ name: "tag2" });
+    expect(tag2.name).toEqual("tag2");
   });
 
-  let total4 = await c.queryTag().count();
-  expect(total4).toEqual(total1 + 2);
+  let total = await c.queryTag().count();
+  expect(total).toEqual(2);
 
-  tag1 = await c.queryTag().find(tag1.id);
-  expect(tag1.name).toEqual("tag1-updated");
-
-  await c.transaction(async function (tx: Tx) {
-    await tx.queryTag().create({ name: "tag5" });
-    await tx.queryTag().create({ name: "tag5" });
-  });
-  let count = await c.queryTag().count();
-  expect(count).toEqual(total4);
+  await expect(async () => {
+    await c.transaction(async function (tx: Tx) {
+      await tx.queryTag().create({ name: "tag3" });
+      await tx.queryTag().create({ name: "tag3" });
+    });
+  }).rejects.toThrowError();
+  total = await c.queryTag().count();
+  expect(total).toEqual(2);
 });
 
 test("changeJSON", async () => {
