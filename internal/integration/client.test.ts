@@ -365,21 +365,35 @@ test("transaction", async () => {
 });
 
 test("transactionBlock", async () => {
-    let exists = await c.queryPost().where(c.postTitle.eq("AutomaticTransaction")).exists();
-    expect(exists).toBe(false);
+    await c.queryTag().deleteAll()
 
-    exists = await c.queryUser().where(c.userName.eq("user_name")).exists();
-    expect(exists).toBe(false);
+    let tag1 = await c.queryTag().create({name: "tag1"});
+    expect(tag1.name).toEqual("tag1");
+
+    let total1 = await c.queryTag().count();
 
     await c.transaction(async function (tx: Tx) {
-        let post = await tx.queryPost().create({title: "AutomaticTransaction"});
-        let user = await tx.queryUser().create({name: "user_name"});
+        tag1 = await tx.queryTag().find(tag1.id);
+        await tag1.update({name: "tag1-updated"});
+
+        await tx.queryTag().create({name: "tag2"});
+        await tx.queryTag().create({name: "tag3"});
+
+        let total2 = await c.queryTag().count();
+        expect(total2).toEqual(total1);
+
+        let total3 = await tx.queryTag().count();
+        expect(total3).toEqual(total1 + 2);
+
+        tag1 = await c.queryTag().find(tag1.id);
+        expect(tag1.name).toEqual("tag1");
     })
 
-    exists = await c.queryPost().where(c.postTitle.eq("AutomaticTransaction")).exists();
-    expect(exists).toBe(true);
-    exists = await c.queryUser().where(c.userName.eq("user_name")).exists();
-    expect(exists).toBe(true);
+    let total4 = await c.queryTag().count();
+    expect(total4).toEqual(total1 + 2);
+
+    tag1 = await c.queryTag().find(tag1.id);
+    expect(tag1.name).toEqual("tag1-updated");
 });
 
 test("changeJSON", async () => {

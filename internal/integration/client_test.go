@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"testing"
@@ -417,7 +416,7 @@ func TestPreload(t *testing.T) {
 	require.Equal(t, userPost1.ID, post.UserPosts[0].ID)
 }
 
-func TestManualTransaction(t *testing.T) {
+func TestTransaction(t *testing.T) {
 	tag1, _ := c.QueryTag().Create(c.ChangeTag().SetName("tag1"))
 	require.Equal(t, "tag1", tag1.Name.Val)
 
@@ -449,41 +448,46 @@ func TestManualTransaction(t *testing.T) {
 }
 
 func TestTransactionBlock(t *testing.T) {
-	transactionErr := errors.New("test transaction")
-	err := c.Transaction(func(tran *db.Tx) error {
-		_, err := tran.QueryPost().Create(tran.ChangePost().SetTitle("post title .."))
-		if err != nil {
-			return err
-		}
-		_, err = tran.QueryUser().Create(tran.ChangeUser().SetWeight(190.1288))
-		if err != nil {
-			return err
-		}
-		return transactionErr
-	})
-	require.Equal(t, err, transactionErr)
+	_, err := c.QueryTag().DeleteAll()
+	require.NoError(t, err)
+	tag1, _ := c.QueryTag().Create(c.ChangeTag().SetName("tag1"))
+	require.Equal(t, "tag1", tag1.Name.Val)
 
-	var postID int64
-	var userID int64
-	err = c.Transaction(func(tran *db.Tx) error {
-		p, err := tran.QueryPost().Create(tran.ChangePost().SetTitle("test transaction"))
+	total1, _ := c.QueryTag().Count()
+
+	err = c.Transaction(func(tx *db.Tx) error {
+		tag1, _ = tx.QueryTag().Find(tag1.ID)
+		err := tag1.Update(tx.ChangeTag().SetName("tag1-updated"))
 		if err != nil {
 			return err
 		}
-		postID = p.ID
-		u, err := tran.QueryUser().Create(tran.ChangeUser().SetWeight(190.1288))
+		_, err = tx.QueryTag().Create(tx.ChangeTag().SetName("tag2"))
 		if err != nil {
 			return err
 		}
-		userID = u.ID
-		return nil
+		_, err = tx.QueryTag().Create(tx.ChangeTag().SetName("tag3"))
+		if err != nil {
+			return err
+		}
+
+		total2, _ := c.QueryTag().Count()
+		require.Equal(t, total1, total2)
+
+		total3, _ := tx.QueryTag().Count()
+		require.Equal(t, total1+2, total3)
+
+		tag1, err = c.QueryTag().Find(tag1.ID)
+		require.Equal(t, "tag1", tag1.Name.Val)
+
+		return err
 	})
-	post, err := c.QueryPost().Where(c.PostID.EQ(postID)).First()
 	require.NoError(t, err)
-	require.Equal(t, "test transaction", post.Title.Val)
-	user, err := c.QueryUser().Where(c.UserID.EQ(userID)).First()
-	require.NoError(t, err)
-	require.Equal(t, 190.1288, user.Weight.Val)
+
+	total4, _ := c.QueryTag().Count()
+	require.Equal(t, total1+2, total4)
+
+	tag1, _ = c.QueryTag().Find(tag1.ID)
+	require.Equal(t, "tag1-updated", tag1.Name.Val)
 }
 
 func TestChangeJSON(t *testing.T) {
