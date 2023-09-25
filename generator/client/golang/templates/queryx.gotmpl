@@ -82,18 +82,11 @@ func (c *QXClient) Transaction(f func(t *Tx) error) error {
 	if err != nil {
 		return err
 	}
-	err = f(tx)
-	if err != nil {
-		err = tx.Rollback()
-		if err != nil {
-			return err
-		}
-	}
-	err = tx.Commit()
-	if err != nil {
+	defer tx.Rollback()
+	if err = f(tx);err != nil {
 		return err
 	}
-	return nil
+    return tx.Commit()
 }
 
 type Tx struct {

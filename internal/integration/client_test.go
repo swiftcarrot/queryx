@@ -430,8 +430,8 @@ func TestManualTransaction(t *testing.T) {
 	require.Equal(t, "tag1-updated", tag1.Name.Val)
 }
 
-func TestAutomaticTransaction(t *testing.T) {
-	transactionErr := errors.New("sql: transaction has already been committed or rolled back")
+func TestTransactionBlock(t *testing.T) {
+	transactionErr := errors.New("test transaction")
 	err := c.Transaction(func(tran *db.Tx) error {
 		_, err := tran.QueryPost().Create(tran.ChangePost().SetTitle("post title .."))
 		if err != nil {
@@ -441,7 +441,7 @@ func TestAutomaticTransaction(t *testing.T) {
 		if err != nil {
 			return err
 		}
-		return errors.New("test transaction")
+		return transactionErr
 	})
 	require.Equal(t, err, transactionErr)
 
