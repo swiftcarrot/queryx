@@ -86,7 +86,7 @@ func (c *QXClient) Transaction(f func(t *Tx) error) error {
 	if err = f(tx);err != nil {
 		return err
 	}
-    return tx.Commit()
+	return tx.Commit()
 }
 
 func (c *QXClient) Raw(fragment string, args ...interface{}) *queryx.Clause  {
