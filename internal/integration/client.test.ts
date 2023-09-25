@@ -106,6 +106,9 @@ test("time", async () => {
 test("date", async () => {
   let user = await c.queryUser().create({ date: "2012-11-10" });
   expect(format(user.date!, "yyyy-MM-dd")).toEqual("2012-11-10");
+
+  user = await c.queryUser().where(c.userDate.eq("2012-11-10")).first();
+  expect(format(user.date!, "yyyy-MM-dd")).toEqual("2012-11-10");
 });
 
 test("datetime", async () => {
@@ -245,6 +248,22 @@ test("inEmpty", async () => {
     .where(c.userID.in([]).and(c.userID.in([])).and(c.userID.in([])))
     .all();
   expect(users).toEqual([]);
+});
+
+test("where", async () => {
+  let user = await c.queryUser().create({ name: "name", type: "type" });
+  let users = await c
+    .queryUser()
+    .where(c.userID.eq(user.id))
+    .where(c.userName.eq("name"), c.userType.eq("type"))
+    .all();
+  expect(users).toEqual([user]);
+
+  users = await c
+    .queryUser()
+    .where(c.raw("name = ? and type = ?", "name", "type"))
+    .all();
+  expect(users).toEqual([user]);
 });
 
 test("hasManyEmpty", async () => {

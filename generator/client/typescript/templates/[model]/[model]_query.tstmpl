@@ -142,8 +142,8 @@ export class {{ $.model.Name }}Query {
     return this.query<{{ $.model.Name }}>(query, ...args);
   }
 
-  where(clause: Clause) {
-    this.selectStatement.where(clause);
+  where(...clauses: Clause[]) {
+    this.selectStatement.where(...clauses);
     return this;
   }
 

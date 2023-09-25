@@ -7,7 +7,7 @@
 
 > TypeScript 支持已发布！现在可以在项目中使用 TypeScript 来使用 queryx，[查看文档](https://github.com/swiftcarrot/queryx/blob/main/docs/generator-typescript-client.md)进行操作。
 
-<img height="400" alt="image" src="https://github.com/swiftcarrot/queryx/assets/1039026/20f00a81-d920-4550-8f6a-6e094edb5d5b">
+<img width="400" alt="image" src="https://github.com/swiftcarrot/queryx/assets/1039026/5813a0b6-cecf-4d09-ba9a-a0bd19a8c7f6">
 
 Queryx 是一个 schema 优先、类型安全的 ORM。
 
