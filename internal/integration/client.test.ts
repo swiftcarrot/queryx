@@ -400,7 +400,7 @@ test("transactionBlock", async () => {
     await tx.queryTag().create({ name: "tag5" });
   });
   let count = await c.queryTag().count();
-  expect(count).toEqual(tag4);
+  expect(count).toEqual(total4);
 });
 
 test("changeJSON", async () => {
