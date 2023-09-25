@@ -62,10 +62,9 @@ export class QXClient {
     const tx = await this.tx()
     try{
         await fn(tx)
+        await tx.commit();
     }catch (err){
         await tx.rollback()
-    }finally {
-        await tx.commit();
     }
   }
 
