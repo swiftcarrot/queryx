@@ -58,6 +58,17 @@ export class QXClient {
     return tx;
   }
 
+  async transaction(fn: (t: Tx) => void) {
+    const tx = await this.tx()
+    try {
+      await fn(tx);
+      await tx.commit();
+    } catch (err) {
+      await tx.rollback();
+      throw err;
+    }
+  }
+
   and(...clauses: Clause[]) {
     return clauses[0].and(...clauses.slice(1));
   }
