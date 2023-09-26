@@ -6,3 +6,5 @@ node_modules
 *.sqlite3
 *.out
 node_modules
+website/.vitepress/dist
+website/.vitepress/cache
