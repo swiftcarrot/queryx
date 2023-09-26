@@ -1,8 +1,8 @@
-// import { createRequire } from "module";
+import { createRequire } from "module";
 import { defineConfig, type DefaultTheme } from "vitepress";
 
-// const require = createRequire(import.meta.url);
-// const pkg = require("vitepress/package.json");
+const require = createRequire(import.meta.url);
+const pkg = require("../../package.json");
 
 export default defineConfig({
   lang: "en-US",
@@ -70,6 +70,10 @@ export default defineConfig({
       copyright: "Copyright © 2023-present SWIFTCARROT Technologies",
     },
 
+    search: {
+      provider: "local",
+    },
+
     // search: {
     //   provider: "algolia",
     //   options: {
@@ -89,15 +93,15 @@ function nav(): DefaultTheme.NavItem[] {
       activeMatch: "/docs/",
     },
     {
-      // text: pkg.version,
+      text: pkg.version,
       items: [
         {
           text: "Changelog",
-          link: "https://github.com/vuejs/vitepress/blob/main/CHANGELOG.md",
+          link: "https://github.com/swiftcarrot/queryx/blob/main/CHANGELOG.md",
         },
         {
           text: "Contributing",
-          link: "https://github.com/vuejs/vitepress/blob/main/.github/contributing.md",
+          link: "https://github.com/swiftcarrot/queryx/blob/main/.github/contributing.md",
         },
       ],
     },

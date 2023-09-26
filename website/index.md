@@ -5,7 +5,7 @@ layout: home
 hero:
   name: "Queryx"
   text: "Schema-first and type-safe ORM for Go and TypeScript"
-  tagline: My great project tagline
+  # tagline: My great project tagline
   actions:
     - theme: brand
       text: Getting Started
