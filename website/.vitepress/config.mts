@@ -14,7 +14,7 @@ export default defineConfig({
   cleanUrls: true,
 
   sitemap: {
-    hostname: "https://vitepress.dev",
+    hostname: "https://queryx.caitouyun.com",
     transformItems(items) {
       return items.filter((item) => !item.url.includes("migration"));
     },
@@ -27,31 +27,22 @@ export default defineConfig({
   },
 
   head: [
-    ["link", { rel: "icon", href: "/vitepress-logo-mini.svg" }],
+    // ["link", { rel: "icon", href: "/vitepress-logo-mini.svg" }],
     ["meta", { name: "theme-color", content: "#5f67ee" }],
     ["meta", { name: "og:type", content: "website" }],
     ["meta", { name: "og:locale", content: "en" }],
-    ["meta", { name: "og:site_name", content: "VitePress" }],
-    [
-      "meta",
-      { name: "og:image", content: "https://vitepress.dev/vitepress-og.jpg" },
-    ],
-    [
-      "meta",
-      {
-        name: "twitter:image",
-        content: "https://vitepress.dev/vitepress-og.jpg",
-      },
-    ],
-    [
-      "script",
-      {
-        src: "https://cdn.usefathom.com/script.js",
-        "data-site": "AZBRSFGG",
-        "data-spa": "auto",
-        defer: "",
-      },
-    ],
+    ["meta", { name: "og:site_name", content: "Queryx" }],
+    // [
+    //   "meta",
+    //   { name: "og:image", content: "https://vitepress.dev/vitepress-og.jpg" },
+    // ],
+    // [
+    //   "meta",
+    //   {
+    //     name: "twitter:image",
+    //     content: "https://vitepress.dev/vitepress-og.jpg",
+    //   },
+    // ],
   ],
 
   themeConfig: {
@@ -74,7 +65,7 @@ export default defineConfig({
 
     footer: {
       message: "Released under the Apache License.",
-      copyright: "Copyright © 2023-present SWIFTCARROT Technologies",
+      copyright: "Copyright © 2021-present SWIFTCARROT Technologies",
     },
 
     search: {
