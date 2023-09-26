@@ -95,14 +95,18 @@ func ({{ $m }} *{{ $.model.Name }}) Delete() error {
 
 {{- range $h := $.model.HasMany }}
 
-{{if $h.Through }}
 func ({{ $m }} *{{ $.model.Name }}) Query{{ $h.Name | pascal }}() *{{ $h.ModelName }}Query {
+	{{- if $h.Through }}
 	return {{ $m }}.queries.Query{{ $h.ModelName }}().
 		Joins("INNER JOIN {{ $h.Through }} ON {{ $h.Through }}.{{ $h.ModelName | snake }}_id = {{ $h.Name }}.id").
 		Where({{ $m }}.schema.{{ $h.Through | singular | pascal }}{{ $h.ForeignKey | pascal }}.EQ({{ $m }}.ID))
+	{{- else }}
+	return {{ $m }}.queries.Query{{ $h.ModelName }}().Where({{ $m }}.schema.{{ $h.ModelName }}{{ $h.ForeignKey | pascal }}.EQ({{ $m }}.ID))
+	{{- end }}
 }
 
 func ({{ $m }} *{{ $.model.Name }}) Preload{{ $h.Name | pascal }}() error {
+    {{if $h.Through }}
 	rows1, err := {{ $m }}.queries.Query{{ $h.Through | singular | pascal }}().Where({{ $m }}.schema.{{ $h.Through | singular | pascal }}{{ $.model.Name }}ID.EQ({{ $m }}.ID)).All()
 	if err != nil {
 		return err
@@ -118,21 +122,16 @@ func ({{ $m }} *{{ $.model.Name }}) Preload{{ $h.Name | pascal }}() error {
 	}
 	{{ $m }}.{{ $h.Name | pascal }}=rows2
 	return nil
-}
-{{- else }}
-func ({{ $m }} *{{ $.model.Name }}) Query{{ $h.Name | pascal }}() *{{ $h.ModelName }}Query {
-	return {{ $m }}.queries.Query{{ $h.ModelName }}().Where({{ $m }}.schema.{{ $h.ModelName }}{{ $h.ForeignKey | pascal }}.EQ({{ $m }}.ID))
-}
 
-func ({{ $m }} *{{ $.model.Name }}) Preload{{ $h.Name | pascal }}() error {
+    {{- else }}
     rows, err := {{ $m }}.queries.Query{{ $h.ModelName }}().Where({{ $m }}.schema.{{ $h.ModelName }}{{ $.model.Name }}ID.EQ({{ $m }}.ID)).All()
-	if err != nil {
-		return err
-	}
-	{{ $m }}.{{ $h.Name | pascal }}=rows
-	return nil
+    if err != nil {
+    	return err
+    }
+    {{ $m }}.{{ $h.Name | pascal }}=rows
+    return nil
+    {{- end }}
 }
-{{- end }}
 
 {{- end }}
 
