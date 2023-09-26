@@ -64,7 +64,7 @@ export default defineConfig({
     },
 
     editLink: {
-      pattern: "https://github.com/swiftcarrot/queryx/edit/main/docs/:path",
+      pattern: "https://github.com/swiftcarrot/queryx/edit/main/website/:path",
       text: "Edit this page on GitHub",
     },
 
