@@ -1,5 +1,6 @@
 import { createRequire } from "module";
 import { defineConfig, type DefaultTheme } from "vitepress";
+import { tabsMarkdownPlugin } from "vitepress-plugin-tabs";
 
 const require = createRequire(import.meta.url);
 const pkg = require("../../package.json");
@@ -16,6 +17,12 @@ export default defineConfig({
     hostname: "https://vitepress.dev",
     transformItems(items) {
       return items.filter((item) => !item.url.includes("migration"));
+    },
+  },
+
+  markdown: {
+    config(md) {
+      md.use(tabsMarkdownPlugin);
     },
   },
 
@@ -117,48 +124,28 @@ function sidebarDocs(): DefaultTheme.SidebarItem[] {
       items: [
         { text: "What is Queryx?", link: "what-is-queryx" },
         { text: "Getting Started", link: "getting-started" },
-        {
-          text: "Database Connection",
-          link: "database-connection",
-          collapsed: true,
-          items: [
-            { text: "Go", link: "go" },
-            { text: "TypeScript", link: "typescript" },
-          ],
-        },
       ],
     },
     {
-      text: "Schema",
+      text: "Tutorials",
       collapsed: false,
       items: [
-        { text: "Data Types", link: "data-types" },
-        { text: "Primary Key", link: "primary-key" },
-        { text: "Database Index", link: "database-index" },
+        { text: "Query Methods", link: "query-methods" },
+        { text: "Transaction", link: "transaction" },
         { text: "Association", link: "association" },
-      ],
-    },
-    {
-      text: "Database Management",
-      collapsed: false,
-      items: [
-        { text: "Migrate", link: "migrate" }
-      ],
-    },
-    {
-      text: "ORM Methods",
-      collapsed: false,
-      items: [
-        { text: "Transaction", link: "transaction" }
+        { text: "Data Types", link: "data-types" },
+        { text: "Environment Variable", link: "environment-variable" },
+        { text: "Database Index", link: "database-index" },
+        { text: "Custom Table Name", link: "custom-table-name" },
+        { text: "Custom Primary Key", link: "custom-primary-key" },
+        { text: "Custom Database Time Zone", link: "time-zone" },
+        { text: "Build from source", link: "build-from-source" },
       ],
     },
     {
       text: "References",
       collapsed: false,
-      items: [
-        { text: 'Data Types', link: "data-types" },
-        { text: 'CLI', link: "CLI" }
-      ]
+      items: [{ text: "CLI", link: "cli" }],
     },
   ];
 }

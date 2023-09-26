@@ -1,5 +1,9 @@
 # Data Types
 
+::: warning
+The following document is a work in progress.
+:::
+
 Predefined data types in queryx:
 
 - `integer`:

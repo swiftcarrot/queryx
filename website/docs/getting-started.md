@@ -1,3 +1,5 @@
+<!-- prettier-ignore-start -->
+
 # Getting Started
 
 ## Installation
@@ -8,7 +10,7 @@ To easily install the latest version of queryx, open your terminal and run the f
 curl -sf https://raw.githubusercontent.com/swiftcarrot/queryx/main/install.sh | sh
 ```
 
-You can also build queryx from the source following the instructions [here](/docs/build).
+You can also build queryx from the source following the instructions [here](/docs/build-from-source).
 
 After installation, run the following command to validate queryx:
 
@@ -30,8 +32,6 @@ database "db" {
     url = "postgresql://postgres:postgres@localhost:5432/blog_development?sslmode=disable"
   }
 
-  generator "client-golang" {}
-
   model "Post" {
     column "title" {
       type = string
@@ -49,7 +49,7 @@ Queryx also support MySQL and SQLite databases by changing the `adapter` attribu
 
 Example for MySQL database:
 
-```hcl
+```hcl{2,5}
 database "db" {
   adapter = "mysql"
 
@@ -61,7 +61,7 @@ database "db" {
 
 Example for SQLite database:
 
-```hcl
+```hcl{2,5}
 database "db" {
   adapter = "sqlite"
 
@@ -101,77 +101,186 @@ The `db:migrate` command will initially compare the current state of database to
 
 ## Code generation
 
-In the sample `schema.hcl`, we already defined the generator as
+In the sample `schema.hcl`, we can define multiple generators as:
 
-```hcl
-generator "client-golang"
+```hcl{2,4}
+database "db" {
+  generator "client-golang" {}
+
+  generator "client-typescript" {}
+}
 ```
 
-To generate Golang client methods, simply execute the following command:
+::: tip
+You can remove one of the generator declarations to enable only Go or TypeScript code generation.
+:::
+
+
+To generate ORM client methods, simply execute the following command:
 
 ```sh
 queryx generate
 ```
 
-Queryx will generate Golang codes in `db` directory based on the database name. We will cover the basics of CRUD operations (create, read, update, delete) using the queryx generated code. For a more detailed breakdown of the generated methods, please refer to the ORM API section.
+Queryx will generate both Golang and TypeScript codes in `db` directory based on the database name. We will cover the basics of CRUD operations (create, read, update, delete) using the queryx generated code. For a more detailed breakdown of the generated methods, please refer to the ORM API section.
+
+
+### Dependency Installation
+
+Queryx generates codes only depending on third-party database driver implementation.
+
+::: tabs key:lang
+== Go
+```sh
+go get ./...
+```
+== TypeScript
+Queryx relies on `date-fns` for handling dates in TypeScript. Additionally, depending on your database, you will need to install specific packages. Here are the installation commands for different databases:
+
+For PostgreSQL:
+
+```sh
+npm install pg @types/pg
+```
+
+For MySQL:
+
+```sh
+npm install mysql2 @types/node
+```
+
+For SQLite:
+
+```sh
+npm install better-sqlite3
+```
+:::
 
 To begin, we instantiate a client object, which serves as the entry point for all interactions with the database.
 
+::: tabs key:lang
+== Go
 ```go
 c, err := db.NewClient()
 ```
+== TypeScript
+```typescript
+let c = newClient();
+```
+:::
 
 Queryx supports changing database data (insert, update and delete) through a change object. For each model defined in the schema, queryx generates a corresponding change object with setting methods for each field in the model. This ensures the correctness of query and makes it easy to modify data in the database safely.
 
 Create a new post:
 
+::: tabs key:lang
+== Go
 ```go
 newPost := c.ChangePost().SetTitle("post title").SetContent("post content")
 post, err := c.QueryPost().Create(newPost)
 ```
+== TypeScript
+```typescript
+let post = await c.queryPost().create({ title: "post title", content: "post content" });
+```
+:::
 
 Queryx also supports the Active Record pattern, which allows `Update()` or `Delete()` call on the returned queryx record.
 
 Update the post:
 
+::: tabs key:lang
+== Go
 ```go
 err := post.Update(c.ChangePost().SetTitle("new post title"))
 ```
+== TypeScript
+```typescript
+await post.update({ title: "new post title" });
+```
+:::
 
 Delete the post:
 
+::: tabs key:lang
+== Go
 ```go
 err := post.Delete()
 ```
+== TypeScript
+```typescript
+await post.delete();
+```
+:::
 
 Queryx also supports update and delete by query.
 
 Update all posts by title:
 
+::: tabs key:lang
+== Go
 ```go
 updated, err := c.QueryPost().Where(c.PostTitle.EQ("post title")).UpdateAll(c.ChangePost().SetTitle("new post title"))
 ```
+== TypeScript
+```typescript
+let updated = await c.queryPost().where(c.postTitle.eq("post title")).updateAll({ title: "new post title" });
+```
+:::
+
 
 Delete all posts by title:
 
+::: tabs key:lang
+== Go
 ```go
 deleted, err := c.QueryPost().Where(c.PostTitle.EQ("post title")).DeleteAll()
 ```
+== TypeScript
+```typescript
+let deleted = c.queryPost().where(c.postTitle.eq("post title")).deleteAll();
+```
+:::
+
 
 To retrieve data from the database in Queryx using the primary key:
 
+::: tabs key:lang
+== Go
 ```go
 post, err := c.QueryPost().Find(1)
 ```
+== TypeScript
+```typescript
+let post = await c.queryPost().find(1);
+```
+:::
 
 Retrieve all posts by title:
 
+::: tabs key:lang
+== Go
 ```go
 posts, err := c.QueryPost().Where(c.PostTitle.EQ("post title")).All()
 ```
+== TypeScript
+```typescript
+let posts = await c.queryPost().where(c.postTitle.eq("post title")).all();
+```
+:::
 
 Retrieve the first post from query:
 
+::: tabs key:lang
+== Go
 ```go
 post, err := c.QueryPost().Where(c.PostTitle.EQ("post title")).First()
 ```
+== TypeScript
+```typescript
+let post = await c.queryPost().where(c.postTitle.eq("post title")).first();
+```
+:::
+
+
+<!-- prettier-ignore-end -->

@@ -12,9 +12,20 @@ model "Post" {
 }
 ```
 
+::: tabs key:lang
+== Go
+
 ```go
 c.QueryPost().PreloadAuthor().All()
 ```
+
+== TypeScript
+
+```typescript
+await c.queryPost().preloadAuthor().all();
+```
+
+:::
 
 ## has_one
 
@@ -36,10 +47,24 @@ model "Account" {
 }
 ```
 
+![](./has_one.png)
+
+::: tabs key:lang
+== Go
+
 ```go
 c.QueryUser().PreloadAccount().All()
 c.QueryAccount().PreloadUser().All()
 ```
+
+== TypeScript
+
+```typescript
+await c.queryUser().preloadAccount().All();
+await c.queryAccount().preloadUser().All();
+```
+
+:::
 
 ## has_many
 
@@ -61,10 +86,24 @@ model "Group" {
 }
 ```
 
+![](./has_many.png)
+
+::: tabs key:lang
+== Go
+
 ```go
 c.QueryUser().PreloadGroup().All()
 c.QueryGroup().PreloadUsers().All()
 ```
+
+== TypeScript
+
+```typescript
+await c.queryUser().preloadGroup().all();
+await c.queryGroup().preloadUsers().all();
+```
+
+:::
 
 ## has_many through
 
@@ -89,7 +128,21 @@ model "UserPost" {
 }
 ```
 
+![](./has_many_through.png)
+
+::: tabs key:lang
+== Go
+
 ```go
 c.QueryUser().PreloadPosts().All()
 c.QueryPost().PreloadUsers().All()
 ```
+
+== TypeScript
+
+```typescript
+await c.queryUser().preloadPosts().All();
+await c.queryPost().preloadUsers().All();
+```
+
+:::

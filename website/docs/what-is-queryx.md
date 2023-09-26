@@ -6,8 +6,8 @@ This project is currently in beta (v0), although it has been battled tested in i
 
 Queryx is schema-first and type-safe ORM for Go and TypeScript.
 
-- **Schema First**: Define application models in a queryx schema file, and it can automatically synchronize with the database structure.
-- **Type Safe**: Queryx generates friendly and type-safe ORM methods based on the schema, which come with autocomplete support and are free from type-related errors.
-- **Go and TypeScript**: Queryx can generates both Go and TypeScript ORM methods based on schema.
+- **Schema First**: Queryx automatically migrates the database based on defined models in a queryx schema file.
+- **Type Safe**: Queryx generates friendly, type-safe ORM methods and come with autocomplete support and are free from type-related errors.
+- **Go and TypeScript**: Queryx supports generating both Go and TypeScript ORM methods.
 
 This project is heavily inspired by [Active Record](https://guides.rubyonrails.org/active_record_basics.html) and [ent](https://entgo.io/). Database schema management is built upon [Atlas](https://atlasgo.io/).

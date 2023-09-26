@@ -8,6 +8,7 @@
     "website:preview": "vitepress preview website"
   },
   "devDependencies": {
-    "vitepress": "1.0.0-rc.10"
+    "vitepress": "1.0.0-rc.10",
+    "vitepress-plugin-tabs": "^0.4.1"
   }
 }
