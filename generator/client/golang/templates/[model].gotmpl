@@ -124,12 +124,12 @@ func ({{ $m }} *{{ $.model.Name }}) Preload{{ $h.Name | pascal }}() error {
 	return nil
 
     {{- else }}
-    rows, err := {{ $m }}.queries.Query{{ $h.ModelName }}().Where({{ $m }}.schema.{{ $h.ModelName }}{{ $.model.Name }}ID.EQ({{ $m }}.ID)).All()
-    if err != nil {
-    	return err
-    }
-    {{ $m }}.{{ $h.Name | pascal }}=rows
-    return nil
+	rows, err := {{ $m }}.queries.Query{{ $h.ModelName }}().Where({{ $m }}.schema.{{ $h.ModelName }}{{ $.model.Name }}ID.EQ({{ $m }}.ID)).All()
+	if err != nil {
+		return err
+	}
+	{{ $m }}.{{ $h.Name | pascal }}=rows
+	return nil
     {{- end }}
 }
 
