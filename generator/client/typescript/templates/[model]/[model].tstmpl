@@ -86,6 +86,28 @@ export class {{ $.model.Name }} {
     return this._client.query{{ $h.ModelName }}().where(this._client.{{ $h.ModelName | camel }}{{ $h.ForeignKey | pascal }}.eq(this.id));
     {{- end }}
   }
+
+  async preload{{ $h.Name | pascal }}(){
+    {{- if $h.Through }}
+    let record = await this._client.query{{ $.model.Name }}().preload{{ $h.Name | pascal }}().where(this._client.{{ $.model.Name | camel }}ID.eq(this.id)).first()
+    {{- else }}
+    let record = await this._client.query{{ $.model.Name }}().preload{{ $h.Name | pascal }}().where(this._client.{{ $.model.Name | camel }}ID.eq(this.id)).first()
+    {{- end}}
+    if (!record) {
+      return Promise.reject("Record not found");
+    }
+    return record;
+  }
+  {{- end }}
+
+  {{range $h := $.model.HasOne }}
+  async preload{{ $h.ModelName }}(){
+    let record = await this._client.query{{ $.model.Name }}().preload{{ $h.ModelName }}().where(this._client.{{ $.model.Name | camel }}ID.eq(this.id)).first()
+    if (!record) {
+      return Promise.reject("Record not found");
+    }
+    return record;
+  }
   {{- end }}
 
   toString() {
