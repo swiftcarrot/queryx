@@ -72,7 +72,7 @@ func (c *Config) GoFormat() string {
 		u = fmt.Sprintf("postgres://%s:%s@%s:%s/%s", c.Username, c.Password, c.Host, c.Port, c.Database)
 	case "mysql":
 		c.Options.Set("parseTime", "true")
-		u = fmt.Sprintf("%s@tcp(%s:%s)/%s", c.Username, c.Host, c.Port, c.Database)
+		u = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", c.Username, c.Password, c.Host, c.Port, c.Database)
 	case "sqlite":
 		return fmt.Sprintf("file:%s", c.Database)
 	default:
