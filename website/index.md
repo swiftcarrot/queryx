@@ -9,16 +9,15 @@ hero:
   actions:
     - theme: brand
       text: Getting Started
-      link: /guide/getting-started
-    - theme: alt
-      text: API Examples
-      link: /api-examples
-
+      link: /docs/getting-started
+    # - theme: alt
+    #   text: API Examples
+    #   link: /api-examples
 features:
-  - title: Feature A
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature B
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature C
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+  - title: Schema First
+    details: Queryx automatically migrates the database based on defined models in a queryx schema file.
+  - title: Type Safe
+    details: Queryx generates friendly, type-safe ORM methods and come with autocomplete support and are free from type-related errors.
+  - title: Go and TypeScript
+    details: Queryx supports generating both Go and TypeScript ORM methods.
 ---
