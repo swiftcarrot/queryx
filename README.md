@@ -8,12 +8,12 @@ Queryx is schema-first and type-safe ORM for Go and TypeScript.
 - **Type Safe**: Queryx generates friendly, type-safe ORM methods and come with autocomplete support and are free from type-related errors.
 - **Go and TypeScript**: Queryx supports generating both Go and TypeScript ORM methods.
 
-# Doccumentation and Support
+## Doccumentation and Support
 
 Queryx documentation is available at: https://queryx.caitouyun.com
 
 Feel free to [open an issue](https://github.com/swiftcarrot/queryx/issues) or [start a discussion](https://github.com/swiftcarrot/queryx/discussions) if you have any questions.
 
-# License
+## License
 
 Queryx is licensed under Apache 2.0 as found in the LICENSE file.
