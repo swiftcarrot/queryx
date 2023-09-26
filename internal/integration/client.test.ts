@@ -56,6 +56,11 @@ test("insertAll", async () => {
     .queryPost()
     .insertAll([{ title: "title1" }, { title: "title2" }]);
   expect(inserted).toEqual(2);
+
+  let inserted2 = await c
+      .queryPost()
+      .insertAll([{ title: "title1" }, { content: "content2" }]);
+  expect(inserted2).toEqual(2);
 });
 
 test("createEmpty", async () => {
