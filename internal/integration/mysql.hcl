@@ -108,6 +108,11 @@ database "db" {
     column "name" {
       type = string
     }
+
+    index {
+      columns = ["name"]
+      unique  = true
+    }
   }
 
   model "Code" {

@@ -10,6 +10,10 @@ export class Clause {
   }
 
   and(...clauses: Clause[]) {
+    if (clauses.length === 0) {
+      return this;
+    }
+
     let fragment = this.fragment;
     let args = this.args;
 
@@ -21,6 +25,10 @@ export class Clause {
   }
 
   or(...clauses: Clause[]) {
+    if (clauses.length === 0) {
+      return this;
+    }
+
     let fragment = this.fragment;
     let args = this.args;
 
