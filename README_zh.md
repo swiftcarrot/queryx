@@ -12,7 +12,7 @@ Queryx 是针对 Go 和 TypeScript 的基于模式优先和类型安全的 ORM�
 
 Queryx 的文档可在以下网址找到：https://queryx.caitouyun.com
 
-如果您有任何问题，请随时[提交问题](https://github.com/swiftcarrot/queryx/issues)或[开始讨论](https://github.com/swiftcarrot/queryx/discussions)。
+如果您有任何问题，请随时[提交问题](https://github.com/swiftcarrot/queryx/issues)或[开始讨论](https://github.com/swiftcarrot/queryx/discussions)。[加入 Discord 聊天](https://discord.gg/QUTxjJBRfA)
 
 ## License
 

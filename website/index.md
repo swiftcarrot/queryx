@@ -10,9 +10,9 @@ hero:
     - theme: brand
       text: Getting Started
       link: /docs/getting-started
-    # - theme: alt
-    #   text: API Examples
-    #   link: /api-examples
+    - theme: alt
+      text: Join Discord
+      link: https://discord.gg/QUTxjJBRfA
 features:
   - title: Schema First
     details: Queryx automatically migrates the database based on defined models in a queryx schema file.

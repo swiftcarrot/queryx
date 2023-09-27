@@ -12,7 +12,7 @@ Queryx is schema-first and type-safe ORM for Go and TypeScript.
 
 Queryx documentation is available at: https://queryx.caitouyun.com
 
-Feel free to [open an issue](https://github.com/swiftcarrot/queryx/issues) or [start a discussion](https://github.com/swiftcarrot/queryx/discussions) if you have any questions.
+Feel free to [open an issue](https://github.com/swiftcarrot/queryx/issues) or [start a discussion](https://github.com/swiftcarrot/queryx/discussions) if you have any questions. [Join our Discord community](https://discord.gg/QUTxjJBRfA)
 
 ## License
 
