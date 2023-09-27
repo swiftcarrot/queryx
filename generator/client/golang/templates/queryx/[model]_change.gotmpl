@@ -8,9 +8,9 @@ type {{ $.model.Name }}Change struct {
 	{{- end }}
 }
 
-func (c *{{.model.Name}}Change) Changes() (columns []string, values []interface{}) {
+func (c *{{.model.Name}}Change) Changes() (columns []string, values []interface{}, isDefault []bool) {
 	if c == nil {
-		return columns, values
+		return columns, values,nil
 	}
 
 	{{- range $c := .model.Columns }}
@@ -18,9 +18,13 @@ func (c *{{.model.Name}}Change) Changes() (columns []string, values []interface{
 	if c.{{ $f }}.Set {
 		columns = append(columns, "{{ $c.Name }}")
 		values = append(values, c.{{ $f }})
-	}
+		isDefault = append(isDefault, false)
+	} else {
+      	columns = append(columns, "{{ $c.Name }}")
+      	isDefault = append(isDefault, true)
+    }
 	{{- end }}
-	return columns, values
+	return columns, values, isDefault
 }
 
 {{- range $c := $.model.Columns }}

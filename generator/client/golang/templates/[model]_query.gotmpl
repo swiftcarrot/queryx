@@ -82,19 +82,20 @@ func (q *{{ $.model.Name }}Query) Create(change *queryx.{{ $.model.Name }}Change
 	{{- end }}
 
  	{{- if or (eq .client.Adapter "postgresql") (eq $.client.Adapter "sqlite") }}
-	columns, values := change.Changes()
+	columns, values, isDefault := change.Changes()
 	query, args := queryx.NewInsert().
 		Into("{{ $.model.TableName }}").
 		Columns(columns...).
 		Values(values...).
+		IsDefault(isDefault...).
 		Returning("*").ToSQL()
 	err := q.adapter.QueryOne(query, args...).Scan(record)
 	if err != nil {
 		return nil, err
 	}
 	{{- else if eq $.client.Adapter "mysql"}}
-	columns, values := change.Changes()
-	query, args := queryx.NewInsert().Into("{{ $.model.TableName }}").Columns(columns...).Values(values...).ToSQL()
+	columns, values, isDefault := change.Changes()
+	query, args := queryx.NewInsert().Into("{{ $.model.TableName }}").Columns(columns...).Values(values...).IsDefault(isDefault...).ToSQL()
 	{{- if $.model.DefaultPrimaryKey }}
 	result, err := q.adapter.ExecInternal(query, args...)
 	if err != nil {
@@ -150,11 +151,12 @@ func (q *{{.model.Name}}Query) InsertAll(changes []*queryx.{{.model.Name}}Change
 
 	s := queryx.NewInsert().Into("{{ $.model.TableName }}")
 	for i, change := range changes {
-		columns, values := change.Changes()
+		columns, values, isDefault := change.Changes()
 		if i == 0 {
 			s.Columns(columns...)
 		}
 		s.Values(values...)
+		s.IsDefault(isDefault...)
 	}
 
 	query, args := s.ToSQL()
@@ -554,7 +556,7 @@ func (q *{{ $.model.Name }}Query) UpdateAll(change *queryx.{{ $.model.Name }}Cha
 		change.SetUpdatedAt(now)
 	}
 	{{- end }}
- 	columns, values := change.Changes()
+ 	columns, values, _ := change.Changes()
 	query, args := q.selectStatement.Update().Columns(columns...).Values(values...).ToSQL()
 	result, err := q.adapter.Exec(query, args...)
 	if err != nil {

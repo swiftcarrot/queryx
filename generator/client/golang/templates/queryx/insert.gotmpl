@@ -13,6 +13,7 @@ type InsertStatement struct {
 	values     [][]interface{}
 	returning  []string
 	onConflict string
+	isDefault  []bool
 }
 
 func NewInsert() *InsertStatement {
@@ -48,6 +49,13 @@ func (s *InsertStatement) OnConflict(onConflict string) *InsertStatement {
 	return s
 }
 
+func (s *InsertStatement) IsDefault(isDefault ...bool) *InsertStatement {
+	if len(isDefault) > 0 {
+		s.isDefault = append(s.isDefault, isDefault...)
+	}
+	return s
+}
+
 func (s *InsertStatement) ToSQL() (string, []interface{}) {
 	sql := fmt.Sprintf("INSERT INTO %s", s.into)
 
@@ -65,13 +73,18 @@ func (s *InsertStatement) ToSQL() (string, []interface{}) {
 		{{- end }}
 	}
 	values := []string{}
-	for _, v := range s.values {
-		ss := []string{}
-		for range v {
-			ss = append(ss, "?")
-		}
-		values = append(values, fmt.Sprintf("(%s)", strings.Join(ss, ", ")))
-	}
+    ss := []string{}
+    for i, _ := range s.isDefault {
+    	if s.isDefault[i] {
+    		ss = append(ss, "DEFAULT")
+    	} else {
+    		ss = append(ss, "?")
+    	}
+    	if len(ss)%len(s.columns) == 0 {
+    		values = append(values, fmt.Sprintf("(%s)", strings.Join(ss, ", ")))
+    		ss = []string{}
+    	}
+    }
 	if len(values) > 0 {
 		sql = fmt.Sprintf("%s VALUES %s", sql, strings.Join(values, ", "))
 	}

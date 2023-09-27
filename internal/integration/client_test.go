@@ -91,11 +91,16 @@ func TestInsertAll(t *testing.T) {
 	require.Equal(t, int64(2), inserted)
 
 	inserted, err = c.QueryPost().InsertAll([]*queryx.PostChange{
-		c.ChangePost().SetTitle("title1"),
-		c.ChangePost().SetContent("content2"),
+		c.ChangePost().SetTitle("title3"),
+		c.ChangePost().SetContent("content3"),
 	})
 	require.NoError(t, err)
-	require.Equal(t, int64(2), inserted)
+
+	exists, _ := c.QueryPost().Where(c.PostTitle.EQ("title3")).Exists()
+	require.Equal(t, true, exists)
+	exists, _ = c.QueryPost().Where(c.PostContent.EQ("content3")).Exists()
+	require.Equal(t, true, exists)
+
 }
 
 func TestCreateEmpty(t *testing.T) {
