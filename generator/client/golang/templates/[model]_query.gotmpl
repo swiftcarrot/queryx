@@ -556,8 +556,8 @@ func (q *{{ $.model.Name }}Query) UpdateAll(change *queryx.{{ $.model.Name }}Cha
 		change.SetUpdatedAt(now)
 	}
 	{{- end }}
- 	columns, values, _ := change.Changes()
-	query, args := q.selectStatement.Update().Columns(columns...).Values(values...).ToSQL()
+ 	columns, values, isDefault := change.Changes()
+	query, args := q.selectStatement.Update().Columns(columns...).IsDefault(isDefault...).Values(values...).ToSQL()
 	result, err := q.adapter.Exec(query, args...)
 	if err != nil {
 		return 0, err

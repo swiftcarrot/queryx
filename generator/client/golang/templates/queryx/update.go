@@ -13,6 +13,7 @@ type UpdateStatement struct {
 	values    []interface{}
 	where     *Clause
 	returning string
+	isDefault []bool
 }
 
 func NewUpdate() *UpdateStatement {
@@ -44,12 +45,21 @@ func (s *UpdateStatement) Returning(returning string) *UpdateStatement {
 	return s
 }
 
+func (s *UpdateStatement) IsDefault(isDefault ...bool) *UpdateStatement {
+	if len(isDefault) > 0 {
+		s.isDefault = append(s.isDefault, isDefault...)
+	}
+	return s
+}
+
 func (s *UpdateStatement) ToSQL() (string, []interface{}) {
 	sql, args := fmt.Sprintf("UPDATE %s SET", s.table), s.values
 
 	sets := []string{}
-	for _, col := range s.columns {
-		sets = append(sets, fmt.Sprintf("%s = ?", col))
+	for i, col := range s.columns {
+		if !s.isDefault[i] {
+			sets = append(sets, fmt.Sprintf("%s = ?", col))
+		}
 	}
 
 	sql = fmt.Sprintf("%s %s", sql, strings.Join(sets, ", "))
