@@ -158,4 +158,11 @@ database "db" {
       columns = ["id"]
     }
   }
+
+  model "Item" {
+    column "embedding" {
+      type      = vector
+      dimension = 1536
+    }
+  }
 }

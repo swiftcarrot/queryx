@@ -73,6 +73,7 @@ var hclColumn = &hcl.BodySchema{
 		{Name: "null"},
 		{Name: "default"},
 		{Name: "unique"},
+		{Name: "dimension"},
 	},
 	Blocks: []hcl.BlockHeaderSchema{},
 }
@@ -496,6 +497,8 @@ func columnFromBlock(block *hcl.Block, ctx *hcl.EvalContext) (*Column, error) {
 			column.Array = valueAsBool(value)
 		case "null":
 			column.Null = valueAsBool(value)
+		case "dimension":
+			column.Dimension = valueAsInt(value)
 		}
 	}
 	for name, attr := range content.Attributes {
@@ -565,18 +568,20 @@ var env = function.New(&function.Spec{
 func Parse(body hcl.Body) (*Schema, error) {
 	ctx := &hcl.EvalContext{
 		Variables: map[string]cty.Value{
-			"string":   cty.StringVal("string"),
-			"text":     cty.StringVal("text"),
-			"boolean":  cty.StringVal("boolean"),
-			"date":     cty.StringVal("date"),
-			"time":     cty.StringVal("time"),
-			"datetime": cty.StringVal("datetime"),
-			"float":    cty.StringVal("float"),
-			"integer":  cty.StringVal("integer"),
-			"bigint":   cty.StringVal("bigint"),
-			"json":     cty.StringVal("json"),
-			"jsonb":    cty.StringVal("jsonb"),
-			"uuid":     cty.StringVal("uuid"),
+			"string":    cty.StringVal("string"),
+			"text":      cty.StringVal("text"),
+			"boolean":   cty.StringVal("boolean"),
+			"date":      cty.StringVal("date"),
+			"datetime":  cty.StringVal("datetime"),
+			"float":     cty.StringVal("float"),
+			"integer":   cty.StringVal("integer"),
+			"bigint":    cty.StringVal("bigint"),
+			"time":      cty.StringVal("time"),
+			"timestamp": cty.StringVal("timestamp"),
+			"json":      cty.StringVal("json"),
+			"jsonb":     cty.StringVal("jsonb"),
+			"uuid":      cty.StringVal("uuid"),
+			"vector":    cty.StringVal("vector"),
 		},
 		Functions: map[string]function.Function{
 			"env": env,

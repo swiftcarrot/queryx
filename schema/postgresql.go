@@ -2,6 +2,7 @@ package schema
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
@@ -19,6 +20,8 @@ func (d *Database) CreatePostgreSQLSchema(dbName string) *schema.Schema {
 
 		for _, c := range model.Columns {
 			col := schema.NewColumn(c.Name)
+
+			log.Println(c.Type)
 
 			switch c.Type {
 			case "bigint":
@@ -101,6 +104,10 @@ func (d *Database) CreatePostgreSQLSchema(dbName string) *schema.Schema {
 						col.SetType(&postgres.UUIDType{T: postgres.TypeUUID}).SetDefault(&schema.RawExpr{X: d})
 					}
 				}
+			case "vector":
+				col.SetType(&postgres.UserDefinedType{T: fmt.Sprintf("vector(%d)", c.Dimension)})
+			default:
+				col.SetType(&postgres.UserDefinedType{T: c.Type})
 			}
 
 			col.SetNull(c.Null)

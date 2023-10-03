@@ -51,6 +51,8 @@ type Column struct {
 	// sql auto_increment
 	AutoIncrement bool
 	Default       interface{} // TODO: support default
+	// vector dimension
+	Dimension int
 }
 
 type Type struct {

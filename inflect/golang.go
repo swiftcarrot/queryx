@@ -1,8 +1,6 @@
 package inflect
 
 import (
-	"fmt"
-	"log"
 	"strings"
 )
 
@@ -47,9 +45,10 @@ func goModelType(t string, null bool) string {
 			return "queryx.Float"
 		case "json", "jsonb":
 			return "queryx.JSON"
+		case "vector":
+			return "queryx.Vector"
 		default:
-			log.Fatal(fmt.Errorf("unhandled data type %s in goModelType", t))
-			return ""
+			return t
 		}
 	} else {
 		switch t {
@@ -73,9 +72,10 @@ func goModelType(t string, null bool) string {
 			return "float"
 		case "json", "jsonb":
 			return "queryx.JSON"
+		case "vector":
+			return "queryx.Vector"
 		default:
-			log.Fatal(fmt.Errorf("unhandled data type %s in goModelType", t))
-			return ""
+			return t
 		}
 	}
 }
@@ -103,9 +103,10 @@ func goType(t string) string {
 		return "Float"
 	case "json", "jsonb":
 		return "JSON"
+	case "vector":
+		return "Vector"
 	default:
-		log.Fatal(fmt.Errorf("unhandled data type %s in goType", t))
-		return ""
+		return t
 	}
 }
 
@@ -124,8 +125,9 @@ func goChangeSetType(t string) string {
 		return "float64"
 	case "json", "jsonb":
 		return "map[string]interface{}"
+	case "vector":
+		return "[]float32"
 	default:
-		log.Fatal(fmt.Errorf("unhandled data type %s in goChangeSetType", t))
-		return ""
+		return t
 	}
 }
