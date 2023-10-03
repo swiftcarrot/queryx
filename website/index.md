@@ -11,6 +11,9 @@ hero:
       text: Getting Started
       link: /docs/getting-started
     - theme: alt
+      text: View Source
+      link: https://github.com/swiftcarrot/queryx
+    - theme: alt
       text: Join Discord
       link: https://discord.gg/QUTxjJBRfA
 features:
