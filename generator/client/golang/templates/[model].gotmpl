@@ -106,7 +106,7 @@ func ({{ $m }} *{{ $.model.Name }}) Query{{ $h.Name | pascal }}() *{{ $h.ModelNa
 }
 
 func ({{ $m }} *{{ $.model.Name }}) Preload{{ $h.Name | pascal }}() error {
-	{{if $h.Through }}
+	{{- if $h.Through }}
 	rows1, err := {{ $m }}.queries.Query{{ $h.Through | singular | pascal }}().Where({{ $m }}.schema.{{ $h.Through | singular | pascal }}{{ $.model.Name }}ID.EQ({{ $m }}.ID)).All()
 	if err != nil {
 		return err
