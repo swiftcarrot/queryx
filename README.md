@@ -8,6 +8,16 @@ Queryx is schema-first and type-safe ORM for Go and TypeScript.
 - **Type Safe**: Queryx generates friendly, type-safe ORM methods and come with autocomplete support and are free from type-related errors.
 - **Go and TypeScript**: Queryx supports generating both Go and TypeScript ORM methods.
 
+## Quick Installation
+
+To easily install the latest version of queryx, open your terminal and run the following command:
+
+```sh
+curl -sf https://raw.githubusercontent.com/swiftcarrot/queryx/main/install.sh | sh
+```
+
+You can also build queryx from the source following the instructions [here](https://queryx.caitouyun.com/docs/build-from-source).
+
 ## Documentation and Support
 
 Queryx documentation is available at: https://queryx.caitouyun.com

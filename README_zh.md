@@ -8,6 +8,16 @@ Queryx 是针对 Go 和 TypeScript 的基于模式优先和类型安全的 ORM�
 - **类型安全**：Queryx 生成友好的、类型安全的 ORM 方法，并提供自动完成支持，免于类型相关错误。
 - **Go 和 TypeScript**：Queryx 支持生成 Go 和 TypeScript 的 ORM 方法。
 
+## 快速安装
+
+打开终端并运行以下命令来安装最新版本的 Queryx:
+
+```sh
+curl -sf https://raw.githubusercontent.com/swiftcarrot/queryx/main/install.sh | sh
+```
+
+也可以按照[这里](https://queryx.caitouyun.com/docs/build-from-source)的说明从源代码构建 Queryx.
+
 ## 文档和支持
 
 Queryx 的文档可在以下网址找到：https://queryx.caitouyun.com
