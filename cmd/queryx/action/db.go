@@ -203,9 +203,12 @@ func dbMigrateGenerate() error {
 		if change.Cmd != "" {
 			ups = append(ups, change.Cmd+";")
 		}
-		if change.Reverse != "" {
-			downs = append([]string{change.Reverse + ";"}, downs...)
+
+		stmts, err := change.ReverseStmts()
+		if err != nil {
+			return err
 		}
+		downs = append(stmts, downs...)
 	}
 	// TODO: support windows line break
 	up := strings.Join(ups, "\n")
