@@ -49,5 +49,7 @@ func init() {
 	RootCmd.AddCommand(dbMigrateGenerateCmd)
 	RootCmd.AddCommand(dbRollbackCmd)
 	RootCmd.AddCommand(dbMigrateStatusCmd)
+	RootCmd.AddCommand(dbResetCmd)
+	RootCmd.AddCommand(dbSeedCmd)
 	RootCmd.AddCommand(dbVersionCmd)
 }

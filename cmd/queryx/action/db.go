@@ -108,23 +108,77 @@ var dbCreateCmd = &cobra.Command{
 	Use:   "db:create",
 	Short: "Creates database",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		adapter, err := newAdapter()
-		if err != nil {
-			return err
-		}
-		return adapter.CreateDatabase()
+		return dbCreate()
 	},
+}
+
+func dbCreate() error {
+	adapter, err := newAdapter()
+	if err != nil {
+		return err
+	}
+	return adapter.CreateDatabase()
+}
+
+func dbDrop() error {
+	adapter, err := newAdapter()
+	if err != nil {
+		return err
+	}
+	return adapter.DropDatabase()
+}
+
+func dbMigrate() error {
+	a, err := newAdapter()
+	if err != nil {
+		return err
+	}
+	if err := a.Open(); err != nil {
+		return err
+	}
+	// defer a.Close()
+
+	migrator, err := adapter.NewMigrator(a)
+	if err != nil {
+		return err
+	}
+	if err := migrator.Up(); err != nil {
+		return err
+	}
+	if err := dbMigrateGenerate(); err != nil {
+		return err
+	}
+	if err := migrator.FindMigrations(); err != nil {
+		return err
+	}
+	return migrator.Up()
+}
+
+func dbSeed() error {
+	panic("not implemented")
+}
+
+func dbSetup() error {
+	if err := dbDrop(); err != nil {
+		return err
+	}
+	if err := dbCreate(); err != nil {
+		return err
+	}
+	if err := dbMigrate(); err != nil {
+		return err
+	}
+	// if err := dbSeed(); err != nil {
+	// 	return err
+	// }
+	return nil
 }
 
 var dbDropCmd = &cobra.Command{
 	Use:   "db:drop",
 	Short: "Drops database",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		adapter, err := newAdapter()
-		if err != nil {
-			return err
-		}
-		return adapter.DropDatabase()
+		return dbDrop()
 	},
 }
 
@@ -133,29 +187,7 @@ var dbMigrateCmd = &cobra.Command{
 	Short: "Migrates database according to schema",
 	// TODO: support --version
 	RunE: func(cmd *cobra.Command, args []string) error {
-		a, err := newAdapter()
-		if err != nil {
-			return err
-		}
-		if err := a.Open(); err != nil {
-			return err
-		}
-		// defer a.Close()
-
-		migrator, err := adapter.NewMigrator(a)
-		if err != nil {
-			return err
-		}
-		if err := migrator.Up(); err != nil {
-			return err
-		}
-		if err := dbMigrateGenerate(); err != nil {
-			return err
-		}
-		if err := migrator.FindMigrations(); err != nil {
-			return err
-		}
-		return migrator.Up()
+		return dbMigrate()
 	},
 }
 
@@ -263,6 +295,25 @@ var dbMigrateStatusCmd = &cobra.Command{
 	Short: "List current migration status",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return nil
+	},
+}
+
+var dbResetCmd = &cobra.Command{
+	Use:   "db:reset",
+	Short: "Reset database",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if err := dbDrop(); err != nil {
+			return err
+		}
+		return dbSetup()
+	},
+}
+
+var dbSeedCmd = &cobra.Command{
+	Use:   "db:seed",
+	Short: "Database seed",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return dbSeed()
 	},
 }
 
