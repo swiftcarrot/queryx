@@ -4,8 +4,8 @@
 
 Queryx 是针对 Go 和 TypeScript 的基于模式优先和类型安全的 ORM。
 
-- **模式优先**：Queryx 根据在 queryx 模式文件中定义的模型自动迁移数据库。
-- **类型安全**：Queryx 生成友好的、类型安全的 ORM 方法，并提供自动完成支持，免于类型相关错误。
+- **模式优先**：Queryx 根据模式文件中定义的模型自动迁移数据库。
+- **类型安全**：Queryx 生成友好的、类型安全的 ORM 方法，并提供编辑器自动补全支持，免于类型相关错误。
 - **Go 和 TypeScript**：Queryx 支持生成 Go 和 TypeScript 的 ORM 方法。
 
 ## 快速安装
