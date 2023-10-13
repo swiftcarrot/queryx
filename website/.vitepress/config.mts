@@ -123,6 +123,7 @@ function sidebarDocs(): DefaultTheme.SidebarItem[] {
       collapsed: false,
       items: [
         { text: "Query Methods", link: "query-methods" },
+        { text: "Raw SQL", link: "raw-sql" },
         { text: "Transaction", link: "transaction" },
         { text: "Association", link: "association" },
         { text: "Data Types", link: "data-types" },
