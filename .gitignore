@@ -1,7 +1,10 @@
 internal/integration/db
+internal/migrate/db
 node_modules
 /bin
 .idea
 *.sqlite3
 *.out
 node_modules
+website/.vitepress/dist
+website/.vitepress/cache

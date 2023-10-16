@@ -1,13 +1,16 @@
 name: windows
-on: push
+on:
+  push:
+    paths-ignore:
+      - "website/**"
 jobs:
   sqlite-golang:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-go@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v4
         with:
-          go-version: 1.19
+          go-version: "1.20"
       - name: Test
         run: |
           go test $(go list ./... | grep -Ev "generator|internal") -race -coverprofile=coverage.txt -covermode=atomic

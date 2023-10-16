@@ -1,0 +1,126 @@
+name: migrate
+on:
+  push:
+    paths-ignore:
+      - "website/**"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v4
+        with:
+          go-version: "1.20"
+      - name: Build
+        run: go build -o /usr/local/bin/queryx cmd/queryx/main.go
+      - uses: actions/upload-artifact@v3
+        with:
+          name: bin
+          path: /usr/local/bin/queryx
+  sqlite:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v4
+        with:
+          go-version: "1.20"
+      - uses: actions/download-artifact@v3
+        with:
+          name: bin
+          path: /usr/local/bin
+      - run: chmod a+x /usr/local/bin/queryx
+      - name: migrate
+        run: |
+          cd internal/migrate
+          queryx db:migrate --schema sqlite1.hcl
+      - name: sleep
+        run: sleep 1 # so the generated migration files have non-conflicting filenames
+      - name: migrate again
+        run: |
+          cd internal/migrate
+          queryx db:migrate --schema sqlite2.hcl
+      - name: test
+        run: |
+          cd internal/migrate
+          sqlite3 test.sqlite3 "insert into users(name, email) values('test', 'test@example.com')"
+  postgresql:
+    needs: [build]
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14.2
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: queryx_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v4
+        with:
+          go-version: "1.20"
+      - uses: actions/download-artifact@v3
+        with:
+          name: bin
+          path: /usr/local/bin
+      - run: chmod a+x /usr/local/bin/queryx
+      - name: migrate
+        run: |
+          cd internal/migrate
+          queryx db:migrate --schema postgresql1.hcl
+      - name: sleep
+        run: sleep 1
+      - name: migrate again
+        run: |
+          cd internal/migrate
+          queryx db:migrate --schema postgresql2.hcl
+      - name: test
+        run: |
+          PGPASSWORD=postgres psql -h localhost -U postgres -d queryx_test -tc "insert into users(name, email) values('test', 'test@example.com')"
+  mysql:
+    needs: [build]
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0.32
+        env:
+          MYSQL_DATABASE: queryx_test
+          MYSQL_ALLOW_EMPTY_PASSWORD: true
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping -uuser_test -pqueryx_test"
+          --health-interval 10s
+          --health-start-period 10s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v4
+        with:
+          go-version: "1.20"
+      - uses: actions/download-artifact@v3
+        with:
+          name: bin
+          path: /usr/local/bin
+      - run: chmod a+x /usr/local/bin/queryx
+      - name: migrate
+        run: |
+          cd internal/migrate
+          queryx db:migrate --schema mysql1.hcl
+      - name: sleep
+        run: sleep 1
+      - name: migrate again
+        run: |
+          cd internal/migrate
+          queryx db:migrate --schema mysql2.hcl
+      - name: test
+        run: |
+          mysql --protocol=tcp -h localhost  -u root  -D queryx_test -e "insert into users(name, email) values('test', 'test@example.com')"
