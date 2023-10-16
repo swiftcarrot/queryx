@@ -11,12 +11,12 @@ import { Clause } from "./clause";
 export class QXClient {
   public config: Config;
   public adapter: Adapter;
-	{{- range $m := $.client.Models }}
-	public {{ $m.Name | camel }}: Table;
-	{{- range $c := .Columns }}
-	public {{ $m.Name | camel }}{{ $c.Name | pascal }}: {{goType .Type}}Column
-	{{- end}}
-	{{- end}}
+  {{- range $m := $.client.Models }}
+  public {{ $m.Name | camel }}: Table;
+  {{- range $c := .Columns }}
+  public {{ $m.Name | camel }}{{ $c.Name | pascal }}: {{ goType .Type }}Column
+  {{- end}}
+  {{- end}}
 
   constructor(config: Config) {
     this.config = config;
@@ -58,7 +58,7 @@ export class QXClient {
     return tx;
   }
 
-  async transaction(fn: (t: Tx) => void) {
+  async transaction(fn: (t: Tx) => Promise<void>) {
     const tx = await this.tx()
     try {
       await fn(tx);
@@ -74,7 +74,7 @@ export class QXClient {
   }
 
   or(...clauses: Clause[]) {
-    return clauses[0].or(...clauses.slice(1))
+    return clauses[0].or(...clauses.slice(1));
   }
 }
 
