@@ -2,9 +2,22 @@
 
 import { Env, Config, newConfig, getenv } from "./config";
 {{- range $m := $.client.Models }}
-import { {{ $m.Name }}Query } from "../{{ $m.Name | snake }}"
+import { {{ $m.Name }}Query } from "../{{ $m.Name | snake }}";
 {{- end }}
-import { Table, BigIntColumn, IntegerColumn, FloatColumn, BooleanColumn, StringColumn, TextColumn, DateColumn, TimeColumn, DatetimeColumn, UUIDColumn, JSONColumn } from "./table";
+import {
+  Table,
+  BigIntColumn,
+  IntegerColumn,
+  FloatColumn,
+  BooleanColumn,
+  StringColumn,
+  TextColumn,
+  DateColumn,
+  TimeColumn,
+  DatetimeColumn,
+  UUIDColumn,
+  JSONColumn
+} from "./table";
 import { Adapter } from "./adapter";
 import { Clause } from "./clause";
 
@@ -14,7 +27,7 @@ export class QXClient {
   {{- range $m := $.client.Models }}
   public {{ $m.Name | camel }}: Table;
   {{- range $c := .Columns }}
-  public {{ $m.Name | camel }}{{ $c.Name | pascal }}: {{ goType .Type }}Column
+  public {{ $m.Name | camel }}{{ $c.Name | pascal }}: {{ goType .Type }}Column;
   {{- end}}
   {{- end}}
 
