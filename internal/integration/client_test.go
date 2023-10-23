@@ -494,11 +494,11 @@ func TestChangeJSON(t *testing.T) {
 }
 
 func TestModelJSON(t *testing.T) {
-	tag, err := c.QueryTag().Create(c.ChangeTag().SetName("test"))
+	tag, err := c.QueryTag().Create(c.ChangeTag().SetName("test").SetRight(true))
 	require.NoError(t, err)
 	b, err := json.Marshal(tag)
 	require.NoError(t, err)
-	require.Equal(t, fmt.Sprintf(`{"id":%d,"name":"test"}`, tag.ID), string(b))
+	require.Equal(t, fmt.Sprintf(`{"id":%d,"name":"test","right":true}`, tag.ID), string(b))
 }
 
 func TestModelStringer(t *testing.T) {

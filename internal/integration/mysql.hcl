@@ -109,6 +109,10 @@ database "db" {
       type = string
     }
 
+    column "right" {
+      type = boolean
+    }
+
     index {
       columns = ["name"]
       unique  = true
