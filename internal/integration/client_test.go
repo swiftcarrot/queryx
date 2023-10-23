@@ -75,6 +75,16 @@ func TestCreate(t *testing.T) {
 }
 
 func TestInsertAll(t *testing.T) {
+	tag, err := c.QueryTag().Create(c.ChangeTag().SetRight(true).SetName("name"))
+	require.NoError(t, err)
+
+	all, err := c.QueryTag().Where(c.TagID.EQ(tag.ID)).UpdateAll(c.ChangeTag().SetRight(false).SetName("name1"))
+	require.NoError(t, err)
+	require.True(t, all > 0)
+	require.Equal(t, true, tag.Right.Val)
+}
+
+func TestUpdateAll(t *testing.T) {
 	_, err := c.QueryUserPost().DeleteAll()
 	require.NoError(t, err)
 
