@@ -55,7 +55,7 @@ func (s *InsertStatement) ToSQL() (string, []interface{}) {
 		{{- if eq $.client.Adapter "mysql" }}
 		sql = fmt.Sprintf("%s(`%s`)", sql, strings.Join(s.columns, "`, `"))
 		{{- else }}
-		sql = fmt.Sprintf("%s(%s)", sql, strings.Join(s.columns, ", "))
+		sql = fmt.Sprintf("%s(\"%s\")", sql, strings.Join(s.columns, "\", \""))
 		{{- end }}
 	} else {
 		{{- if eq $.client.Adapter "mysql" }}
