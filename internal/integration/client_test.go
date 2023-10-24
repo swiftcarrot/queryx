@@ -78,10 +78,10 @@ func TestUpdateAll(t *testing.T) {
 	_, err := c.QueryTag().DeleteAll()
 	require.NoError(t, err)
 
-	tag, err := c.QueryTag().Create(c.ChangeTag().SetRight(true).SetName("name"))
+	tag, err := c.QueryTag().Create(c.ChangeTag().SetRight(1).SetName("name"))
 	require.NoError(t, err)
 
-	all, err := c.QueryTag().Where(c.TagID.EQ(tag.ID)).Where(c.TagRight.EQ(true)).UpdateAll(c.ChangeTag().SetRight(false).SetName("name1"))
+	all, err := c.QueryTag().Where(c.TagID.EQ(tag.ID)).Where(c.TagRight.EQ(tag.Right.Val)).UpdateAll(c.ChangeTag().SetRight(0).SetName("name1"))
 	require.NoError(t, err)
 	require.True(t, all > 0)
 	require.Equal(t, true, tag.Right.Val)
@@ -507,11 +507,11 @@ func TestChangeJSON(t *testing.T) {
 }
 
 func TestModelJSON(t *testing.T) {
-	tag, err := c.QueryTag().Create(c.ChangeTag().SetName("test").SetRight(true))
+	tag, err := c.QueryTag().Create(c.ChangeTag().SetName("test").SetRight(1))
 	require.NoError(t, err)
 	b, err := json.Marshal(tag)
 	require.NoError(t, err)
-	require.Equal(t, fmt.Sprintf(`{"id":%d,"name":"test","right":true}`, tag.ID), string(b))
+	require.Equal(t, fmt.Sprintf(`{"id":%d,"name":"test","right":1}`, tag.ID), string(b))
 }
 
 func TestModelStringer(t *testing.T) {

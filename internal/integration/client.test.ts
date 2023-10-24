@@ -47,12 +47,12 @@ test("create", async () => {
 });
 
 test("updateAll", async () => {
-await c.queryTag().deleteAll();
-let t = await c.queryTag().create({name:"name",right: true});
-let all=await c.queryTag().where(c.tagName.eq(t.name)).where(c.tagRight.eq(true)).updateAll({name:"name1",right: false});
-expect(all).toBeGreaterThan(0);
-let exists=await c.queryTag().where(c.tagName.eq("name1")).exists()
-expect(exists).toEqual(true);
+  await c.queryTag().deleteAll();
+  await c.queryTag().create({name:"name",right: 1});
+  let all=await c.queryTag().where(c.tagName.eq("name")).where(c.tagRight.eq(1)).updateAll({name:"name1",right: 0});
+  expect(all).toBeGreaterThan(0);
+  let exists=await c.queryTag().where(c.tagName.eq("name1")).exists();
+  expect(exists).toEqual(true);
 });
 
 test("insertAll", async () => {
@@ -406,8 +406,8 @@ test("changeJSON", async () => {
 });
 
 test("modelJSON", async () => {
-  let tag = await c.queryTag().create({ name: "test",right: true });
-  expect(JSON.stringify(tag)).toEqual(`{"id":${tag.id},"name":"test","right":true}`);
+  let tag = await c.queryTag().create({ name: "test",right: 1 });
+  expect(JSON.stringify(tag)).toEqual(`{"id":${tag.id},"name":"test","right":1}`);
 });
 
 test("modelString", async () => {

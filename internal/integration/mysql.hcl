@@ -110,7 +110,7 @@ database "db" {
     }
 
     column "right" {
-      type = boolean
+      type = integer
     }
 
     index {
