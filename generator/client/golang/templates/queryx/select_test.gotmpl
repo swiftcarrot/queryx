@@ -13,7 +13,11 @@ func TestSelect(t *testing.T) {
 	require.Equal(t, []interface{}{}, args)
 
 	sql, args = s.Update().Columns("name", "email").Values("test", "test@example.com").ToSQL()
-	require.Equal(t, `UPDATE users SET name = ?, email = ?`, sql)
+	{{- if eq .client.Adapter "mysql" }}
+	require.Equal(t, "UPDATE users SET `name` = ?, `email` = ?", sql)
+	{{- else }}
+	require.Equal(t, `UPDATE users SET "name" = ?, "email" = ?`, sql)
+	{{- end }}
 	require.Equal(t, []interface{}{"test", "test@example.com"}, args)
 
 	s1 := s.Limit(1)

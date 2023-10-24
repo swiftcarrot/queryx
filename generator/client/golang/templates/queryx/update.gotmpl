@@ -49,7 +49,11 @@ func (s *UpdateStatement) ToSQL() (string, []interface{}) {
 
 	sets := []string{}
 	for _, col := range s.columns {
-		sets = append(sets, fmt.Sprintf("%s = ?", col))
+	{{- if eq .client.Adapter "mysql" }}
+		sets = append(sets, fmt.Sprintf("`%s` = ?", col))
+	{{- else }}
+	    sets = append(sets, fmt.Sprintf("\"%s\" = ?", col))
+	{{- end }}
 	}
 
 	sql = fmt.Sprintf("%s %s", sql, strings.Join(sets, ", "))

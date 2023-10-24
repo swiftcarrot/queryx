@@ -75,10 +75,13 @@ func TestCreate(t *testing.T) {
 }
 
 func TestInsertAll(t *testing.T) {
+	_, err := c.QueryTag().DeleteAll()
+	require.NoError(t, err)
+
 	tag, err := c.QueryTag().Create(c.ChangeTag().SetRight(true).SetName("name"))
 	require.NoError(t, err)
 
-	all, err := c.QueryTag().Where(c.TagID.EQ(tag.ID)).UpdateAll(c.ChangeTag().SetRight(false).SetName("name1"))
+	all, err := c.QueryTag().Where(c.TagID.EQ(tag.ID)).Where(c.TagRight.EQ(true)).UpdateAll(c.ChangeTag().SetRight(false).SetName("name1"))
 	require.NoError(t, err)
 	require.True(t, all > 0)
 	require.Equal(t, true, tag.Right.Val)
