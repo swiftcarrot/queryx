@@ -84,7 +84,7 @@ func TestUpdateAll(t *testing.T) {
 	all, err := c.QueryTag().Where(c.TagID.EQ(tag.ID)).Where(c.TagRight.EQ(tag.Right.Val)).UpdateAll(c.ChangeTag().SetRight(0).SetName("name1"))
 	require.NoError(t, err)
 	require.True(t, all > 0)
-	require.Equal(t, true, tag.Right.Val)
+	require.Equal(t, int32(1), tag.Right.Val)
 }
 
 func TestInsertAll(t *testing.T) {
