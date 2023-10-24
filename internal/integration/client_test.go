@@ -74,7 +74,7 @@ func TestCreate(t *testing.T) {
 	require.True(t, user.ID > 0)
 }
 
-func TestInsertAll(t *testing.T) {
+func TestUpdateAll(t *testing.T) {
 	_, err := c.QueryTag().DeleteAll()
 	require.NoError(t, err)
 
@@ -87,7 +87,7 @@ func TestInsertAll(t *testing.T) {
 	require.Equal(t, true, tag.Right.Val)
 }
 
-func TestUpdateAll(t *testing.T) {
+func TestInsertAll(t *testing.T) {
 	_, err := c.QueryUserPost().DeleteAll()
 	require.NoError(t, err)
 
