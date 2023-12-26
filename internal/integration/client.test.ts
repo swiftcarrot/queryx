@@ -46,6 +46,12 @@ test("create", async () => {
   expect(user.id).toBeGreaterThan(0);
 });
 
+test("delete", async () => {
+  await c.queryTag().create({ name: "delete_tag", right: 22 });
+  let rows = await c.queryTag().where(c.tagRight.eq(22)).deleteAll()
+  expect(rows).toBeGreaterThan(0);
+});
+
 test("updateAll", async () => {
   await c.queryTag().deleteAll();
   await c.queryTag().create({name:"name",right: 1});

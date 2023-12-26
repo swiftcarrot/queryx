@@ -74,6 +74,14 @@ func TestCreate(t *testing.T) {
 	require.True(t, user.ID > 0)
 }
 
+func TestDelete(t *testing.T) {
+	_, err := c.QueryTag().Create(c.ChangeTag().SetRight(22).SetName("delete_tag"))
+	require.NoError(t, err)
+	rows, err := c.QueryTag().Where(c.TagRight.EQ(22)).DeleteAll()
+	require.NoError(t, err)
+	require.True(t, rows > 0)
+}
+
 func TestUpdateAll(t *testing.T) {
 	_, err := c.QueryTag().DeleteAll()
 	require.NoError(t, err)
