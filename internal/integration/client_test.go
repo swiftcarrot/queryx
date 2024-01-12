@@ -53,6 +53,20 @@ func TestQuery(t *testing.T) {
 	}, rows)
 }
 
+func TestColumns(t *testing.T) {
+	user1, err := c.QueryUser().Create(c.ChangeUser().SetName("test1"))
+	require.NoError(t, err)
+	user2, err := c.QueryUser().Create(c.ChangeUser().SetName("test2"))
+	require.NoError(t, err)
+	columns, err := c.Query("select name as user_name from users where id in (?)", []int64{user1.ID, user2.ID}).Columns()
+	require.NoError(t, err)
+	require.True(t, len(columns) > 0)
+
+	columns, err = c.QueryOne("select id as user_id from users where id = ?", user1.ID).Columns()
+	require.NoError(t, err)
+	require.True(t, len(columns) > 0)
+}
+
 func TestExec(t *testing.T) {
 	user, err := c.QueryUser().Create(c.ChangeUser().SetName("test"))
 	require.NoError(t, err)

@@ -65,6 +65,7 @@ func (a *Adapter) Query(query string, args ...interface{}) *Rows {
 		}
 	}
 	return &Rows{
+		Rows:    rows,
 		rows:    rows,
 		adapter: a,
 		query:   query,
@@ -74,6 +75,7 @@ func (a *Adapter) Query(query string, args ...interface{}) *Rows {
 }
 
 type Rows struct {
+	*sql.Rows
 	rows    *sql.Rows
 	adapter *Adapter
 	query   string
@@ -93,6 +95,7 @@ func (r *Rows) Scan(v interface{}) error {
 }
 
 type Row struct {
+	*sql.Rows
 	rows    *sql.Rows
 	adapter *Adapter
 	query   string
@@ -157,6 +160,7 @@ func (a *Adapter) QueryOne(query string, args ...interface{}) *Row {
 	}
 
 	return &Row{
+		Rows:    rows,
 		rows:    rows,
 		adapter: a,
 		query:   query,
