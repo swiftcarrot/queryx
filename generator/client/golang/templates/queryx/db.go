@@ -21,14 +21,60 @@ func NewAdapter(db DB) *Adapter {
 }
 
 func (a *Adapter) Query(query string, args ...interface{}) *Rows {
+	matched1, err := regexp.MatchString(`.* IN (.*?)`, query)
+	if err != nil {
+		return &Rows{
+			rows:    nil,
+			adapter: a,
+			query:   query,
+			args:    args,
+			err:     err,
+		}
+	}
+	matched2, err := regexp.MatchString(`.* in (.*?)`, query)
+	if err != nil {
+		return &Rows{
+			rows:    nil,
+			adapter: a,
+			query:   query,
+			args:    args,
+			err:     err,
+		}
+	}
+	if matched1 || matched2 {
+		query, args, err = In(query, args...)
+		if err != nil {
+			return &Rows{
+				rows:    nil,
+				adapter: a,
+				query:   query,
+				args:    args,
+				err:     err,
+			}
+		}
+	}
+	query, args = rebind(query, args)
+	rows, err := a.db.Query(query, args...)
+	if err != nil {
+		return &Rows{
+			rows:    rows,
+			adapter: a,
+			query:   query,
+			args:    args,
+			err:     err,
+		}
+	}
 	return &Rows{
+		rows:    rows,
 		adapter: a,
 		query:   query,
 		args:    args,
+		err:     nil,
 	}
 }
 
 type Rows struct {
+	rows    *sql.Rows
 	adapter *Adapter
 	query   string
 	args    []interface{}
@@ -39,28 +85,7 @@ func (r *Rows) Scan(v interface{}) error {
 	if r.err != nil {
 		return r.err
 	}
-	var err error
-	query, args := r.query, r.args
-	matched1, err := regexp.MatchString(`.* IN (.*?)`, query)
-	if err != nil {
-		return err
-	}
-	matched2, err := regexp.MatchString(`.* in (.*?)`, query)
-	if err != nil {
-		return err
-	}
-	if matched1 || matched2 {
-		query, args, err = In(query, args...)
-		if err != nil {
-			return err
-		}
-	}
-	query, args = rebind(query, args)
-	rows, err := r.adapter.db.Query(query, args...)
-	if err != nil {
-		return err
-	}
-	err = ScanSlice(rows, v)
+	err := ScanSlice(r.rows, v)
 	if err != nil {
 		return err
 	}
@@ -68,43 +93,20 @@ func (r *Rows) Scan(v interface{}) error {
 }
 
 type Row struct {
+	rows    *sql.Rows
 	adapter *Adapter
 	query   string
 	args    []interface{}
+	err     error
 }
 
 func (r *Row) Scan(v interface{}) error {
-	query, args := r.query, r.args
-	matched1, err := regexp.MatchString(`.* IN (.*?)`, query)
-	if err != nil {
-		return err
+	if r.err != nil {
+		return r.err
 	}
-	matched2, err := regexp.MatchString(`.* in (.*?)`, query)
-	if err != nil {
-		return err
-	}
-	if matched1 || matched2 {
-		query, args, err = In(query, args...)
-		if err != nil {
-			return err
-		}
-	}
-	query, args = rebind(query, args)
-	rows, err := r.adapter.db.Query(query, args...)
-	if err != nil {
-		return err
-	}
-	err = ScanOne(rows, v)
+	err := ScanOne(r.rows, v)
 	if err != nil {
 		return err
 	}
 	return err
-}
-
-func (a *Adapter) QueryOne(query string, args ...interface{}) *Row {
-	return &Row{
-		adapter: a,
-		query:   query,
-		args:    args,
-	}
 }
