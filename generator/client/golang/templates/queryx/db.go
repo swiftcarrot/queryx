@@ -110,3 +110,57 @@ func (r *Row) Scan(v interface{}) error {
 	}
 	return err
 }
+
+func (a *Adapter) QueryOne(query string, args ...interface{}) *Row {
+	matched1, err := regexp.MatchString(`.* IN (.*?)`, query)
+	if err != nil {
+		return &Row{
+			rows:    nil,
+			adapter: a,
+			query:   query,
+			args:    args,
+			err:     err,
+		}
+	}
+	matched2, err := regexp.MatchString(`.* in (.*?)`, query)
+	if err != nil {
+		return &Row{
+			rows:    nil,
+			adapter: a,
+			query:   query,
+			args:    args,
+			err:     err,
+		}
+	}
+	if matched1 || matched2 {
+		query, args, err = In(query, args...)
+		if err != nil {
+			return &Row{
+				rows:    nil,
+				adapter: a,
+				query:   query,
+				args:    args,
+				err:     err,
+			}
+		}
+	}
+	query, args = rebind(query, args)
+	rows, err := a.db.Query(query, args...)
+	if err != nil {
+		return &Row{
+			rows:    rows,
+			adapter: a,
+			query:   query,
+			args:    args,
+			err:     err,
+		}
+	}
+
+	return &Row{
+		rows:    rows,
+		adapter: a,
+		query:   query,
+		args:    args,
+		err:     err,
+	}
+}
