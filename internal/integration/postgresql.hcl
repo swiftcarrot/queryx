@@ -76,6 +76,10 @@ database "db" {
     column "payload" {
       type = json
     }
+    column "tags" {
+      type  = string
+      array = true
+    }
   }
 
   model "UserPost" {
@@ -110,7 +114,7 @@ database "db" {
     }
 
     index {
-      columns = ["name",]
+      columns = ["name"]
       unique  = true
     }
   }

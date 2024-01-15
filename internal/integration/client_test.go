@@ -510,3 +510,13 @@ func TestModelStringer(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, `(Client name: "test", float: 51.1234)`, client.String())
 }
+
+func TestStringArray(t *testing.T) {
+	post, err := c.QueryPost().Create(c.ChangePost().SetTags([]string{"tag1", "tag2"}))
+	require.NoError(t, err)
+	require.Equal(t, []string{"tag1", "tag2"}, post.Tags.Val)
+
+	post, err = c.QueryPost().Find(post.ID)
+	require.NoError(t, err)
+	require.Equal(t, []string{"tag1", "tag2"}, post.Tags.Val)
+}
