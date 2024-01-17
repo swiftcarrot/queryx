@@ -16,7 +16,7 @@ import {
   TimeColumn,
   DatetimeColumn,
   UUIDColumn,
-  JSONColumn
+  JSONColumn,
 } from "./table";
 import { Adapter } from "./adapter";
 import { Clause } from "./clause";
@@ -67,6 +67,7 @@ export class QXClient {
 
   async tx() {
     const tx = new Tx(this.config);
+    tx.adapter.db = await this.adapter.db.connect();
     await tx.adapter.beginTx();
     return tx;
   }
@@ -79,6 +80,8 @@ export class QXClient {
     } catch (err) {
       await tx.rollback();
       throw err;
+    } finally {
+      tx.adapter.db.release();
     }
   }
 
@@ -113,5 +116,6 @@ export const newClient = () => {
 export const newClientWithEnv = (env: Env) => {
   let config = newConfig(env);
   let client = new QXClient(config);
+  client.adapter.connect();
   return client;
 };

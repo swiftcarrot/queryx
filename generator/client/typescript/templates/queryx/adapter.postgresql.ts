@@ -7,13 +7,17 @@ import { Config } from "./config";
 types.setTypeParser(types.builtins.INT8, (val) => parseInt(val, 10));
 
 export class Adapter {
-  private db: Pool;
+  public config: Config;
+  public db: Pool;
 
   constructor(config: Config) {
-    const pool = new Pool({
-      connectionString: config.url,
-    });
+    this.config = config;
+  }
 
+  connect() {
+    const pool = new Pool({
+      connectionString: this.config.url,
+    });
     this.db = pool;
   }
 
