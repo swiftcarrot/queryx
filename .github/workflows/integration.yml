@@ -27,8 +27,8 @@ jobs:
     strategy:
       matrix:
         postgres:
-          - '14.2'
-          - '16'
+          - "14.2"
+          - "16"
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -105,14 +105,14 @@ jobs:
         run: |
           cd internal/integration
           yarn install
-      # - name: yarn tsc
-      #   run: |
-      #     cd internal/integration
-      #     yarn tsc
       - name: yarn test
         run: |
           cd internal/integration
           yarn test
+      # - name: yarn tsc
+      #   run: |
+      #     cd internal/integration
+      #     yarn tsc
   mysql-golang:
     needs: [build]
     runs-on: ubuntu-latest
@@ -191,14 +191,14 @@ jobs:
         run: |
           cd internal/integration
           yarn install
-      # - name: yarn tsc
-      #   run: |
-      #     cd internal/integration
-      #     yarn tsc
       - name: yarn test
         run: |
           cd internal/integration
           yarn test
+      # - name: yarn tsc
+      #   run: |
+      #     cd internal/integration
+      #     yarn tsc
   sqlite-golang:
     needs: [build]
     runs-on: ubuntu-latest
@@ -249,11 +249,11 @@ jobs:
         run: |
           cd internal/integration
           yarn install
-      # - name: yarn tsc
-      #   run: |
-      #     cd internal/integration
-      #     yarn tsc
       - name: yarn test
         run: |
           cd internal/integration
           yarn test
+      # - name: yarn tsc
+      #   run: |
+      #     cd internal/integration
+      #     yarn tsc
