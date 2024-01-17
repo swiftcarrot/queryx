@@ -67,7 +67,7 @@ export class QXClient {
 
   async tx() {
     const tx = new Tx(this.config);
-    tx.adapter.db = await this.adapter.db.connect();
+    tx.adapter.db = await this.adapter.newClient();
     await tx.adapter.beginTx();
     return tx;
   }
@@ -81,7 +81,7 @@ export class QXClient {
       await tx.rollback();
       throw err;
     } finally {
-      tx.adapter.db.release();
+      tx.adapter.release();
     }
   }
 

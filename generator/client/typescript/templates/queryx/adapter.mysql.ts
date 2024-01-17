@@ -5,12 +5,28 @@ import { parse } from "date-fns";
 import { Config } from "./config";
 
 export class Adapter {
+  public config: Config;
+  public pool: mysql.Pool;
   public db: mysql.Pool;
 
   constructor(config: Config) {
-    this.db = mysql.createPool({
-      uri: config.url,
+    this.config = config;
+  }
+
+  connect() {
+    const pool = mysql.createPool({
+      uri: this.config.url,
     });
+    this.pool = pool;
+    this.db = pool;
+  }
+
+  newClient() {
+    return this.pool.getConnection();
+  }
+
+  release() {
+    this.db.release();
   }
 
   async query<R>(query: string, ...args: any[]) {

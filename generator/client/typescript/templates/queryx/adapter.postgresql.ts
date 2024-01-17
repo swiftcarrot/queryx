@@ -8,6 +8,7 @@ types.setTypeParser(types.builtins.INT8, (val) => parseInt(val, 10));
 
 export class Adapter {
   public config: Config;
+  public pool: Pool;
   public db: Pool;
 
   constructor(config: Config) {
@@ -18,7 +19,16 @@ export class Adapter {
     const pool = new Pool({
       connectionString: this.config.url,
     });
+    this.pool = pool;
     this.db = pool;
+  }
+
+  newClient() {
+    return this.pool.connect();
+  }
+
+  release() {
+    this.db.release();
   }
 
   private _query<R extends QueryResultRow = any, I extends any[] = any[]>(
