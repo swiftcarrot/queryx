@@ -10,14 +10,16 @@ export class Adapter {
   private db: Pool;
 
   constructor(config: Config) {
-    this.db = new Pool({
+    const pool = new Pool({
       connectionString: config.url,
     });
+
+    this.db = pool;
   }
 
   private _query<R extends QueryResultRow = any, I extends any[] = any[]>(
     query: string,
-    args?: I
+    args?: I,
   ) {
     let [query1, args1] = rebind<I>(query, args);
     return this.db.query<R, I>(query1, args1);
