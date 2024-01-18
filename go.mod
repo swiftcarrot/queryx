@@ -3,7 +3,7 @@ module github.com/swiftcarrot/queryx
 go 1.16
 
 require (
-	ariga.io/atlas v0.4.2
+	ariga.io/atlas v0.14.2
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/go-openapi/inflect v0.19.0
 	github.com/go-sql-driver/mysql v1.6.0
@@ -15,6 +15,6 @@ require (
 	github.com/spf13/cobra v1.4.0
 	github.com/stretchr/testify v1.8.1
 	github.com/zclconf/go-cty v1.10.0
-	golang.org/x/mod v0.7.0
-	golang.org/x/text v0.6.0 // indirect
+	golang.org/x/mod v0.8.0
+	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 )

@@ -1,5 +1,8 @@
 name: migrate
-on: push
+on:
+  push:
+    paths-ignore:
+      - "website/**"
 jobs:
   build:
     runs-on: ubuntu-latest

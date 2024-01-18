@@ -1,0 +1,14 @@
+{
+  "name": "queryx",
+  "version": "0.2.7",
+  "private": true,
+  "scripts": {
+    "website:dev": "vitepress dev website",
+    "website:build": "vitepress build website",
+    "website:preview": "vitepress preview website"
+  },
+  "devDependencies": {
+    "vitepress": "1.0.0-rc.10",
+    "vitepress-plugin-tabs": "^0.4.1"
+  }
+}

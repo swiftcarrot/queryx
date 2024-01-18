@@ -1,5 +1,8 @@
 name: windows
-on: push
+on:
+  push:
+    paths-ignore:
+      - "website/**"
 jobs:
   sqlite-golang:
     runs-on: windows-latest

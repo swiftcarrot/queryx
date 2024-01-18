@@ -7,20 +7,35 @@ import { Config } from "./config";
 types.setTypeParser(types.builtins.INT8, (val) => parseInt(val, 10));
 
 export class Adapter {
-  private db: Pool;
+  public config: Config;
+  public pool: Pool;
+  public db: Pool;
 
   constructor(config: Config) {
-    this.db = new Pool({
-      connectionString: config.url,
+    this.config = config;
+  }
+
+  connect() {
+    const pool = new Pool({
+      connectionString: this.config.url,
     });
+    this.pool = pool;
+    this.db = pool;
+  }
+
+  newClient() {
+    return this.pool.connect();
+  }
+
+  release() {
+    this.db.release();
   }
 
   private _query<R extends QueryResultRow = any, I extends any[] = any[]>(
     query: string,
-    args?: I
+    args?: I,
   ) {
     let [query1, args1] = rebind<I>(query, args);
-    console.log(query1, args1);
     return this.db.query<R, I>(query1, args1);
   }
 

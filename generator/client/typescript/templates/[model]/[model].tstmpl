@@ -129,11 +129,7 @@ export class {{ $.model.Name }} {
   toJSON() {
     return {
     {{- range $c := $.model.Columns }}
-      {{- if eq $c.Type "bigint"}}
-      {{ $c.Name | camel }}: Number(this.{{ $c.Name | camel }}),
-      {{- else }}
       {{ $c.Name | camel }}: this.{{ $c.Name | camel }},
-      {{- end }}
     {{- end }}
     {{- range $b := $.model.BelongsTo }}
       {{ $b.Name | camel }}: this.{{ $b.Name | camel }},
