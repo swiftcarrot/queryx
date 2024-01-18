@@ -56,3 +56,17 @@ test-migrate: install
 	sleep 1
 	cd internal/migrate && queryx db:migrate --schema sqlite2.hcl
 	cd internal/migrate && sqlite3 test.sqlite3 "insert into users(name, email) values('test', 'test@example.com')"
+
+build-orm:
+	cd internal/bench && go build -o bin/queryxorm main.go
+
+install-orm: build-orm
+	cd internal/bench && install bin/queryxorm /usr/local/bin
+
+benchmarks:install-orm install
+	cd internal/bench/go-queryx && queryx db:drop --schema schema.hcl
+	cd internal/bench/go-queryx && queryx db:create --schema schema.hcl
+	cd internal/bench/go-queryx && queryx db:migrate --schema schema.hcl
+	cd internal/bench/go-queryx && queryx g --schema schema.hcl
+	#cd internal/bench/ts-queryx && queryx g --schema schema.hcl
+	queryxorm -orm=go-queryx
