@@ -40,7 +40,7 @@ func (s *Schema) Change{{ $m.Name }}() *{{ $m.Name }}Change {
 	return &{{ $m.Name }}Change{
 	{{- range $c := $m.Columns }}
 		{{- $f := $c.Name | pascal }}
-		{{ $f }}: {{ goType $c.Type }}{},
+		{{ $f }}: {{ goType $c.Type $c.Array }}{},
 	{{- end }}
 	}
 }
