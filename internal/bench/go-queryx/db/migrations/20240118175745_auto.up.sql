@@ -1,0 +1,1 @@
+CREATE TABLE "public"."models" ("id" bigserial NOT NULL, "name" character varying NULL, "title" character varying NULL, "fax" character varying NULL, "web" character varying NULL, "age" bigint NULL, "righ" boolean NULL, "counter" integer NULL, PRIMARY KEY ("id"));
