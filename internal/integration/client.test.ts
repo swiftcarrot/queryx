@@ -328,12 +328,12 @@ test("preload", async () => {
   expect(user.posts![0].id).toEqual(post1.id);
   expect(user.posts![1].id).toEqual(post2.id);
 
-  user=await c.queryUser().find(user1.id);
+  user = await c.queryUser().find(user1.id);
   let user2 = await user.preloadUserPosts();
   expect(2).toEqual(user2.userPosts?.length);
   let user3 = await user.preloadPosts();
   expect(2).toEqual(user3.posts?.length);
-  let user4 = await user.preloadAccount()
+  let user4 = await user.preloadAccount();
   expect(user4.account?.name).toEqual("account1");
 
   let post = await c.queryPost().preloadUserPosts().find(post1.id);
