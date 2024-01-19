@@ -57,11 +57,43 @@ test-migrate: install
 	cd internal/migrate && queryx db:migrate --schema sqlite2.hcl
 	cd internal/migrate && sqlite3 test.sqlite3 "insert into users(name, email) values('test', 'test@example.com')"
 
+
+benchmarks-postgresql:
+	cd internal/bench/go-queryx && rm -rf db
+	cd internal/bench/go-queryx && queryx db:drop --schema postgresql.hcl
+	cd internal/bench/go-queryx && queryx db:create --schema postgresql.hcl
+	cd internal/bench/go-queryx && queryx db:migrate --schema postgresql.hcl
+	cd internal/bench/go-queryx && queryx g --schema postgresql.hcl
+	cd internal/bench && go build -o bin/queryxorm main.go
+	cd internal/bench && install bin/queryxorm /usr/local/bin
+	queryxorm -orm=go-queryx
+
+benchmarks-mysql:
+	cd internal/bench/go-queryx && rm -rf db
+	cd internal/bench/go-queryx && queryx db:drop --schema mysql.hcl
+	cd internal/bench/go-queryx && queryx db:create --schema mysql.hcl
+	cd internal/bench/go-queryx && queryx db:migrate --schema mysql.hcl
+	cd internal/bench/go-queryx && queryx g --schema mysql.hcl
+	cd internal/bench && go build -o bin/queryxorm main.go
+	cd internal/bench && install bin/queryxorm /usr/local/bin
+	queryxorm -orm=go-queryx
+
+benchmarks-sqlite:
+	cd internal/bench/go-queryx && rm -rf db
+	cd internal/bench/go-queryx && queryx db:drop --schema sqlite.hcl
+	cd internal/bench/go-queryx && queryx db:create --schema sqlite.hcl
+	cd internal/bench/go-queryx && queryx db:migrate --schema sqlite.hcl
+	cd internal/bench/go-queryx && queryx g --schema sqlite.hcl
+	cd internal/bench && go build -o bin/queryxorm main.go
+	cd internal/bench && install bin/queryxorm /usr/local/bin
+	queryxorm -orm=go-queryx
+
 benchmarks:
-	cd internal/bench/go-queryx && queryx db:drop --schema schema.hcl
-	cd internal/bench/go-queryx && queryx db:create --schema schema.hcl
-	cd internal/bench/go-queryx && queryx db:migrate --schema schema.hcl
-	cd internal/bench/go-queryx && queryx g --schema schema.hcl
+	cd internal/bench/go-queryx && rm -rf db
+	cd internal/bench/go-queryx && queryx db:drop --schema postgresql.hcl
+	cd internal/bench/go-queryx && queryx db:create --schema postgresql.hcl
+	cd internal/bench/go-queryx && queryx db:migrate --schema postgresql.hcl
+	cd internal/bench/go-queryx && queryx g --schema postgresql.hcl
 	cd internal/bench && go build -o bin/queryxorm main.go
 	cd internal/bench && install bin/queryxorm /usr/local/bin
 	queryxorm -orm=go-queryx

@@ -43,7 +43,7 @@ func (Queryx *Queryx) Close() error {
 }
 
 func (Queryx *Queryx) Insert(b *testing.B) {
-	m := NewModel8()
+	m := NewModel()
 
 	b.ReportAllocs()
 	b.ResetTimer()
@@ -59,7 +59,7 @@ func (Queryx *Queryx) Insert(b *testing.B) {
 }
 
 func (Queryx *Queryx) InsertMulti(b *testing.B) {
-	m := NewModel8()
+	m := NewModel()
 	ms := make([]*queryx.ModelChange, 0, 100)
 	for i := 0; i < 100; i++ {
 		ms = append(ms, c.ChangeModel().SetName(m.Name).
@@ -78,12 +78,12 @@ func (Queryx *Queryx) InsertMulti(b *testing.B) {
 }
 
 func (Queryx *Queryx) Update(b *testing.B) {
-	m := NewModel8()
+	m := NewModel()
 	change := c.ChangeModel().SetName(m.Name).SetRigh(m.Righ).
 		SetTitle(m.Title).SetFax(m.Fax).SetWeb(m.Web).SetAge(int64(m.Age)).SetCounter(int32(m.Counter))
 	m8, err := c.QueryModel().Create(change)
 	if err != nil {
-		helper.SetError(b, Queryx.Name(), "Update...", err.Error())
+		helper.SetError(b, Queryx.Name(), "Update", err.Error())
 	}
 
 	b.ReportAllocs()
@@ -98,7 +98,7 @@ func (Queryx *Queryx) Update(b *testing.B) {
 }
 
 func (Queryx *Queryx) Read(b *testing.B) {
-	m := NewModel8()
+	m := NewModel()
 	change := c.ChangeModel().SetName(m.Name).SetRigh(m.Righ).
 		SetTitle(m.Title).SetFax(m.Fax).SetWeb(m.Web).SetAge(int64(m.Age)).SetCounter(int32(m.Counter))
 	_, err := c.QueryModel().Create(change)
@@ -118,7 +118,7 @@ func (Queryx *Queryx) Read(b *testing.B) {
 }
 
 func (Queryx *Queryx) ReadSlice(b *testing.B) {
-	m := NewModel8()
+	m := NewModel()
 	change := c.ChangeModel().SetName(m.Name).SetRigh(m.Righ).
 		SetTitle(m.Title).SetFax(m.Fax).SetWeb(m.Web).SetAge(int64(m.Age)).SetCounter(int32(m.Counter))
 	for i := 0; i < 100; i++ {

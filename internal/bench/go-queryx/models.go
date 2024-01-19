@@ -1,7 +1,7 @@
 package go_queryx
 
 // Model for go-queryx
-type Model8 struct {
+type Model struct {
 	ID      int    `column:"id"`
 	Name    string `column:"name"`
 	Title   string `column:"title"`
@@ -12,16 +12,16 @@ type Model8 struct {
 	Counter int64  `column:"counter"`
 }
 
-func (entity *Model8) GetTableName() string {
+func (entity *Model) GetTableName() string {
 	return "models"
 }
 
-func (entity *Model8) GetPKColumnName() string {
+func (entity *Model) GetPKColumnName() string {
 	return "id"
 }
 
-func NewModel8() *Model8 {
-	m := new(Model8)
+func NewModel() *Model {
+	m := new(Model)
 	m.Name = "Orm Benchmark"
 	m.Title = "Just a Benchmark for fun"
 	m.Fax = "99909990"
