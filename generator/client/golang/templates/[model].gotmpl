@@ -104,4 +104,27 @@ func ({{ $m }} *{{ $.model.Name }}) Query{{ $h.Name | pascal }}() *{{ $h.ModelNa
 	return {{ $m }}.queries.Query{{ $h.ModelName }}().Where({{ $m }}.schema.{{ $h.ModelName }}{{ $h.ForeignKey | pascal }}.EQ({{ $m }}.ID))
 	{{- end }}
 }
+
+func ({{ $m }} *{{ $.model.Name }}) Preload{{ $h.Name | pascal }}() error {
+	records, err := {{ $m }}.Query{{ $h.Name | pascal }}().All()
+	if err != nil {
+		return err
+	}
+	{{ $m }}.{{ $h.Name | pascal }} = records
+	return nil
+}
+{{- end }}
+
+{{- range $h := $.model.HasOne }}
+
+func ({{ $m }} *{{ $.model.Name }}) Preload{{ pascal $h.Name }}() error {
+	record, err := {{ $m }}.queries.Query{{ $h.ModelName }}().
+		Where({{ $m }}.schema.{{ pascal $h.Name }}{{ $.model.Name }}ID.EQ({{ $m }}.ID)).
+		First()
+	if err != nil {
+		return err
+	}
+	{{ $m }}.{{ pascal $h.Name }} = record
+	return nil
+}
 {{- end }}

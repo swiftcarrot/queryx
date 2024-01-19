@@ -86,6 +86,16 @@ export class {{ $.model.Name }} {
     return this._client.query{{ $h.ModelName }}().where(this._client.{{ $h.ModelName | camel }}{{ $h.ForeignKey | pascal }}.eq(this.id));
     {{- end }}
   }
+
+  async preload{{ $h.Name | pascal }}() {
+    this.{{ $h.Name | camel }} = await this.query{{ $h.Name | pascal }}().all();
+  }
+  {{- end }}
+
+  {{- range $h := $.model.HasOne }}
+  async preload{{ $h.ModelName }}() {
+    this.{{ $h.Name | camel }} = await this._client.query{{ pascal $h.Name }}().where(this._client.{{ $h.Name }}{{ $.model.Name }}ID.eq(this.id)).first();
+  }
   {{- end }}
 
   toString() {
