@@ -328,17 +328,17 @@ test("preload", async () => {
   expect(user.posts![0].id).toEqual(post1.id);
   expect(user.posts![1].id).toEqual(post2.id);
 
-  user = await c.queryUser().find(user1.id);
-  let user2 = await user.preloadUserPosts();
-  expect(2).toEqual(user2.userPosts?.length);
-  let user3 = await user.preloadPosts();
-  expect(2).toEqual(user3.posts?.length);
-  let user4 = await user.preloadAccount();
-  expect(user4.account?.name).toEqual("account1");
-
   let post = await c.queryPost().preloadUserPosts().find(post1.id);
   expect(post.userPosts!.length).toEqual(1);
   expect(post.userPosts![0].id).toEqual(userPost1.id);
+
+  user = await c.queryUser().find(user1.id);
+  await user.preloadUserPosts();
+  expect(user.userPosts!.length).toEqual(2);
+  await user.preloadPosts();
+  expect(user.posts!.length).toEqual(2);
+  await user.preloadAccount();
+  expect(user.account!.id).toEqual(account1.id);
 });
 
 test("transaction", async () => {
@@ -372,7 +372,7 @@ test("transaction", async () => {
   expect(tag1.name).toEqual("tag1-updated");
 });
 
-test("transactionBlock", async () => {
+test("transaction block", async () => {
   await c.queryTag().deleteAll();
 
   await c.transaction(async function (tx: Tx) {

@@ -87,26 +87,14 @@ export class {{ $.model.Name }} {
     {{- end }}
   }
 
-  async preload{{ $h.Name | pascal }}(){
-    {{- if $h.Through }}
-    let record = await this._client.query{{ $.model.Name }}().preload{{ $h.Name | pascal }}().where(this._client.{{ $.model.Name | camel }}ID.eq(this.id)).first()
-    {{- else }}
-    let record = await this._client.query{{ $.model.Name }}().preload{{ $h.Name | pascal }}().where(this._client.{{ $.model.Name | camel }}ID.eq(this.id)).first()
-    {{- end}}
-    if (!record) {
-      return Promise.reject("Record not found");
-    }
-    return record;
+  async preload{{ $h.Name | pascal }}() {
+    this.{{ $h.Name | camel }} = await this.query{{ $h.Name | pascal }}().all();
   }
   {{- end }}
 
-  {{range $h := $.model.HasOne }}
-  async preload{{ $h.ModelName }}(){
-    let record = await this._client.query{{ $.model.Name }}().preload{{ $h.ModelName }}().where(this._client.{{ $.model.Name | camel }}ID.eq(this.id)).first()
-    if (!record) {
-      return Promise.reject("Record not found");
-    }
-    return record;
+  {{- range $h := $.model.HasOne }}
+  async preload{{ $h.ModelName }}() {
+    this.{{ $h.Name | camel }} = await this._client.query{{ pascal $h.Name }}().where(this._client.{{ $h.Name }}{{ $.model.Name }}ID.eq(this.id)).first();
   }
   {{- end }}
 

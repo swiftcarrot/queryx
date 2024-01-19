@@ -106,42 +106,25 @@ func ({{ $m }} *{{ $.model.Name }}) Query{{ $h.Name | pascal }}() *{{ $h.ModelNa
 }
 
 func ({{ $m }} *{{ $.model.Name }}) Preload{{ $h.Name | pascal }}() error {
-	{{- if $h.Through }}
-	rows1, err := {{ $m }}.queries.Query{{ $h.Through | singular | pascal }}().Where({{ $m }}.schema.{{ $h.Through | singular | pascal }}{{ $.model.Name }}ID.EQ({{ $m }}.ID)).All()
+	records, err := {{ $m }}.Query{{ $h.Name | pascal }}().All()
 	if err != nil {
 		return err
 	}
-	{{ $m }}.{{ $h.Through | pascal }}=rows1
-	ids1 := []int64{}
-	for _, r := range rows1 {
-		ids1 = append(ids1, r.{{ $h.ModelName }}ID.Val)
-	}
-	rows2, err := {{ $m }}.queries.Query{{ $h.ModelName }}().Where({{ $m }}.schema.{{ $h.ModelName }}ID.In(ids1)).All()
-	if err != nil {
-		return err
-	}
-	{{ $m }}.{{ $h.Name | pascal }}=rows2
+	{{ $m }}.{{ $h.Name | pascal }} = records
 	return nil
-
-	{{- else }}
-	rows, err := {{ $m }}.queries.Query{{ $h.ModelName }}().Where({{ $m }}.schema.{{ $h.ModelName }}{{ $.model.Name }}ID.EQ({{ $m }}.ID)).All()
-	if err != nil {
-		return err
-	}
-	{{ $m }}.{{ $h.Name | pascal }}=rows
-	return nil
-	{{- end }}
 }
-
 {{- end }}
 
 {{- range $h := $.model.HasOne }}
+
 func ({{ $m }} *{{ $.model.Name }}) Preload{{ pascal $h.Name }}() error {
-	rows, err := {{ $m }}.queries.Query{{ $h.ModelName }}().Where({{ $m }}.schema.{{ $h.ModelName }}{{ $h.ForeignKey | pascal }}.EQ({{ $m }}.ID)).First()
+	record, err := {{ $m }}.queries.Query{{ $h.ModelName }}().
+		Where({{ $m }}.schema.{{ pascal $h.Name }}{{ $.model.Name }}ID.EQ({{ $m }}.ID)).
+		First()
 	if err != nil {
 		return err
 	}
-	{{ $m }}.{{ $h.ModelName }} = rows
+	{{ $m }}.{{ pascal $h.Name }} = record
 	return nil
 }
 {{- end }}
