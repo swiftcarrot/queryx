@@ -139,8 +139,8 @@ test("timestamps", async () => {
   expect(user.updatedAt).not.toBeNull();
   expect(user.createdAt).toEqual(user.updatedAt);
 
+  await new Promise((resolve) => setTimeout(resolve, 10));
   await user.update({ name: "new name" });
-  console.log(user.createdAt, user.updatedAt);
   expect(user.updatedAt > user.createdAt).toBe(true);
 });
 
@@ -385,6 +385,23 @@ test("transactionBlock", async () => {
   }).rejects.toThrowError();
   total = await c.queryTag().count();
   expect(total).toEqual(2);
+});
+
+test("transaction with pool connection", async () => {
+  await c.queryTag().deleteAll();
+
+  let tx = await c.tx();
+  let tag1 = await tx.queryTag().create({ name: "tag1" });
+
+  await Promise.all([
+    tx.queryOne("select 1"),
+    tag1.update({ name: "tag1-updated" }),
+  ]);
+
+  await tx.commit();
+
+  let tags = await c.query<{ name: string }>("select name from tags");
+  expect(tags).toEqual([{ name: "tag1-updated" }]);
 });
 
 test("changeJSON", async () => {
