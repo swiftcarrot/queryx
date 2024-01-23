@@ -1,0 +1,14 @@
+{
+  "name": "ts-queryx",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@types/pg": "^8.10.2",
+    "better-sqlite3": "^8.5.0",
+    "date-fns": "^2.30.0",
+    "mysql2": "^3.7.1",
+    "pg": "^8.11.3",
+    "tsc": "^2.0.4"
+  }
+}

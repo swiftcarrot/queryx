@@ -58,7 +58,7 @@ test-migrate: install
 	cd internal/migrate && sqlite3 test.sqlite3 "insert into users(name, email) values('test', 'test@example.com')"
 
 
-benchmarks-postgresql:
+benchmarks-golang-postgresql:
 	cd internal/bench/go-queryx && rm -rf db
 	cd internal/bench/go-queryx && queryx db:drop --schema postgresql.hcl
 	cd internal/bench/go-queryx && queryx db:create --schema postgresql.hcl
@@ -68,7 +68,7 @@ benchmarks-postgresql:
 	cd internal/bench && install bin/queryxorm /usr/local/bin
 	queryxorm -orm=go-queryx
 
-benchmarks-mysql:
+benchmarks-golang-mysql:
 	cd internal/bench/go-queryx && rm -rf db
 	cd internal/bench/go-queryx && queryx db:drop --schema mysql.hcl
 	cd internal/bench/go-queryx && queryx db:create --schema mysql.hcl
@@ -78,7 +78,7 @@ benchmarks-mysql:
 	cd internal/bench && install bin/queryxorm /usr/local/bin
 	queryxorm -orm=go-queryx
 
-benchmarks-sqlite:
+benchmarks-golang-sqlite:
 	cd internal/bench/go-queryx && rm -rf db
 	cd internal/bench/go-queryx && queryx db:drop --schema sqlite.hcl
 	cd internal/bench/go-queryx && queryx db:create --schema sqlite.hcl
@@ -88,12 +88,32 @@ benchmarks-sqlite:
 	cd internal/bench && install bin/queryxorm /usr/local/bin
 	queryxorm -orm=go-queryx
 
-benchmarks:
-	cd internal/bench/go-queryx && rm -rf db
-	cd internal/bench/go-queryx && queryx db:drop --schema postgresql.hcl
-	cd internal/bench/go-queryx && queryx db:create --schema postgresql.hcl
-	cd internal/bench/go-queryx && queryx db:migrate --schema postgresql.hcl
-	cd internal/bench/go-queryx && queryx g --schema postgresql.hcl
-	cd internal/bench && go build -o bin/queryxorm main.go
-	cd internal/bench && install bin/queryxorm /usr/local/bin
-	queryxorm -orm=go-queryx
+benchmarks-typescript-postgresql:
+	cd internal/bench/ts-queryx && rm -rf db
+	cd internal/bench/ts-queryx && queryx db:drop --schema postgresql.hcl
+	cd internal/bench/ts-queryx && queryx db:create --schema postgresql.hcl
+	cd internal/bench/ts-queryx && queryx db:migrate --schema postgresql.hcl
+	cd internal/bench/ts-queryx && queryx g --schema postgresql.hcl
+	cd internal/bench/ts-queryx && tsc benchmark.test.ts
+	cd internal/bench/ts-queryx && node benchmark.test.js
+
+
+benchmarks-typescript-mysql:
+	cd internal/bench/ts-queryx && rm -rf db
+	cd internal/bench/ts-queryx && queryx db:drop --schema    mysql.hcl
+	cd internal/bench/ts-queryx && queryx db:create --schema  mysql.hcl
+	cd internal/bench/ts-queryx && queryx db:migrate --schema mysql.hcl
+	cd internal/bench/ts-queryx && queryx g --schema          mysql.hcl
+	cd internal/bench/ts-queryx &&  yarn
+	cd internal/bench/ts-queryx && tsc benchmark.test.ts
+	cd internal/bench/ts-queryx && node benchmark.test.js
+
+
+benchmarks-typescript-sqlite:
+	cd internal/bench/ts-queryx && rm -rf db
+	cd internal/bench/ts-queryx && queryx db:drop --schema    sqlite.hcl
+	cd internal/bench/ts-queryx && queryx db:create --schema  sqlite.hcl
+	cd internal/bench/ts-queryx && queryx db:migrate --schema sqlite.hcl
+	cd internal/bench/ts-queryx && queryx g --schema          sqlite.hcl
+	cd internal/bench/ts-queryx && tsc benchmark.test.ts
+	cd internal/bench/ts-queryx && node benchmark.test.js

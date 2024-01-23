@@ -8,8 +8,8 @@ type ORMInterface interface {
 	Name() string
 	Init() error
 	Close() error
-	Insert(b *testing.B)
-	InsertMulti(b *testing.B)
+	Create(b *testing.B)
+	InsertAll(b *testing.B)
 	Update(b *testing.B)
 	Read(b *testing.B)
 	ReadSlice(b *testing.B)
@@ -58,7 +58,7 @@ func RunBenchmarks(orm ORMInterface, reports map[string]BenchmarkReport) (Benchm
 	}(orm)
 
 	var result BenchmarkResult
-	operations := []func(b *testing.B){orm.Insert, orm.InsertMulti, orm.Update, orm.Read, orm.ReadSlice}
+	operations := []func(b *testing.B){orm.Create, orm.InsertAll, orm.Update, orm.Read, orm.ReadSlice}
 
 	result.ORM = orm.Name()
 	for _, operation := range operations {

@@ -42,7 +42,7 @@ func (Queryx *Queryx) Close() error {
 	return nil
 }
 
-func (Queryx *Queryx) Insert(b *testing.B) {
+func (Queryx *Queryx) Create(b *testing.B) {
 	m := NewModel()
 
 	b.ReportAllocs()
@@ -53,12 +53,12 @@ func (Queryx *Queryx) Insert(b *testing.B) {
 		_, err := c.QueryModel().Create(c.ChangeModel().SetName(m.Name).
 			SetTitle(m.Title).SetFax(m.Fax).SetWeb(m.Web).SetAge(int64(m.Age)).SetCounter(int32(m.Counter)).SetRigh(m.Righ))
 		if err != nil {
-			helper.SetError(b, Queryx.Name(), "Insert", err.Error())
+			helper.SetError(b, Queryx.Name(), "Create", err.Error())
 		}
 	}
 }
 
-func (Queryx *Queryx) InsertMulti(b *testing.B) {
+func (Queryx *Queryx) InsertAll(b *testing.B) {
 	m := NewModel()
 	ms := make([]*queryx.ModelChange, 0, 100)
 	for i := 0; i < 100; i++ {
@@ -72,7 +72,7 @@ func (Queryx *Queryx) InsertMulti(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		_, err := c.QueryModel().InsertAll(ms)
 		if err != nil {
-			helper.SetError(b, Queryx.Name(), "InsertMulti", err.Error())
+			helper.SetError(b, Queryx.Name(), "InsertAll", err.Error())
 		}
 	}
 }
@@ -92,7 +92,7 @@ func (Queryx *Queryx) Update(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		_, err := c.QueryModel().Where(c.ModelID.EQ(m8.ID)).UpdateAll(change)
 		if err != nil {
-			helper.SetError(b, Queryx.Name(), "Update", err.Error())
+			helper.SetError(b, Queryx.Name(), "UpdateAll", err.Error())
 		}
 	}
 }
@@ -112,7 +112,7 @@ func (Queryx *Queryx) Read(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		_, err := c.QueryModel().FindBy(c.ModelName.EQ(m.Name))
 		if err != nil {
-			helper.SetError(b, Queryx.Name(), "Read", err.Error())
+			helper.SetError(b, Queryx.Name(), "FindBy", err.Error())
 		}
 	}
 }
@@ -134,7 +134,7 @@ func (Queryx *Queryx) ReadSlice(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		_, err := c.QueryModel().FindBySQL(queryxSelectMultiSQL)
 		if err != nil {
-			helper.SetError(b, Queryx.Name(), "ReadSlice", err.Error())
+			helper.SetError(b, Queryx.Name(), "FindBySQL", err.Error())
 		}
 	}
 }
