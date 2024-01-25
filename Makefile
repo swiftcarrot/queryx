@@ -84,7 +84,7 @@ benchmarks-golang-sqlite: install
 	cd internal/bench/go-queryx && queryx db:create --schema sqlite.hcl
 	cd internal/bench/go-queryx && queryx db:migrate --schema sqlite.hcl
 	cd internal/bench/go-queryx && queryx g --schema sqlite.hcl
-	cd internal/bench && set CGO_ENABLED=1 && go build -o bin/queryxorm main.go
+	cd internal/bench && go build -o bin/queryxorm main.go
 	cd internal/bench && install bin/queryxorm /usr/local/bin
 	queryxorm
 

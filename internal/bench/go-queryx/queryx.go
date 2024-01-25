@@ -38,10 +38,6 @@ func (Queryx *Queryx) Init() error {
 	return err
 }
 
-func (Queryx *Queryx) Close() error {
-	return nil
-}
-
 func (Queryx *Queryx) Create(b *testing.B) {
 	m := NewModel()
 

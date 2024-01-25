@@ -7,7 +7,6 @@ import (
 type ORMInterface interface {
 	Name() string
 	Init() error
-	Close() error
 	Create(b *testing.B)
 	InsertAll(b *testing.B)
 	Update(b *testing.B)
@@ -47,22 +46,15 @@ func (s BenchmarkReport) Less(i, j int) bool {
 	return s[i].NsPerOp < s[j].NsPerOp
 }
 
-func RunBenchmarks(orm ORMInterface, reports map[string]BenchmarkReport) (BenchmarkResult, error) {
+func RunBenchmarks(orm ORMInterface, reports map[string]BenchmarkReport) error {
 	err := orm.Init()
 	if err != nil {
-		return BenchmarkResult{}, err
+		return err
 	}
 
-	defer func(orm ORMInterface) {
-		_ = orm.Close()
-	}(orm)
-
-	var result BenchmarkResult
 	operations := []func(b *testing.B){orm.Create, orm.InsertAll, orm.Update, orm.Read, orm.ReadSlice}
 
-	result.ORM = orm.Name()
 	for _, operation := range operations {
-		// Clean tables for each run
 		err := CreateTables()
 		if err != nil {
 			panic(err)
@@ -82,8 +74,7 @@ func RunBenchmarks(orm ORMInterface, reports map[string]BenchmarkReport) (Benchm
 		}
 
 		reports[method] = append(reports[method], gotResult)
-		result.Results = append(result.Results, *gotResult)
 	}
 
-	return result, nil
+	return err
 }
