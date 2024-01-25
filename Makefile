@@ -44,9 +44,9 @@ test-sqlite: install
 	cd internal/integration && queryx db:migrate --schema sqlite.hcl
 	cd internal/integration && queryx db:migrate --schema sqlite.hcl
 	cd internal/integration && queryx generate --schema sqlite.hcl
-	cd internal/integration && yarn tsc
-	cd internal/integration && yarn test
-	# cd internal/integration && go test ./...
+#	cd internal/integration && yarn tsc
+#	cd internal/integration && yarn test
+	cd internal/integration && go test ./...
 
 test: test-postgresql test-sqlite test-mysql
 
@@ -58,7 +58,7 @@ test-migrate: install
 	cd internal/migrate && sqlite3 test.sqlite3 "insert into users(name, email) values('test', 'test@example.com')"
 
 
-benchmarks-golang-postgresql:
+benchmarks-golang-postgresql: install
 	cd internal/bench/go-queryx && rm -rf db
 	cd internal/bench/go-queryx && queryx db:drop --schema postgresql.hcl
 	cd internal/bench/go-queryx && queryx db:create --schema postgresql.hcl
@@ -66,9 +66,9 @@ benchmarks-golang-postgresql:
 	cd internal/bench/go-queryx && queryx g --schema postgresql.hcl
 	cd internal/bench && go build -o bin/queryxorm main.go
 	cd internal/bench && install bin/queryxorm /usr/local/bin
-	queryxorm -orm=go-queryx
+	queryxorm
 
-benchmarks-golang-mysql:
+benchmarks-golang-mysql: install
 	cd internal/bench/go-queryx && rm -rf db
 	cd internal/bench/go-queryx && queryx db:drop --schema mysql.hcl
 	cd internal/bench/go-queryx && queryx db:create --schema mysql.hcl
@@ -76,19 +76,19 @@ benchmarks-golang-mysql:
 	cd internal/bench/go-queryx && queryx g --schema mysql.hcl
 	cd internal/bench && go build -o bin/queryxorm main.go
 	cd internal/bench && install bin/queryxorm /usr/local/bin
-	queryxorm -orm=go-queryx
+	queryxorm
 
-benchmarks-golang-sqlite:
+benchmarks-golang-sqlite: install
 	cd internal/bench/go-queryx && rm -rf db
 	cd internal/bench/go-queryx && queryx db:drop --schema sqlite.hcl
 	cd internal/bench/go-queryx && queryx db:create --schema sqlite.hcl
 	cd internal/bench/go-queryx && queryx db:migrate --schema sqlite.hcl
 	cd internal/bench/go-queryx && queryx g --schema sqlite.hcl
-	cd internal/bench && go build -o bin/queryxorm main.go
+	cd internal/bench && set CGO_ENABLED=1 && go build -o bin/queryxorm main.go
 	cd internal/bench && install bin/queryxorm /usr/local/bin
-	queryxorm -orm=go-queryx
+	queryxorm
 
-benchmarks-typescript-postgresql:
+benchmarks-typescript-postgresql: install
 	cd internal/bench/ts-queryx && rm -rf db
 	cd internal/bench/ts-queryx && queryx db:drop --schema postgresql.hcl
 	cd internal/bench/ts-queryx && queryx db:create --schema postgresql.hcl
@@ -98,7 +98,7 @@ benchmarks-typescript-postgresql:
 	cd internal/bench/ts-queryx && node benchmark.test.js
 
 
-benchmarks-typescript-mysql:
+benchmarks-typescript-mysql: install
 	cd internal/bench/ts-queryx && rm -rf db
 	cd internal/bench/ts-queryx && queryx db:drop --schema    mysql.hcl
 	cd internal/bench/ts-queryx && queryx db:create --schema  mysql.hcl
@@ -109,7 +109,7 @@ benchmarks-typescript-mysql:
 	cd internal/bench/ts-queryx && node benchmark.test.js
 
 
-benchmarks-typescript-sqlite:
+benchmarks-typescript-sqlite: install
 	cd internal/bench/ts-queryx && rm -rf db
 	cd internal/bench/ts-queryx && queryx db:drop --schema    sqlite.hcl
 	cd internal/bench/ts-queryx && queryx db:create --schema  sqlite.hcl

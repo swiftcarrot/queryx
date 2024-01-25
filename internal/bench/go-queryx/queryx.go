@@ -26,7 +26,7 @@ func CreateQueryx() helper.ORMInterface {
 }
 
 func (Queryx *Queryx) Name() string {
-	return "go-queryx"
+	return "queryx"
 }
 
 func (Queryx *Queryx) Init() error {
@@ -79,6 +79,7 @@ func (Queryx *Queryx) InsertAll(b *testing.B) {
 
 func (Queryx *Queryx) Update(b *testing.B) {
 	m := NewModel()
+
 	change := c.ChangeModel().SetName(m.Name).SetRigh(m.Righ).
 		SetTitle(m.Title).SetFax(m.Fax).SetWeb(m.Web).SetAge(int64(m.Age)).SetCounter(int32(m.Counter))
 	m8, err := c.QueryModel().Create(change)
