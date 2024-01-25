@@ -417,6 +417,18 @@ func TestPreload(t *testing.T) {
 	post, _ := c.QueryPost().PreloadUserPosts().Find(post1.ID)
 	require.Equal(t, 1, len(post.UserPosts))
 	require.Equal(t, userPost1.ID, post.UserPosts[0].ID)
+
+	user, err := c.QueryUser().Find(user1.ID)
+	require.NoError(t, err)
+	err = user.PreloadUserPosts()
+	require.NoError(t, err)
+	require.Equal(t, 2, len(user.UserPosts))
+	err = user.PreloadPosts()
+	require.NoError(t, err)
+	require.Equal(t, 2, len(user.Posts))
+	err = user.PreloadAccount()
+	require.NoError(t, err)
+	require.Equal(t, account1.ID, user.Account.ID)
 }
 
 func TestTransaction(t *testing.T) {
