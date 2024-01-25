@@ -60,7 +60,7 @@ func (Queryx *Queryx) InsertAll(b *testing.B) {
 	m := NewModel()
 	ms := make([]*queryx.ModelChange, 0, 100)
 	for i := 0; i < 100; i++ {
-		ms = append(ms, c.ChangeModel().SetName(m.Name).SetID(int64(i)).
+		ms = append(ms, c.ChangeModel().SetName(m.Name).
 			SetTitle(m.Title).SetFax(m.Fax).SetWeb(m.Web).SetAge(int64(m.Age)).SetCounter(int32(m.Counter)).SetRigh(m.Righ))
 	}
 
