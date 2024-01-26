@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"github.com/swiftcarrot/queryx/internal/benchmarks/go-queryx"
 	"github.com/swiftcarrot/queryx/internal/benchmarks/go-queryx/helper"
@@ -10,18 +11,22 @@ import (
 	"text/tabwriter"
 )
 
+var adapter string
+
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
+	flag.StringVar(&adapter, "adapter", "postgresql", "-orm=postgresql")
+	flag.Parse()
 	helper.Errors = make(map[string]map[string]string, 0)
 	helper.Errors["queryx"] = make(map[string]string, 0)
-	runBenchmarks()
+	runBenchmarks(adapter)
 }
 
-func runBenchmarks() {
+func runBenchmarks(adapter string) {
 	table := new(tabwriter.Writer)
 	table.Init(os.Stdout, 0, 8, 2, '\t', tabwriter.AlignRight)
 	reports := make(map[string]helper.BenchmarkReport, 0)
-	err := helper.RunBenchmarks(go_queryx.CreateQueryx(), reports)
+	err := helper.RunBenchmarks(adapter, go_queryx.CreateQueryx(), reports)
 	if err != nil {
 		panic(fmt.Sprintf("An error occured while running the benchmarks: %v", err))
 	}

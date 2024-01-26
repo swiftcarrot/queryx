@@ -1,12 +1,13 @@
 package helper
 
 import (
+	"github.com/swiftcarrot/queryx/internal/benchmarks/go-queryx/db"
 	"testing"
 )
 
 type ORMInterface interface {
 	Name() string
-	Init() error
+	Init() (*db.QXClient, error)
 	Create(b *testing.B)
 	InsertAll(b *testing.B)
 	Update(b *testing.B)
@@ -46,8 +47,8 @@ func (s BenchmarkReport) Less(i, j int) bool {
 	return s[i].NsPerOp < s[j].NsPerOp
 }
 
-func RunBenchmarks(orm ORMInterface, reports map[string]BenchmarkReport) error {
-	err := orm.Init()
+func RunBenchmarks(adapter string, orm ORMInterface, reports map[string]BenchmarkReport) error {
+	c, err := orm.Init()
 	if err != nil {
 		return err
 	}
@@ -55,9 +56,9 @@ func RunBenchmarks(orm ORMInterface, reports map[string]BenchmarkReport) error {
 	operations := []func(b *testing.B){orm.InsertAll, orm.Create, orm.Update, orm.Read, orm.ReadSlice}
 
 	for _, operation := range operations {
-		err := CreateTables()
+		err = CreateTables(c, adapter)
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		br := testing.Benchmark(operation)
@@ -76,5 +77,5 @@ func RunBenchmarks(orm ORMInterface, reports map[string]BenchmarkReport) error {
 		reports[method] = append(reports[method], gotResult)
 	}
 
-	return err
+	return nil
 }

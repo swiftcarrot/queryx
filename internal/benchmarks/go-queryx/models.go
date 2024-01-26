@@ -7,9 +7,9 @@ type Model struct {
 	Title   string `column:"title"`
 	Fax     string `column:"fax"`
 	Web     string `column:"web"`
-	Age     int    `column:"age"`
+	Age     int64  `column:"age"`
 	Righ    bool   `column:"righ"`
-	Counter int64  `column:"counter"`
+	Counter int32  `column:"counter"`
 }
 
 func NewModel() *Model {
