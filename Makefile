@@ -66,7 +66,7 @@ benchmarks-golang-postgresql: install
 	cd internal/benchmarks/go-queryx && queryx g --schema postgresql.hcl
 	cd internal/benchmarks && go build -o bin/queryxorm main.go
 	cd internal/benchmarks && install bin/queryxorm /usr/local/bin
-	queryxorm
+	queryxorm -adapter=postgresql
 
 benchmarks-golang-mysql: install
 	cd internal/benchmarks/go-queryx && rm -rf db
@@ -76,17 +76,19 @@ benchmarks-golang-mysql: install
 	cd internal/benchmarks/go-queryx && queryx g --schema mysql.hcl
 	cd internal/benchmarks && go build -o bin/queryxorm main.go
 	cd internal/benchmarks && install bin/queryxorm /usr/local/bin
-	queryxorm
+	queryxorm -adapter=mysql
 
 benchmarks-golang-sqlite: install
 	cd internal/benchmarks/go-queryx && rm -rf db
-	#cd internal/benchmarks/go-queryx && queryx db:drop --schema sqlite.hcl
+	cd internal/benchmarks/go-queryx && queryx db:drop --schema sqlite.hcl
 	cd internal/benchmarks/go-queryx && queryx db:create --schema sqlite.hcl
 	cd internal/benchmarks/go-queryx && queryx db:migrate --schema sqlite.hcl
 	cd internal/benchmarks/go-queryx && queryx g --schema sqlite.hcl
 	cd internal/benchmarks && go build -o bin/queryxorm main.go
 	cd internal/benchmarks && install bin/queryxorm /usr/local/bin
-	queryxorm
+	queryxorm -adapter=sqlite
+
+benchmarks-golang: install benchmarks-golang-mysql benchmarks-golang-sqlite benchmarks-golang-postgresql
 
 benchmarks-typescript-postgresql: install
 	cd internal/benchmarks/ts-queryx && rm -rf db
