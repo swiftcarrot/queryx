@@ -19,7 +19,7 @@ function benchmarkCreate(){
             age: 122,
             righ: true,
             counter: 1222
-        }).then();
+        });
     }).run()
         .add("insertAll:",async () => {
             await c.queryModel().insertAll([{
@@ -48,7 +48,7 @@ function benchmarkCreate(){
                 counter: 1222
             }])
         }).run()
-        .add("find",async () => {
+        .add("find:",async () => {
             await c.queryModel().find(model.id)
         }).run()
         .add( "update:", async () => {

@@ -51,4 +51,23 @@ queryx:         1186    1187729 ns/op   9278 B/op       157 allocs/op
 
 ReadSlice
 queryx:         1008    2237629 ns/op   348255 B/op     10661 allocs/op
+
+typescript-mysql-Reports:
+create: x 790 ops/sec ±191.34% (36 runs sampled)
+insertAll: x 591 ops/sec ±60.50% (20 runs sampled)
+find x 4,631 ops/sec ±24.66% (34 runs sampled)
+update: x 760 ops/sec ±87.89% (10 runs sampled)
+
+typescript-postgresql-Reports:
+create: x 1,071 ops/sec ±86.40% (9 runs sampled)
+insertAll: x 8,521 ops/sec ±21.30% (35 runs sampled)
+find: x 4,269 ops/sec ±16.80% (52 runs sampled)
+update: x 1,860 ops/sec ±46.43% (38 runs sampled)
+
+typescript-sqlite-Reports:
+create:x 25,930 ops/sec +18.77%(44 runs sampled)
+insertAll:x14,361 ops/sec +66.85%(29 runs sampled)
+find x 1.087 ops/sec +78.85%(13 runs sampled)
+update:x 2,225 ops/sec +18.76%(36 runs sampled)
+
 ```
