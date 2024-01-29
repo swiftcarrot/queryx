@@ -11,7 +11,7 @@ import (
 
 type {{ $.model.Name }} struct {
 	{{- range $c := .model.Columns }}
-	{{ pascal $c.Name }} {{ goModelType $c.Type $c.Null }} `json:"{{ camel $c.Name }}" db:"{{ $c.Name }}"`
+	{{ pascal $c.Name }} {{ goModelType $c.Type $c.Null $c.Array }} `json:"{{ camel $c.Name }}" db:"{{ $c.Name }}"`
 	{{- end }}
 	{{- range $b := $.model.BelongsTo}}
 	{{ $b.Name | pascal }} *{{ $b.ModelName }} `json:"{{ camel $b.Name }}"`
@@ -35,7 +35,7 @@ func ({{ $m }} *{{.model.Name}}) String() string {
 	sb.WriteString("({{ $.model.Name }} ")
 	{{- range $i, $c := $.model.Columns }}
 	{{- if $c.Null }}
-	sb.WriteString(fmt.Sprintf("{{ $c.Name }}: %s", {{ $m }}.{{ pascal $c.Name }}))
+	sb.WriteString(fmt.Sprintf("{{ $c.Name }}: {{if $c.Array}}%v{{else}}%s{{end}}", {{ $m }}.{{ pascal $c.Name }}))
 	{{- else if eq $c.Type "string" }}
 	sb.WriteString(fmt.Sprintf(`{{ $c.Name }}: "%s"`, {{ $m }}.{{ pascal $c.Name }}))
 	{{- else }}

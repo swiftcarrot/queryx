@@ -24,14 +24,23 @@ func goKeywordFix(s string) string {
 
 // TODO: use a map
 // convert column type to corresponding queryx type
-func goModelType(t string, null bool) string {
+func goModelType(t string, null bool, args ...bool) string {
+	array := false
+	if len(args) > 0 {
+		array = args[0]
+	}
 	if null {
 		switch t {
 		case "bigint":
 			return "queryx.BigInt"
 		case "uuid":
 			return "queryx.UUID"
-		case "string", "text":
+		case "text":
+			return "queryx.String"
+		case "string":
+			if array {
+				return "queryx.StringArray"
+			}
 			return "queryx.String"
 		case "datetime":
 			return "queryx.Datetime"
@@ -81,13 +90,22 @@ func goModelType(t string, null bool) string {
 }
 
 // convert column type to corresponding queryx type
-func goType(t string) string {
+func goType(t string, args ...bool) string {
+	array := false
+	if len(args) > 0 {
+		array = args[0]
+	}
 	switch t {
 	case "bigint":
 		return "BigInt"
 	case "uuid":
 		return "UUID"
-	case "string", "text":
+	case "string":
+		if array {
+			return "StringArray"
+		}
+		return "String"
+	case "text":
 		return "String"
 	case "datetime":
 		return "Datetime"
@@ -110,7 +128,11 @@ func goType(t string) string {
 }
 
 // convert column type to go type in setter method of change object
-func goChangeSetType(t string) string {
+func goChangeSetType(t string, args ...bool) string {
+	array := false
+	if len(args) > 0 {
+		array = args[0]
+	}
 	switch t {
 	case "bigint":
 		return "int64"
@@ -118,7 +140,12 @@ func goChangeSetType(t string) string {
 		return "bool"
 	case "integer":
 		return "int32"
-	case "string", "text", "date", "time", "datetime", "uuid":
+	case "text", "date", "time", "datetime", "uuid":
+		return "string"
+	case "string":
+		if array {
+			return "[]string"
+		}
 		return "string"
 	case "float":
 		return "float64"
