@@ -91,6 +91,46 @@ func TestInsertAll(t *testing.T) {
 	require.Equal(t, int64(2), inserted)
 }
 
+func TestRow(t *testing.T) {
+	_, err := c.QueryUser().DeleteAll()
+	require.NoError(t, err)
+
+	user, err := c.QueryUser().Create(c.ChangeUser().SetName("test_row").SetAge(12))
+	require.NoError(t, err)
+
+	rows, err := c.QueryOne("select name from users where id=?", user.ID).Row()
+	require.NoError(t, err)
+	var name string
+	if rows.Next() {
+		err := rows.Scan(&name)
+		require.NoError(t, err)
+	}
+	err = rows.Close()
+	require.NoError(t, err)
+	require.Equal(t, "test_row", name)
+}
+
+func TestRows(t *testing.T) {
+	_, err := c.QueryUser().DeleteAll()
+	require.NoError(t, err)
+
+	_, err = c.QueryUser().InsertAll([]*queryx.UserChange{c.ChangeUser().SetName("test_row1").SetAge(12), c.ChangeUser().SetName("test_row2").SetAge(12)})
+	require.NoError(t, err)
+
+	rows, err := c.Query("select name from users where age=?", 12).Rows()
+	require.NoError(t, err)
+	var name string
+	values := make([]string, 0)
+	for rows.Next() {
+		err := rows.Scan(&name)
+		require.NoError(t, err)
+		values = append(values, name)
+	}
+	err = rows.Close()
+	require.NoError(t, err)
+	require.Equal(t, []string{"test_row1", "test_row2"}, values)
+}
+
 func TestCreateEmpty(t *testing.T) {
 	tag, err := c.QueryTag().Create(nil)
 	require.NoError(t, err)
