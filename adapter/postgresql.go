@@ -57,7 +57,7 @@ func (a *PostgreSQLAdapter) DropDatabase() error {
 	defer db.Close()
 
 	a.DB = db
-	sql := fmt.Sprintf("DROP DATABASE %s", a.Config.Database)
+	sql := fmt.Sprintf("DROP DATABASE IF EXISTS %s", a.Config.Database)
 	_, err = a.ExecContext(context.Background(), sql)
 	if err != nil {
 		return err
