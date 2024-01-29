@@ -48,7 +48,11 @@ export class UpdateStatement {
     let sets = [];
     if (this._columns !== undefined) {
       for (let col of this._columns) {
-        sets.push(`${col} = ?`);
+        {{- if eq $.client.Adapter "mysql" }}
+        sets.push(`\`${col}\` = ?`);
+        {{- else }}
+        sets.push(`\"${col}\" = ?`);
+        {{- end }}
       }
     }
 

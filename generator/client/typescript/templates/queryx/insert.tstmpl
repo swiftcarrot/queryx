@@ -55,7 +55,7 @@ export class InsertStatement {
 		  {{- if eq $.client.Adapter "mysql" }}
       sql = `${sql} (\`${this._columns.join("`, `")}\`)`;
       {{- else }}
-      sql = `${sql} (${this._columns.join(", ")})`;
+      sql = `${sql} (\"${this._columns.join("\", \"")}\")`;
       {{- end }}
     } else {
 		  {{- if eq $.client.Adapter "mysql" }}
