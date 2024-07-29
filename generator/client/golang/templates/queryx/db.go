@@ -60,6 +60,8 @@ func (r *Rows) Scan(v interface{}) error {
 	if err != nil {
 		return err
 	}
+	defer rows.close()
+	
 	err = ScanSlice(rows, v)
 	if err != nil {
 		return err
@@ -94,6 +96,8 @@ func (r *Row) Scan(v interface{}) error {
 	if err != nil {
 		return err
 	}
+	defer rows.close()
+	
 	err = ScanOne(rows, v)
 	if err != nil {
 		return err
