@@ -10,8 +10,8 @@ jobs:
       matrix:
         goarch: [amd64]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
       - name: Build
         shell: pwsh
         env:
@@ -34,8 +34,8 @@ jobs:
     steps:
       - name: Install GNU C compiler for the arm64 architecture
         run: sudo apt-get update && sudo apt-get -y install gcc-aarch64-linux-gnu
-      - name: Checkout
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
       - name: Build
         env:
           CGO_ENABLED: 1
@@ -60,8 +60,8 @@ jobs:
       matrix:
         goarch: [amd64, arm64]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
       - name: Build
         env:
           GOARCH: ${{ matrix.goarch }}
