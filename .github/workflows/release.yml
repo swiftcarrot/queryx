@@ -12,6 +12,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
+        with:
+          go-version: "stable"
       - name: Build
         shell: pwsh
         env:
@@ -36,6 +38,8 @@ jobs:
         run: sudo apt-get update && sudo apt-get -y install gcc-aarch64-linux-gnu
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
+        with:
+          go-version: "stable"
       - name: Build
         env:
           CGO_ENABLED: 1
@@ -62,6 +66,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
+        with:
+          go-version: "stable"
       - name: Build
         env:
           GOARCH: ${{ matrix.goarch }}
