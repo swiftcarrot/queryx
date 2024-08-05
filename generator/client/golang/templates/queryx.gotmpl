@@ -19,7 +19,7 @@ type Queries interface {
 }
 
 type QXClient struct {
-	db *sql.DB
+	DB *sql.DB
 	config *queryx.Config
 	logger  queryx.Logger
 	*queryx.Adapter
@@ -52,12 +52,12 @@ func NewClientWithEnv(env string) (*QXClient, error) {
 	}
 
 	client := &QXClient{
-		db: db,
+		DB: db,
 		config: config,
 		Adapter: queryx.NewAdapter(db),
 		Schema : queryx.NewSchema(),
 	}
-  client.setDefaultLogger()
+	client.setDefaultLogger()
 
 	return client, nil
 }
@@ -102,7 +102,7 @@ type Tx struct {
 
 func (c *QXClient) Tx() (*Tx, error) {
 	ctx := context.Background()
-	tx, err := c.db.BeginTx(ctx, nil)
+	tx, err := c.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, err
 	}

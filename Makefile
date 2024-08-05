@@ -9,7 +9,7 @@ build: fmt
 	go build -ldflags "-X github.com/swiftcarrot/queryx/cmd/queryx/action.Version=`git rev-parse HEAD`" -o bin/queryx cmd/queryx/main.go
 
 install: build
-	install bin/queryx /usr/local/bin
+	sudo install bin/queryx /usr/local/bin
 
 clean:
 	rm bin/queryx
@@ -21,9 +21,9 @@ test-postgresql: install
 	cd internal/integration && queryx db:migrate --schema postgresql.hcl
 	cd internal/integration && queryx db:migrate --schema postgresql.hcl
 	cd internal/integration && queryx generate --schema postgresql.hcl
-	cd internal/integration && yarn tsc
-	cd internal/integration && yarn test
-	# cd internal/integration && go test ./...
+	# cd internal/integration && yarn tsc
+	# cd internal/integration && yarn test
+	cd internal/integration && go test ./...
 	# cd internal/integration && queryx db:drop --schema postgresql.hcl
 
 test-mysql: install
