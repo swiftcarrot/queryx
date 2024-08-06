@@ -37,8 +37,25 @@ func (c *StringColumn) IEQ(v string) *Clause {
 }
 
 func (c *StringColumn) In(v []string) *Clause {
+	if len(v) == 0 {
+		return &Clause{
+			fragment: "1=0",
+		}
+	}
 	return &Clause{
 		fragment: fmt.Sprintf("%s.%s IN (?)", c.Table.Name, c.Name),
+		args:     []interface{}{v},
+	}
+}
+
+func (c *StringColumn) NIn(v []string) *Clause {
+	if len(v) == 0 {
+		return &Clause{
+			fragment: "1!=0",
+		}
+	}
+	return &Clause{
+		fragment: fmt.Sprintf("%s.%s NOT IN (?)", c.Table.Name, c.Name),
 		args:     []interface{}{v},
 	}
 }

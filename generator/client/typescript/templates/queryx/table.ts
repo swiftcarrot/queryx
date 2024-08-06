@@ -73,18 +73,33 @@ class NumberColumn extends Column {
   eq(v: number) {
     return new Clause(`${this.table.name}.${this.name} = ?`, [v]);
   }
-  ne(v: number) {}
-  gt(v: number) {}
-  gte(v: number) {}
-  lt(v: number) {}
-  lte(v: number) {}
+  ne(v: number) {
+    return new Clause(`${this.table.name}.${this.name} != ?`, [v]);
+  }
+  gt(v: number) {
+    return new Clause(`${this.table.name}.${this.name} > ?`, [v]);
+  }
+  gte(v: number) {
+    return new Clause(`${this.table.name}.${this.name} >= ?`, [v]);
+  }
+  lt(v: number) {
+    return new Clause(`${this.table.name}.${this.name} < ?`, [v]);
+  }
+  lte(v: number) {
+    return new Clause(`${this.table.name}.${this.name} <= ?`, [v]);
+  }
   in(v: number[]) {
     if (!v.length) {
       return new Clause("1=0", []);
     }
     return new Clause(`${this.table.name}.${this.name} in (?)`, [v]);
   }
-  nin(v: number[]) {}
+  nin(v: number[]) {
+    if (!v.length) {
+      return new Clause("1!=0", []);
+    }
+    return new Clause(`${this.table.name}.${this.name} not in (?)`, [v]);
+  }
 }
 
 export class BigIntColumn extends NumberColumn {}
@@ -106,11 +121,33 @@ export class StringColumn extends Column {
   eq(v: string) {
     return new Clause(`${this.table.name}.${this.name} = ?`, [v]);
   }
-  ne(v: string) {}
-  gt(v: string) {}
-  gte(v: string) {}
-  lt(v: string) {}
-  lte(v: string) {}
+  ne(v: string) {
+    return new Clause(`${this.table.name}.${this.name} != ?`, [v]);
+  }
+  gt(v: string) {
+    return new Clause(`${this.table.name}.${this.name} > ?`, [v]);
+  }
+  gte(v: string) {
+    return new Clause(`${this.table.name}.${this.name} >= ?`, [v]);
+  }
+  lt(v: string) {
+    return new Clause(`${this.table.name}.${this.name} < ?`, [v]);
+  }
+  lte(v: string) {
+    return new Clause(`${this.table.name}.${this.name} <= ?`, [v]);
+  }
+  in(v: string[]) {
+    if (!v.length) {
+      return new Clause("1=0", []);
+    }
+    return new Clause(`${this.table.name}.${this.name} in (?)`, [v]);
+  }
+  nin(v: string[]) {
+    if (!v.length) {
+      return new Clause("1!=0", []);
+    }
+    return new Clause(`${this.table.name}.${this.name} not in (?)`, [v]);
+  }
 }
 
 export class TextColumn extends StringColumn {}
@@ -119,10 +156,18 @@ export class DateColumn extends Column {
   eq(v: string) {
     return new Clause(`${this.table.name}.${this.name} = ?`, [v]);
   }
-  gt(v: string) {}
-  gte(v: string) {}
-  lt(v: string) {}
-  lte(v: string) {}
+  gt(v: string) {
+    return new Clause(`${this.table.name}.${this.name} > ?`, [v]);
+  }
+  gte(v: string) {
+    return new Clause(`${this.table.name}.${this.name} >= ?`, [v]);
+  }
+  lt(v: string) {
+    return new Clause(`${this.table.name}.${this.name} < ?`, [v]);
+  }
+  lte(v: string) {
+    return new Clause(`${this.table.name}.${this.name} <= ?`, [v]);
+  }
 }
 
 export class TimeColumn extends Column {

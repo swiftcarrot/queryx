@@ -12,7 +12,7 @@ test("queryOne", async () => {
   let user = await c.queryUser().create({ name: "test" });
   let row = await c.queryOne<{ user_id: number }>(
     "select id as user_id from users where id = ?",
-    user.id,
+    user.id
   );
   expect(row.user_id).toEqual(user.id);
 });
@@ -22,7 +22,7 @@ test("query", async () => {
   let user2 = await c.queryUser().create({ name: "test2" });
   let rows = await c.query<{ user_name: string }>(
     "select name as user_name from users where id in (?)",
-    [user1.id, user2.id],
+    [user1.id, user2.id]
   );
   expect(rows).toEqual([{ user_name: "test1" }, { user_name: "test2" }]);
 });
@@ -32,7 +32,7 @@ test("exec", async () => {
   let updated = await c.exec(
     "update users set name = ? where id = ?",
     "test1",
-    user.id,
+    user.id
   );
   expect(updated).toEqual(1);
   let deleted = await c.exec("delete from users where id = ?", user.id);
@@ -122,7 +122,7 @@ test("datetime", async () => {
       c.userID
         .eq(user.id)
         .and(c.userDatetime.gte(s1))
-        .and(c.userDatetime.lte(s1)),
+        .and(c.userDatetime.lte(s1))
     )
     .first();
   expect(format(user.datetime!, "yyyy-MM-dd HH:mm:ss")).toEqual(s1);
@@ -236,6 +236,37 @@ test("allEmpty", async () => {
   await c.queryUser().deleteAll();
   let users = await c.queryUser().all();
   expect(users).toEqual([]);
+});
+
+test("in", async () => {
+  await c.queryUser().deleteAll();
+  const user1 = await c.queryUser().create({ name: "user1" });
+  const user2 = await c.queryUser().create({ name: "user2" });
+  const user3 = await c.queryUser().create({ name: "user3" });
+
+  const users1 = await c
+    .queryUser()
+    .where(c.userID.in([user1.id, user2.id]))
+    .all();
+  expect(users1).toEqual([user1, user2]);
+
+  const users2 = await c
+    .queryUser()
+    .where(c.userName.in([user1.name, user2.name]))
+    .all();
+  expect(users2).toEqual([user1, user2]);
+
+  const users3 = await c
+    .queryUser()
+    .where(c.userID.nin([user1.id, user2.id]))
+    .all();
+  expect(users3).toEqual([user3]);
+
+  const users4 = await c
+    .queryUser()
+    .where(c.userName.nin([user1.name, user2.name]))
+    .all();
+  expect(users4).toEqual([user3]);
 });
 
 test("inEmpty", async () => {
