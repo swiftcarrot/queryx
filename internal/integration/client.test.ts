@@ -12,7 +12,7 @@ test("queryOne", async () => {
   let user = await c.queryUser().create({ name: "test" });
   let row = await c.queryOne<{ user_id: number }>(
     "select id as user_id from users where id = ?",
-    user.id
+    user.id,
   );
   expect(row.user_id).toEqual(user.id);
 });
@@ -22,7 +22,7 @@ test("query", async () => {
   let user2 = await c.queryUser().create({ name: "test2" });
   let rows = await c.query<{ user_name: string }>(
     "select name as user_name from users where id in (?)",
-    [user1.id, user2.id]
+    [user1.id, user2.id],
   );
   expect(rows).toEqual([{ user_name: "test1" }, { user_name: "test2" }]);
 });
@@ -32,7 +32,7 @@ test("exec", async () => {
   let updated = await c.exec(
     "update users set name = ? where id = ?",
     "test1",
-    user.id
+    user.id,
   );
   expect(updated).toEqual(1);
   let deleted = await c.exec("delete from users where id = ?", user.id);
@@ -122,7 +122,7 @@ test("datetime", async () => {
       c.userID
         .eq(user.id)
         .and(c.userDatetime.gte(s1))
-        .and(c.userDatetime.lte(s1))
+        .and(c.userDatetime.lte(s1)),
     )
     .first();
   expect(format(user.datetime!, "yyyy-MM-dd HH:mm:ss")).toEqual(s1);
