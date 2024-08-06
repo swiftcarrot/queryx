@@ -77,19 +77,25 @@ export function rebind<T extends any[] = any[]>(query: string, args?: T) {
   let str = "";
   let i = 0;
   let j = 1;
+  let k = 0;
   let args1: any[] = [];
 
-  for (i = query.indexOf("?"); i !== -1; i = query.indexOf("?")) {
+  while (i !== -1) {
+    i = query.indexOf("?");
     str += query.substring(0, i);
 
-    if (Array.isArray(args[j - 1])) {
-      args1 = args1.concat(args[j - 1]);
-      str += args[j - 1].map((_, i) => "$" + (j + i)).join(", ");
-      j += args.length;
-    } else {
-      args1.push(args[j - 1]);
-      str += "$" + j;
-      j++;
+    if (args.length > k) {
+      const arg = args[k];
+      if (Array.isArray(arg)) {
+        args1 = args1.concat(arg);
+        str += arg.map((_, i) => "$" + (j + i)).join(", ");
+        j += arg.length;
+      } else {
+        args1.push(arg);
+        str += "$" + j;
+        j++;
+      }
+      k++;
     }
 
     query = query.substring(i + 1);

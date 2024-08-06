@@ -314,6 +314,41 @@ func TestAllEmpty(t *testing.T) {
 	require.Equal(t, 0, len(users))
 }
 
+func TestIn(t *testing.T) {
+	_, err := c.QueryUser().DeleteAll()
+	require.NoError(t, err)
+
+	user1, _ := c.QueryUser().Create(c.ChangeUser().SetName("test1"))
+	user2, _ := c.QueryUser().Create(c.ChangeUser().SetName("test2"))
+	user3, _ := c.QueryUser().Create(c.ChangeUser().SetName("test3"))
+
+	users1, _ := c.QueryUser().Where(c.UserID.In([]int64{user1.ID, user2.ID})).All()
+	require.Equal(t, 2, len(users1))
+	require.Equal(t, user1, users1[0])
+	require.Equal(t, user2, users1[1])
+
+	users2, _ := c.QueryUser().Where(c.UserName.In([]string{user1.Name.Val, user2.Name.Val})).All()
+	require.Equal(t, 2, len(users2))
+	require.Equal(t, user1, users2[0])
+	require.Equal(t, user2, users2[1])
+
+	users3, _ := c.QueryUser().Where(c.UserID.NIn([]int64{user1.ID, user2.ID})).All()
+	require.Equal(t, 1, len(users3))
+	require.Equal(t, user3, users3[0])
+
+	users4, _ := c.QueryUser().Where(c.UserName.NIn([]string{user1.Name.Val, user2.Name.Val})).All()
+	require.Equal(t, 1, len(users4))
+	require.Equal(t, user3, users4[0])
+
+	user5, _ := c.QueryUser().Where(c.UserID.EQ(user1.ID)).Where(c.UserName.EQ(user1.Name.Val)).All()
+	require.Equal(t, 1, len(user5))
+	require.Equal(t, user1, user5[0])
+
+	user6, _ := c.QueryUser().Where(c.UserID.In([]int64{user1.ID, user2.ID})).Where(c.UserName.EQ(user1.Name.Val)).All()
+	require.Equal(t, 1, len(user6))
+	require.Equal(t, user1, user6[0])
+}
+
 func TestInEmpty(t *testing.T) {
 	_, err := c.QueryUser().DeleteAll()
 	require.NoError(t, err)

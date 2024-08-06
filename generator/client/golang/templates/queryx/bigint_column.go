@@ -70,6 +70,18 @@ func (c *BigIntColumn) In(v []int64) *Clause {
 	}
 }
 
+func (c *BigIntColumn) NIn(v []int64) *Clause {
+	if len(v) == 0 {
+		return &Clause{
+			fragment: "1!=0",
+		}
+	}
+	return &Clause{
+		fragment: fmt.Sprintf("%s.%s NOT IN (?)", c.Table.Name, c.Name),
+		args:     []interface{}{v},
+	}
+}
+
 func (c *BigIntColumn) InRange(start int64, end int64) *Clause {
 	return &Clause{
 		fragment: fmt.Sprintf("%s.%s >= ? and %s.%s< ?", c.Table.Name, c.Name, c.Table.Name, c.Name),

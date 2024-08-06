@@ -16,8 +16,5 @@
     "pg": "^8.11.1",
     "typescript": "^5.1.6",
     "vitest": "^0.32.2"
-  },
-  "devDependencies": {
-    "prettier": "^3.0.3"
   }
 }
