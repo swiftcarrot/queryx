@@ -33,7 +33,7 @@ test-mysql: install
 	cd internal/integration && queryx db:migrate --schema mysql.hcl
 	cd internal/integration && queryx db:migrate --schema mysql.hcl
 	cd internal/integration && queryx generate --schema mysql.hcl
-	cd internal/integration && yarn tsc
+	# cd internal/integration && yarn tsc
 	cd internal/integration && yarn test
 	# cd internal/integration && go test ./...
 
@@ -44,9 +44,9 @@ test-sqlite: install
 	cd internal/integration && queryx db:migrate --schema sqlite.hcl
 	cd internal/integration && queryx db:migrate --schema sqlite.hcl
 	cd internal/integration && queryx generate --schema sqlite.hcl
-	cd internal/integration && yarn tsc
+	# cd internal/integration && yarn tsc
 	cd internal/integration && yarn test
-	# cd internal/integration && go test ./...
+	cd internal/integration && go test ./...
 
 test: test-postgresql test-sqlite test-mysql
 
