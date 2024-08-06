@@ -267,6 +267,20 @@ test("in", async () => {
     .where(c.userName.nin([user1.name, user2.name]))
     .all();
   expect(users4).toEqual([user3]);
+
+  const users5 = await c
+    .queryUser()
+    .where(c.userID.in([user1.id]))
+    .where(c.userName.eq(user1.name))
+    .all();
+  expect(users5).toEqual([user1]);
+
+  const users6 = await c
+    .queryUser()
+    .where(c.userID.in([user1.id, user2.id]))
+    .where(c.userName.eq(user1.name))
+    .all();
+  expect(users6).toEqual([user1]);
 });
 
 test("inEmpty", async () => {

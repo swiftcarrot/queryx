@@ -339,6 +339,14 @@ func TestIn(t *testing.T) {
 	users4, _ := c.QueryUser().Where(c.UserName.NIn([]string{user1.Name.Val, user2.Name.Val})).All()
 	require.Equal(t, 1, len(users4))
 	require.Equal(t, user3, users4[0])
+
+	user5, _ := c.QueryUser().Where(c.UserID.EQ(user1.ID)).Where(c.UserName.EQ(user1.Name.Val)).All()
+	require.Equal(t, 1, len(user5))
+	require.Equal(t, user1, user5[0])
+
+	user6, _ := c.QueryUser().Where(c.UserID.In([]int64{user1.ID, user2.ID})).Where(c.UserName.EQ(user1.Name.Val)).All()
+	require.Equal(t, 1, len(user6))
+	require.Equal(t, user1, user6[0])
 }
 
 func TestInEmpty(t *testing.T) {
