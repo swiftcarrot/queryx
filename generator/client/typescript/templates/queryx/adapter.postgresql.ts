@@ -33,7 +33,7 @@ export class Adapter {
 
   private _query<R extends pg.QueryResultRow = any, I extends any[] = any[]>(
     query: string,
-    args?: I
+    args?: I,
   ) {
     let [query1, args1] = rebind<I>(query, args);
     return this.db.query<R, I>(query1, args1);
