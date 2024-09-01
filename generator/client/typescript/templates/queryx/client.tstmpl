@@ -80,8 +80,6 @@ export class QXClient {
     } catch (err) {
       await tx.rollback();
       throw err;
-    } finally {
-      tx.adapter.release();
     }
   }
 
