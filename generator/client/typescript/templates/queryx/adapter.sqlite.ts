@@ -6,7 +6,7 @@ import { Config } from "./config";
 
 export class Adapter {
   public config: Config;
-  private db;
+  public db: Database;
 
   constructor(config: Config) {
     this.config = config;
@@ -16,7 +16,7 @@ export class Adapter {
     this.db = new Database(this.config.url);
   }
 
-  newClient() {
+  newConnection() {
     return new Database(this.config.url);
   }
 

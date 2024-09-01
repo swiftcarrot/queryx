@@ -156,7 +156,7 @@ export class {{ $.model.Name }}Query {
     return this;
   }
 
-  offset(offset: string) {
+  offset(offset: number) {
     this.selectStatement.offset(offset);
     return this;
   }
