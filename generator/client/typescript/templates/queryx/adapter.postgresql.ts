@@ -8,7 +8,6 @@ pg.types.setTypeParser(pg.types.builtins.INT8, (val) => parseInt(val, 10));
 
 export class Adapter {
   public config: Config;
-  public pool?: pg.Pool;
   public db?: pg.Pool;
 
   constructor(config: Config) {
@@ -19,12 +18,7 @@ export class Adapter {
     const pool = new pg.Pool({
       connectionString: this.config.url,
     });
-    this.pool = pool;
     this.db = pool;
-  }
-
-  newClient() {
-    return this.pool.connect();
   }
 
   release() {

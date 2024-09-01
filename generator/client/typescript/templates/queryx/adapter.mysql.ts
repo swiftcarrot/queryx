@@ -6,7 +6,6 @@ import { Config } from "./config";
 
 export class Adapter {
   public config: Config;
-  public pool: mysql.Pool;
   public db: mysql.Pool;
 
   constructor(config: Config) {
@@ -17,12 +16,7 @@ export class Adapter {
     const pool = mysql.createPool({
       uri: this.config.url,
     });
-    this.pool = pool;
     this.db = pool;
-  }
-
-  newClient() {
-    return this.pool.getConnection();
   }
 
   release() {
