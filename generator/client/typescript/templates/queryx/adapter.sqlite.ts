@@ -16,6 +16,10 @@ export class Adapter {
     this.db = new Database(this.config.url);
   }
 
+  newClient() {
+    return new Database(this.config.url);
+  }
+
   release() {}
 
   query<R>(query: string, ...args: any[]): R[] {
