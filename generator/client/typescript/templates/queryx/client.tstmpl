@@ -101,13 +101,13 @@ export class Tx extends QXClient {
 
   async commit() {
     const res = this.adapter.commit();
-    this.release();
+    this.adapter.release();
     return res;
   }
 
   async rollback() {
     const res = await this.adapter.rollback();
-    this.release();
+    this.adapter.release();
     return res;
   }
 }
