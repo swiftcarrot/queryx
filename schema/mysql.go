@@ -2,6 +2,7 @@ package schema
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"ariga.io/atlas/sql/mysql"
@@ -23,17 +24,56 @@ func (d *Database) CreateMySQLSchema(dbName string) *schema.Schema {
 				col.SetType(&schema.IntegerType{T: mysql.TypeBigInt})
 				if c.AutoIncrement {
 					col.AddAttrs(&mysql.AutoIncrement{})
+				} else {
+					if c.Default != nil {
+						d, ok := c.Default.(int)
+						if ok {
+							col.SetType(&schema.IntegerType{T: mysql.TypeBigInt}).SetDefault(&schema.RawExpr{X: strconv.Itoa(d)})
+						}
+					}
 				}
 			case "string":
 				col.SetType(&schema.StringType{T: mysql.TypeVarchar, Size: 255})
+				if c.Default != nil {
+					d, ok := c.Default.(string)
+					if ok {
+						col.SetDefault(&schema.RawExpr{X: d})
+					}
+				}
 			case "text":
 				col.SetType(&schema.StringType{T: mysql.TypeText})
+				if c.Default != nil {
+					d, ok := c.Default.(string)
+					if ok {
+						col.SetDefault(&schema.RawExpr{X: d})
+					}
+				}
 			case "integer":
 				col.SetType(&schema.IntegerType{T: mysql.TypeInt})
+				if c.Default != nil {
+					d, ok := c.Default.(int)
+					if ok {
+						col.SetDefault(&schema.RawExpr{X: strconv.Itoa(d)})
+					}
+				}
 			case "float":
 				col.SetType(&schema.FloatType{T: mysql.TypeFloat})
+				if c.Default != nil {
+					f, ok := c.Default.(float64)
+					if ok {
+						str := strconv.FormatFloat(f, 'E', -10, 64)
+						col.SetDefault(&schema.RawExpr{X: str})
+					}
+				}
 			case "boolean":
 				col.SetType(&schema.BoolType{T: mysql.TypeBoolean})
+				if c.Default != nil {
+					b, ok := c.Default.(bool)
+					if ok {
+						str := strconv.FormatBool(b)
+						col.SetDefault(&schema.RawExpr{X: str})
+					}
+				}
 			case "enum":
 				col.SetType(&schema.StringType{T: mysql.TypeEnum, Size: 0})
 			case "date":
@@ -47,9 +87,16 @@ func (d *Database) CreateMySQLSchema(dbName string) *schema.Schema {
 				col.SetType(&schema.JSONType{T: mysql.TypeJSON})
 			case "uuid":
 				col.SetType(&schema.StringType{T: mysql.TypeVarchar, Size: 36})
+				if c.Default != nil {
+					d, ok := c.Default.(string)
+					if ok {
+						col.SetDefault(&schema.RawExpr{X: d})
+					}
+				}
 			}
-
-			col.SetNull(c.Null)
+			if c.Default == nil {
+				col.SetNull(c.Null)
+			}
 			t.AddColumns(col)
 			columnMap[c.Name] = col
 		}
