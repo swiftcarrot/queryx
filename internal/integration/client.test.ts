@@ -46,6 +46,21 @@ test("create", async () => {
   expect(user.id).toBeGreaterThan(0);
 });
 
+test("delete", async () => {
+  await c.queryTag().create({ name: "delete_tag", right: 22 });
+  let rows = await c.queryTag().where(c.tagRight.eq(22)).deleteAll()
+  expect(rows).toBeGreaterThan(0);
+});
+
+test("updateAll", async () => {
+  await c.queryTag().deleteAll();
+  await c.queryTag().create({name:"name",right: 1});
+  let all=await c.queryTag().where(c.tagName.eq("name")).where(c.tagRight.eq(1)).updateAll({name:"name1",right: 0});
+  expect(all).toBeGreaterThan(0);
+  let exists=await c.queryTag().where(c.tagName.eq("name1")).exists();
+  expect(exists).toEqual(true);
+});
+
 test("insertAll", async () => {
   await c.queryPost().deleteAll();
   await expect(async () => {
@@ -467,8 +482,8 @@ test("changeJSON", async () => {
 });
 
 test("modelJSON", async () => {
-  let tag = await c.queryTag().create({ name: "test" });
-  expect(JSON.stringify(tag)).toEqual(`{"id":${tag.id},"name":"test"}`);
+  let tag = await c.queryTag().create({ name: "test",right: 1 });
+  expect(JSON.stringify(tag)).toEqual(`{"id":${tag.id},"name":"test","right":1}`);
 });
 
 test("modelString", async () => {

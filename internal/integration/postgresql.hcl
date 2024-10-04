@@ -109,6 +109,10 @@ database "db" {
       type = string
     }
 
+    column "right" {
+      type = integer
+    }
+
     index {
       columns = ["name",]
       unique  = true
