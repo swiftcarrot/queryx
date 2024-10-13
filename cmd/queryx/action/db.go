@@ -1,7 +1,10 @@
 package action
 
 import (
+	"bufio"
 	"context"
+	"encoding/csv"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -272,4 +275,113 @@ var dbVersionCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return nil
 	},
+}
+
+func importCSV(filePath string) error {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	reader := csv.NewReader(file)
+	records, err := reader.ReadAll()
+	if err != nil {
+		return err
+	}
+
+	if len(records) == 0 {
+		return nil
+	}
+
+	columns := records[0]
+
+	for _, record := range records[1:] {
+		data := make(map[string]interface{})
+		for i, col := range columns {
+			data[col] = record[i]
+		}
+
+		fmt.Println("insert", columns, data)
+	}
+
+	// TODO: should generate insert statement based on adapter
+
+	return nil
+}
+
+func importJSONL(filePath string) error {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	scanner.Split(bufio.ScanLines)
+
+	for scanner.Scan() {
+		var data map[string]interface{}
+		if err := json.Unmarshal(scanner.Bytes(), &data); err != nil {
+			return err
+		}
+		fmt.Println("insert", data)
+	}
+
+	return nil
+}
+
+var dbImportCmd = &cobra.Command{
+	Use:   "db:import",
+	Short: "Import data from a file to the database",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		replace, err := cmd.Flags().GetBool("replace")
+		if err != nil {
+			return err
+		}
+		table, err := cmd.Flags().GetString("table")
+		if err != nil {
+			return err
+		}
+
+		filePath := args[0]
+		ext := filepath.Ext(filePath)
+		switch ext {
+		case ".csv":
+			importCSV(filePath)
+		case ".jsonl":
+			importJSONL(filePath)
+		}
+
+		fmt.Println("replace", replace)
+		fmt.Println("table", table)
+		fmt.Println("filePath:", filePath)
+
+		return nil
+	},
+}
+
+var dbExportCmd = &cobra.Command{
+	Use:   "db:export",
+	Short: "Export data from the database to a file",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		table, err := cmd.Flags().GetString("table")
+		if err != nil {
+			return err
+		}
+
+		filePath := args[0]
+		fmt.Println("table", table)
+		fmt.Println("filePath:", filePath)
+
+		return nil
+	},
+}
+
+func init() {
+	dbImportCmd.Flags().Bool("replace", false, "Replace existing data")
+	dbImportCmd.Flags().String("table", "", "Table to import data into")
+	dbExportCmd.Flags().String("table", "", "Table to export data from")
 }

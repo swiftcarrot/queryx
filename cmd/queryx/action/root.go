@@ -51,5 +51,8 @@ func init() {
 	RootCmd.AddCommand(dbMigrateStatusCmd)
 	RootCmd.AddCommand(dbVersionCmd)
 
+	RootCmd.AddCommand(dbImportCmd)
+	RootCmd.AddCommand(dbExportCmd)
+
 	RootCmd.AddCommand(initCmd)
 }
