@@ -8,6 +8,7 @@ queryx format --schema db.hcl
 
 All available commands:
 
+- `queryx init`: creates a sample schema.hcl
 - `queryx db:create`: create the database
 - `queryx db:drop`: drop the database
 - `queryx db:migrate`: generate migration files and run pending migrations

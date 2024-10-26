@@ -26,7 +26,8 @@ var sampleSchema = `database "db" {
 `
 
 var initCmd = &cobra.Command{
-	Use: "init",
+	Use:   "init",
+	Short: "Creates a sample schema.hcl",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		fmt.Println("Created schema.hcl")
 		file, err := os.Create("schema.hcl")
