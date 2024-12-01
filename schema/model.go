@@ -9,6 +9,7 @@ type Model struct {
 	TableName  string
 	TimeZone   string
 	Timestamps bool
+	Comment    string
 	Columns    []*Column
 	Attributes []*Attribute
 	BelongsTo  []*BelongsTo
@@ -51,6 +52,7 @@ type Column struct {
 	// sql auto_increment
 	AutoIncrement bool
 	Default       interface{} // TODO: support default
+	Comment       string
 }
 
 type Type struct {
