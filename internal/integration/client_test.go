@@ -74,6 +74,27 @@ func TestCreate(t *testing.T) {
 	require.True(t, user.ID > 0)
 }
 
+func TestDelete(t *testing.T) {
+	_, err := c.QueryTag().Create(c.ChangeTag().SetRight(22).SetName("delete_tag"))
+	require.NoError(t, err)
+	rows, err := c.QueryTag().Where(c.TagRight.EQ(22)).DeleteAll()
+	require.NoError(t, err)
+	require.True(t, rows > 0)
+}
+
+func TestUpdateAll(t *testing.T) {
+	_, err := c.QueryTag().DeleteAll()
+	require.NoError(t, err)
+
+	tag, err := c.QueryTag().Create(c.ChangeTag().SetRight(1).SetName("name"))
+	require.NoError(t, err)
+
+	all, err := c.QueryTag().Where(c.TagID.EQ(tag.ID)).Where(c.TagRight.EQ(tag.Right.Val)).UpdateAll(c.ChangeTag().SetRight(0).SetName("name1"))
+	require.NoError(t, err)
+	require.True(t, all > 0)
+	require.Equal(t, int32(1), tag.Right.Val)
+}
+
 func TestInsertAll(t *testing.T) {
 	_, err := c.QueryUserPost().DeleteAll()
 	require.NoError(t, err)
@@ -541,11 +562,11 @@ func TestChangeJSON(t *testing.T) {
 }
 
 func TestModelJSON(t *testing.T) {
-	tag, err := c.QueryTag().Create(c.ChangeTag().SetName("test"))
+	tag, err := c.QueryTag().Create(c.ChangeTag().SetName("test").SetRight(1))
 	require.NoError(t, err)
 	b, err := json.Marshal(tag)
 	require.NoError(t, err)
-	require.Equal(t, fmt.Sprintf(`{"id":%d,"name":"test"}`, tag.ID), string(b))
+	require.Equal(t, fmt.Sprintf(`{"id":%d,"name":"test","right":1}`, tag.ID), string(b))
 }
 
 func TestModelStringer(t *testing.T) {
