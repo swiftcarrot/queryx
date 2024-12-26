@@ -1,6 +1,6 @@
 {
   "name": "queryx",
-  "version": "0.2.15",
+  "version": "0.2.16",
   "private": true,
   "scripts": {
     "website:dev": "vitepress dev website",
