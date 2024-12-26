@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
 
 	"ariga.io/atlas/sql/mysql"
 	sqlschema "ariga.io/atlas/sql/schema"
@@ -101,4 +102,29 @@ func (a *MySQLAdapter) CreateMigrationsTable(ctx context.Context) error {
 
 func (a *MySQLAdapter) QueryVersion(ctx context.Context, version string) (*sql.Rows, error) {
 	return a.DB.QueryContext(ctx, "select version from schema_migrations where version = ?", version)
+}
+
+func (a *MySQLAdapter) DumpSchema() (string, error) {
+	rows, err := a.DB.Query("SHOW TABLES")
+	if err != nil {
+		log.Fatalf("Error fetching tables: %v", err)
+	}
+	defer rows.Close()
+
+	var schema string
+	for rows.Next() {
+		var tableName string
+		if err := rows.Scan(&tableName); err != nil {
+			log.Fatalf("Error scanning table name: %v", err)
+		}
+
+		var createTableSQL string
+		row := a.DB.QueryRow(fmt.Sprintf("SHOW CREATE TABLE `%s`", tableName))
+		if err := row.Scan(&tableName, &createTableSQL); err != nil {
+			log.Fatalf("Error fetching schema for table %s: %v", tableName, err)
+		}
+		schema += createTableSQL + ";\n\n"
+	}
+
+	return schema, nil
 }

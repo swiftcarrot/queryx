@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
 	"os"
 
 	sqlschema "ariga.io/atlas/sql/schema"
@@ -85,4 +86,22 @@ func (a *SQLiteAdapter) CreateMigrationsTable(ctx context.Context) error {
 
 func (a *SQLiteAdapter) QueryVersion(ctx context.Context, version string) (*sql.Rows, error) {
 	return a.DB.QueryContext(ctx, "select version from schema_migrations where version = $1", version)
+}
+
+func (a *SQLiteAdapter) DumpSchema() (string, error) {
+	rows, err := a.DB.Query("SELECT sql FROM sqlite_master WHERE type='table' AND sql IS NOT NULL")
+	if err != nil {
+		log.Fatalf("Error fetching schema: %v", err)
+	}
+	defer rows.Close()
+
+	var schema string
+	for rows.Next() {
+		var createTableSQL string
+		if err := rows.Scan(&createTableSQL); err != nil {
+			log.Fatalf("Error scanning schema: %v", err)
+		}
+		schema += createTableSQL + ";\n"
+	}
+	return schema, nil
 }
