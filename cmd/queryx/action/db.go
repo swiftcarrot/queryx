@@ -293,11 +293,11 @@ var dbSchemaDumpCmd = &cobra.Command{
 			return err
 		}
 
-		content, err := os.ReadFile(filename)
-		if err != nil {
-			return err
-		}
-		fmt.Println(string(content))
+		// content, err := os.ReadFile(filename)
+		// if err != nil {
+		// 	return err
+		// }
+		// fmt.Println(string(content))
 
 		return nil
 	},
