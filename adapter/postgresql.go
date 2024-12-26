@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
+	"os/exec"
 
 	"ariga.io/atlas/sql/postgres"
 	sqlschema "ariga.io/atlas/sql/schema"
@@ -105,32 +105,11 @@ func (a *PostgreSQLAdapter) QueryVersion(ctx context.Context, version string) (*
 	return a.DB.QueryContext(ctx, "select version from schema_migrations where version = $1", version)
 }
 
-func (a *PostgreSQLAdapter) DumpSchema() (string, error) {
-	rows, err := a.DB.Query(`
-		SELECT table_name
-		FROM information_schema.tables
-		WHERE table_schema = 'public'
-	`)
-	if err != nil {
-		log.Fatalf("Error fetching tables: %v", err)
-	}
-	defer rows.Close()
+func (a *PostgreSQLAdapter) DumpSchema(filename string, extraFlags []string) error {
+	cmd := exec.Command("pg_dump", "--schema-only", "--no-owner", "--file", filename, a.Config.Database)
+	return cmd.Run()
+}
 
-	var schema string
-	for rows.Next() {
-		var tableName string
-		if err := rows.Scan(&tableName); err != nil {
-			log.Fatalf("Error scanning table name: %v", err)
-		}
-		var createTableSQL string
-		err = a.DB.QueryRow(fmt.Sprintf("SELECT pg_get_tabledef('%s'::regclass)", tableName)).Scan(&createTableSQL)
-		if err != nil {
-			log.Fatalf("Error fetching schema for table %s: %v", tableName, err)
-		}
-		schema += createTableSQL + ";\n\n"
-	}
-
-	fmt.Println(schema)
-
-	return schema, nil
+func (a *PostgreSQLAdapter) LoadSchema(filename string, extraFlags []string) error {
+	return fmt.Errorf("not implemented")
 }

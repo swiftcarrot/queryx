@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 	"os"
+	"os/exec"
 
 	sqlschema "ariga.io/atlas/sql/schema"
 	"ariga.io/atlas/sql/sqlite"
@@ -88,20 +88,22 @@ func (a *SQLiteAdapter) QueryVersion(ctx context.Context, version string) (*sql.
 	return a.DB.QueryContext(ctx, "select version from schema_migrations where version = $1", version)
 }
 
-func (a *SQLiteAdapter) DumpSchema() (string, error) {
-	rows, err := a.DB.Query("SELECT sql FROM sqlite_master WHERE type='table' AND sql IS NOT NULL")
+func (a *SQLiteAdapter) DumpSchema(filename string, extraFlags []string) error {
+	file, err := os.Create(filename)
 	if err != nil {
-		log.Fatalf("Error fetching schema: %v", err)
+		return err
 	}
-	defer rows.Close()
+	defer file.Close()
+	cmd := exec.Command("sqlite3", a.Config.Database, ".schema")
+	cmd.Stdout = file
 
-	var schema string
-	for rows.Next() {
-		var createTableSQL string
-		if err := rows.Scan(&createTableSQL); err != nil {
-			log.Fatalf("Error scanning schema: %v", err)
-		}
-		schema += createTableSQL + ";\n"
+	if err := cmd.Run(); err != nil {
+		return err
 	}
-	return schema, nil
+
+	return nil
+}
+
+func (a *SQLiteAdapter) LoadSchema(filename string, extraFlags []string) error {
+	return fmt.Errorf("not implemented")
 }

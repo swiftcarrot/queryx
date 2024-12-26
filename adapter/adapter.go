@@ -13,7 +13,8 @@ type Adapter interface {
 	Close() error
 	CreateDatabase() error
 	DropDatabase() error
-	DumpSchema() (string, error)
+	DumpSchema(string, []string) error
+	LoadSchema(string, []string) error
 	CreateMigrationsTable(ctx context.Context) error
 	ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error)
 	QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error)

@@ -287,11 +287,18 @@ var dbSchemaDumpCmd = &cobra.Command{
 			return err
 		}
 
-		schema, err := adapter.DumpSchema()
+		filename := "db/schema.sql"
+		err = adapter.DumpSchema(filename, nil)
 		if err != nil {
 			return err
 		}
-		fmt.Println(schema)
+
+		content, err := os.ReadFile(filename)
+		if err != nil {
+			return err
+		}
+		fmt.Println(string(content))
+
 		return nil
 	},
 }
