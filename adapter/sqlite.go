@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"os/exec"
 
 	sqlschema "ariga.io/atlas/sql/schema"
 	"ariga.io/atlas/sql/sqlite"
@@ -85,4 +86,24 @@ func (a *SQLiteAdapter) CreateMigrationsTable(ctx context.Context) error {
 
 func (a *SQLiteAdapter) QueryVersion(ctx context.Context, version string) (*sql.Rows, error) {
 	return a.DB.QueryContext(ctx, "select version from schema_migrations where version = $1", version)
+}
+
+func (a *SQLiteAdapter) DumpSchema(filename string, extraFlags []string) error {
+	file, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	cmd := exec.Command("sqlite3", a.Config.Database, ".schema")
+	cmd.Stdout = file
+
+	if err := cmd.Run(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (a *SQLiteAdapter) LoadSchema(filename string, extraFlags []string) error {
+	return fmt.Errorf("not implemented")
 }

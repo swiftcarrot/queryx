@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"os/exec"
 
 	"ariga.io/atlas/sql/postgres"
 	sqlschema "ariga.io/atlas/sql/schema"
@@ -102,4 +103,13 @@ func (a *PostgreSQLAdapter) CreateMigrationsTable(ctx context.Context) error {
 
 func (a *PostgreSQLAdapter) QueryVersion(ctx context.Context, version string) (*sql.Rows, error) {
 	return a.DB.QueryContext(ctx, "select version from schema_migrations where version = $1", version)
+}
+
+func (a *PostgreSQLAdapter) DumpSchema(filename string, extraFlags []string) error {
+	cmd := exec.Command("pg_dump", "--schema-only", "--no-owner", "--file", filename, a.Config.Database)
+	return cmd.Run()
+}
+
+func (a *PostgreSQLAdapter) LoadSchema(filename string, extraFlags []string) error {
+	return fmt.Errorf("not implemented")
 }

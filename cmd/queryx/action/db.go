@@ -273,3 +273,40 @@ var dbVersionCmd = &cobra.Command{
 		return nil
 	},
 }
+
+var dbSchemaDumpCmd = &cobra.Command{
+	Use:   "db:schema:dump",
+	Short: "Dump database schema",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		adapter, err := newAdapter()
+		if err != nil {
+			return err
+		}
+
+		if err := adapter.Open(); err != nil {
+			return err
+		}
+
+		filename := "db/schema.sql"
+		err = adapter.DumpSchema(filename, nil)
+		if err != nil {
+			return err
+		}
+
+		content, err := os.ReadFile(filename)
+		if err != nil {
+			return err
+		}
+		fmt.Println(string(content))
+
+		return nil
+	},
+}
+
+var dbSchemaLoadCmd = &cobra.Command{
+	Use:   "db:schema:load",
+	Short: "Load database schema",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return fmt.Errorf("not implemented")
+	},
+}

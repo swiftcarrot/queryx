@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"os/exec"
 
 	"ariga.io/atlas/sql/mysql"
 	sqlschema "ariga.io/atlas/sql/schema"
@@ -101,4 +102,13 @@ func (a *MySQLAdapter) CreateMigrationsTable(ctx context.Context) error {
 
 func (a *MySQLAdapter) QueryVersion(ctx context.Context, version string) (*sql.Rows, error) {
 	return a.DB.QueryContext(ctx, "select version from schema_migrations where version = ?", version)
+}
+
+func (a *MySQLAdapter) DumpSchema(filename string, extraFlags []string) error {
+	cmd := exec.Command("mysqldump", "--result-file", filename, "--no-data", a.Config.Database)
+	return cmd.Run()
+}
+
+func (a *MySQLAdapter) LoadSchema(filename string, extraFlags []string) error {
+	return fmt.Errorf("not implemented")
 }
