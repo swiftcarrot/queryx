@@ -17,6 +17,7 @@ database "db" {
   }
 
   model "User" {
+    comment = "用户表"
     has_one "account" {}
     has_many "user_posts" {}
     has_many "posts" {
@@ -24,6 +25,7 @@ database "db" {
     }
 
     column "name" {
+      comment = "用户名"
       type = string
     }
     column "type" {
