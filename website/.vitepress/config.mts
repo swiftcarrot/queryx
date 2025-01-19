@@ -133,6 +133,7 @@ function sidebarDocs(): DefaultTheme.SidebarItem[] {
         { text: "Custom Primary Key", link: "custom-primary-key" },
         { text: "Custom Database Time Zone", link: "time-zone" },
         { text: "Build from source", link: "build-from-source" },
+        { text: "Docker Support", link: "docker-support" },
       ],
     },
     {

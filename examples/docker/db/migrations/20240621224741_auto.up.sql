@@ -1,0 +1,1 @@
+CREATE TABLE `posts` (`id` integer NOT NULL PRIMARY KEY AUTOINCREMENT, `title` varchar NULL, `content` text NULL, `created_at` datetime NOT NULL, `updated_at` datetime NOT NULL);
