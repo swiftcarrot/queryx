@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"ariga.io/atlas/sql/migrate"
@@ -170,6 +169,14 @@ func createFile(f string, content string) error {
 	return nil
 }
 
+func createSQL(stats []string) string {
+	var sql string
+	for _, stat := range stats {
+		sql += stat + ";\n" // TODO: support windows line break
+	}
+	return sql
+}
+
 func dbMigrateGenerate() error {
 	sch, err := newSchema()
 	if err != nil {
@@ -201,7 +208,7 @@ func dbMigrateGenerate() error {
 	downs := []string{}
 	for _, change := range changes {
 		if change.Cmd != "" {
-			ups = append(ups, change.Cmd+";")
+			ups = append(ups, change.Cmd)
 		}
 
 		stmts, err := change.ReverseStmts()
@@ -210,9 +217,8 @@ func dbMigrateGenerate() error {
 		}
 		downs = append(stmts, downs...)
 	}
-	// TODO: support windows line break
-	up := strings.Join(ups, "\n")
-	down := strings.Join(downs, "\n")
+	up := createSQL(ups)
+	down := createSQL(downs)
 
 	// TODO: support migration name
 	name := "auto"
