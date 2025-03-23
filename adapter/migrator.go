@@ -49,9 +49,12 @@ func (m *Migrator) RunMigration(mg *Migration) error {
 	sql := string(f)
 
 	for _, line := range strings.Split(sql, "\n") {
-		_, err = m.Adapter.ExecContext(context.Background(), line)
-		if err != nil {
-			return fmt.Errorf("migration error: %v", err)
+		line = strings.TrimSpace(line)
+		if line != "" {
+			_, err = m.Adapter.ExecContext(context.Background(), line)
+			if err != nil {
+				return fmt.Errorf("migration error: %v", err)
+			}
 		}
 	}
 
