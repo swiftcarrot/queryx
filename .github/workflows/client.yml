@@ -242,6 +242,9 @@ jobs:
           cd internal/integration/client
           yarn install
       - name: yarn test
+        env:
+          QUERYX_ENV: test
+          DATABASE_URL: client/sqlite:test.sqlite3
         run: |
           cd internal/integration/client
           yarn vitest run --dir client
