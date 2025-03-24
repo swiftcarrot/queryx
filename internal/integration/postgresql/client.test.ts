@@ -8,9 +8,25 @@ beforeAll(async () => {
 });
 
 test("string array", async () => {
-  let emails = ["test1@example.com", "test2@example.com"];
-  let user = await c.queryUser().create({ emails: emails });
-  expect(user.emails).toEqual(emails);
+  let strings = ["test1", "test2"];
+  let user = await c.queryUser().create({ strings });
+  expect(user.strings).toEqual(strings);
   let row = await c.queryUser().find(user.id);
-  expect(row.emails).toEqual(emails);
+  expect(row.strings).toEqual(strings);
+});
+
+test("text array", async () => {
+  let texts = ["test1", "test2"];
+  let user = await c.queryUser().create({ texts });
+  expect(user.texts).toEqual(texts);
+  let row = await c.queryUser().find(user.id);
+  expect(row.texts).toEqual(texts);
+});
+
+test("integer array", async () => {
+  let integers = [1, 2];
+  let user = await c.queryUser().create({ integers });
+  expect(user.integers).toEqual(integers);
+  let row = await c.queryUser().find(user.id);
+  expect(row.integers).toEqual(integers);
 });

@@ -19,11 +19,31 @@ func init() {
 }
 
 func TestStringArray(t *testing.T) {
-	emails := []string{"test1@example.com", "test2@example.com"}
-	user, err := c.QueryUser().Create(c.ChangeUser().SetEmails(emails))
+	strings := []string{"test1", "test2"}
+	user, err := c.QueryUser().Create(c.ChangeUser().SetStrings(strings))
 	require.NoError(t, err)
-	require.Equal(t, emails, user.Emails)
+	require.Equal(t, strings, user.Strings)
 	row, err := c.QueryUser().Find(user.ID)
 	require.NoError(t, err)
-	require.Equal(t, emails, row.Emails)
+	require.Equal(t, strings, row.Strings)
+}
+
+func TestTextArray(t *testing.T) {
+	texts := []string{"test1", "test2"}
+	user, err := c.QueryUser().Create(c.ChangeUser().SetTexts(texts))
+	require.NoError(t, err)
+	require.Equal(t, texts, user.Texts)
+	row, err := c.QueryUser().Find(user.ID)
+	require.NoError(t, err)
+	require.Equal(t, texts, row.Texts)
+}
+
+func TestIntegerArray(t *testing.T) {
+	integers := []int{1, 2}
+	user, err := c.QueryUser().Create(c.ChangeUser().SetIntegers(integers))
+	require.NoError(t, err)
+	require.Equal(t, integers, user.Integers)
+	row, err := c.QueryUser().Find(user.ID)
+	require.NoError(t, err)
+	require.Equal(t, integers, row.Integers)
 }

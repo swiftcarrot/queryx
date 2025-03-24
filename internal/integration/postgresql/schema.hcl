@@ -17,9 +17,17 @@ database "db" {
   }
 
   model "User" {
-    column "emails" {
-        type = string
-        array = true
+    column "strings" {
+      type  = string
+      array = true
+    }
+    column "integers" {
+      type  = integer
+      array = true
+    }
+    column "texts" {
+      type  = text
+      array = true
     }
   }
 }
