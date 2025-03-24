@@ -1,4 +1,9 @@
 name: postgresql
+
+env:
+  QUERYX_ENV: test
+  DATABASE_URL: postgresql://postgres:postgres@localhost:5432/queryx_test?sslmode=disable
+
 on:
   push:
     paths-ignore:
@@ -49,9 +54,6 @@ jobs:
           path: /usr/local/bin
       - run: chmod a+x /usr/local/bin/queryx
       - name: generate
-        env:
-          QUERYX_ENV: test
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/queryx_test?sslmode=disable
         run: |
           cd internal/integration/postgresql
           queryx db:migrate
@@ -85,9 +87,6 @@ jobs:
           path: /usr/local/bin
       - run: chmod a+x /usr/local/bin/queryx
       - name: generate
-        env:
-          QUERYX_ENV: test
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/queryx_test?sslmode=disable
         run: |
           cd internal/integration/postgresql
           queryx db:migrate
