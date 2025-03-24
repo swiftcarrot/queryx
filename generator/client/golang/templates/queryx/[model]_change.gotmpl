@@ -4,7 +4,7 @@ package queryx
 
 type {{ $.model.Name }}Change struct {
 	{{- range $c := .model.Columns }}
-	{{ $c.Name | pascal }} {{ goType $c.Type }}
+	{{ $c.Name | pascal }} {{ goType $c.Type $c.Null $c.Array }}
 	{{- end }}
 }
 
@@ -25,18 +25,18 @@ func (c *{{.model.Name}}Change) Changes() (columns []string, values []interface{
 
 {{- range $c := $.model.Columns }}
 {{- $f := $c.Name | pascal }}
-{{- $t := $c.Type | goChangeSetType }}
+{{- $t := goChangeSetType $c.Type $c.Null $c.Array }}
 {{- $a := $c.Name | camel | goKeywordFix }}
 
 func (c *{{ $.model.Name }}Change) Set{{ pascal $c.Name }}({{ $a }} {{ $t }}) *{{ $.model.Name }}Change {
-	c.{{ $f }} = New{{ goType $c.Type }}({{ $a }})
+	c.{{ $f }} = New{{ goType $c.Type $c.Null $c.Array }}({{ $a }})
 	c.{{ $f }}.Set = true
 	return c
 }
 {{- if $c.Null }}
 
 func (c *{{ $.model.Name }}Change) SetNullable{{ pascal $c.Name }}({{ $a }} *{{ $t }}) *{{ $.model.Name }}Change {
-	c.{{ $f }} = NewNullable{{ goType $c.Type }}({{ $a }})
+	c.{{ $f }} = NewNullable{{ goType $c.Type $c.Null $c.Array }}({{ $a }})
 	c.{{ $f }}.Set = true
 	return c
 }
