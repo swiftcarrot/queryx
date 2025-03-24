@@ -16,7 +16,7 @@ export interface {{ $.model.Name }}Row {}
 
 export class {{ $.model.Name }} {
   {{- range $c := $.model.Columns }}
-  public {{ $c.Name | camel }}: {{ tsType $c.Type }}{{ if $c.Null }} | null{{ end }} = null;
+  public {{ $c.Name | camel }}: {{ tsType $c.Type $c.Null $c.Array }}{{ if $c.Null }} | null{{ end }} = null;
   {{- end }}
   {{- range $b := $.model.BelongsTo }}
   public {{ $b.Name | camel }}: {{ $b.ModelName }} | null;

@@ -5,9 +5,12 @@ import (
 	"log"
 )
 
-func tsType(t string) string {
+func tsType(t string, null bool, array bool) string {
 	switch t {
 	case "uuid", "string", "text":
+		if array {
+			return "string[]"
+		}
 		return "string"
 	case "datetime", "date":
 		return "Date"
@@ -25,13 +28,16 @@ func tsType(t string) string {
 	}
 }
 
-func tsChangeSetType(t string) string {
+func tsChangeSetType(t string, null bool, array bool) string {
 	switch t {
 	case "bigint", "integer", "float":
 		return "number"
 	case "uuid":
 		return "string"
 	case "string", "text":
+		if array {
+			return "string[]"
+		}
 		return "string"
 	case "datetime", "date", "time":
 		return "string"

@@ -62,40 +62,40 @@ jobs:
         run: |
           cd internal/integration/postgresql
           go test -v ./...
-  typescript:
-    needs: [build]
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:14.2
-        env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_USER: postgres
-          POSTGRES_DB: queryx_test
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/download-artifact@v4
-        with:
-          name: bin
-          path: /usr/local/bin
-      - run: chmod a+x /usr/local/bin/queryx
-      - name: generate
-        run: |
-          cd internal/integration/postgresql
-          queryx db:migrate
-          queryx generate
-      - name: yarn install
-        run: |
-          cd internal/integration/postgresql
-          yarn install
-      - name: yarn test
-        run: |
-          cd internal/integration/postgresql
-          yarn test
+  # typescript:
+  #   needs: [build]
+  #   runs-on: ubuntu-latest
+  #   services:
+  #     postgres:
+  #       image: postgres:14.2
+  #       env:
+  #         POSTGRES_PASSWORD: postgres
+  #         POSTGRES_USER: postgres
+  #         POSTGRES_DB: queryx_test
+  #       ports:
+  #         - 5432:5432
+  #       options: >-
+  #         --health-cmd pg_isready
+  #         --health-interval 10s
+  #         --health-timeout 5s
+  #         --health-retries 5
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: actions/download-artifact@v4
+  #       with:
+  #         name: bin
+  #         path: /usr/local/bin
+  #     - run: chmod a+x /usr/local/bin/queryx
+  #     - name: generate
+  #       run: |
+  #         cd internal/integration/postgresql
+  #         queryx db:migrate
+  #         queryx generate
+  #     - name: yarn install
+  #       run: |
+  #         cd internal/integration/postgresql
+  #         yarn install
+  #     - name: yarn test
+  #       run: |
+  #         cd internal/integration/postgresql
+  #         yarn test

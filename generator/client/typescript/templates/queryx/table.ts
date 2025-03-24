@@ -26,6 +26,10 @@ export class Table {
     return new StringColumn(this, name);
   }
 
+  newStringArrayColumn(name: string) {
+    return new StringArrayColumn(this, name);
+  }
+
   newTextColumn(name: string) {
     return new TextColumn(this, name);
   }
@@ -149,6 +153,8 @@ export class StringColumn extends Column {
     return new Clause(`${this.table.name}.${this.name} not in (?)`, [v]);
   }
 }
+
+export class StringArrayColumn extends Column {}
 
 export class TextColumn extends StringColumn {}
 
