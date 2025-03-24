@@ -1,4 +1,4 @@
-name: integration
+name: client
 on:
   push:
     paths-ignore:
@@ -56,7 +56,7 @@ jobs:
           QUERYX_ENV: test
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/queryx_test?sslmode=disable
         run: |
-          cd internal/integration
+          cd internal/integration/client
           queryx db:migrate --schema postgresql.hcl
           queryx db:migrate --schema postgresql.hcl
           queryx generate --schema postgresql.hcl
@@ -64,10 +64,10 @@ jobs:
         uses: golangci/golangci-lint-action@v3
         with:
           args: --timeout=3m
-          working-directory: internal/integration/db
+          working-directory: internal/integration/client/db
       - name: go test
         run: |
-          cd internal/integration
+          cd internal/integration/client
           go test -v ./...
   postgresql-typescript:
     needs: [build]
@@ -98,21 +98,17 @@ jobs:
           QUERYX_ENV: test
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/queryx_test?sslmode=disable
         run: |
-          cd internal/integration
+          cd internal/integration/client
           queryx db:migrate --schema postgresql.hcl
           queryx generate --schema postgresql.hcl
       - name: yarn install
         run: |
-          cd internal/integration
+          cd internal/integration/client
           yarn install
       - name: yarn test
         run: |
-          cd internal/integration
+          cd internal/integration/client
           yarn test
-      # - name: yarn tsc
-      #   run: |
-      #     cd internal/integration
-      #     yarn tsc
   mysql-golang:
     needs: [build]
     runs-on: ubuntu-latest
@@ -142,7 +138,7 @@ jobs:
           QUERYX_ENV: test
           DATABASE_URL: mysql://root:@localhost:3306/queryx_test
         run: |
-          cd internal/integration
+          cd internal/integration/client
           queryx db:migrate --schema mysql.hcl
           queryx db:migrate --schema mysql.hcl
           queryx generate --schema mysql.hcl
@@ -150,10 +146,10 @@ jobs:
         uses: golangci/golangci-lint-action@v3
         with:
           args: --timeout=3m
-          working-directory: internal/integration/db
+          working-directory: internal/integration/client/db
       - name: go test
         run: |
-          cd internal/integration
+          cd internal/integration/client
           go test -v ./...
   mysql-typescript:
     needs: [build]
@@ -184,21 +180,17 @@ jobs:
           QUERYX_ENV: test
           DATABASE_URL: mysql://root:@localhost:3306/queryx_test
         run: |
-          cd internal/integration
+          cd internal/integration/client
           queryx db:migrate --schema mysql.hcl
           queryx generate --schema mysql.hcl
       - name: yarn install
         run: |
-          cd internal/integration
+          cd internal/integration/client
           yarn install
       - name: yarn test
         run: |
-          cd internal/integration
+          cd internal/integration/client
           yarn test
-      # - name: yarn tsc
-      #   run: |
-      #     cd internal/integration
-      #     yarn tsc
   sqlite-golang:
     needs: [build]
     runs-on: ubuntu-latest
@@ -214,7 +206,7 @@ jobs:
           QUERYX_ENV: test
           DATABASE_URL: sqlite:test.sqlite3
         run: |
-          cd internal/integration
+          cd internal/integration/client
           queryx db:migrate --schema sqlite.hcl
           queryx db:migrate --schema sqlite.hcl
           queryx generate --schema sqlite.hcl
@@ -222,10 +214,10 @@ jobs:
         uses: golangci/golangci-lint-action@v3
         with:
           args: --timeout=3m
-          working-directory: internal/integration/db
+          working-directory: internal/integration/client/db
       - name: go test
         run: |
-          cd internal/integration
+          cd internal/integration/client
           go test -v ./...
   sqlite-typescript:
     needs: [build]
@@ -242,18 +234,14 @@ jobs:
           QUERYX_ENV: test
           DATABASE_URL: sqlite:test.sqlite3
         run: |
-          cd internal/integration
+          cd internal/integration/client
           queryx db:migrate --schema sqlite.hcl
           queryx generate --schema sqlite.hcl
       - name: yarn install
         run: |
-          cd internal/integration
+          cd internal/integration/client
           yarn install
       - name: yarn test
         run: |
-          cd internal/integration
+          cd internal/integration/client
           yarn test
-      # - name: yarn tsc
-      #   run: |
-      #     cd internal/integration
-      #     yarn tsc

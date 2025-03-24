@@ -32,17 +32,17 @@ jobs:
       - run: chmod a+x /usr/local/bin/queryx
       - name: migrate
         run: |
-          cd internal/migrate
+          cd internal/integration/migrate
           queryx db:migrate --schema sqlite1.hcl
       - name: sleep
         run: sleep 1 # so the generated migration files have non-conflicting filenames
       - name: migrate again
         run: |
-          cd internal/migrate
+          cd internal/integration/migrate
           queryx db:migrate --schema sqlite2.hcl
       - name: test
         run: |
-          cd internal/migrate
+          cd internal/integration/migrate
           sqlite3 test.sqlite3 "insert into users(name, email) values('test', 'test@example.com')"
   postgresql:
     needs: [build]
@@ -73,13 +73,13 @@ jobs:
       - run: chmod a+x /usr/local/bin/queryx
       - name: migrate
         run: |
-          cd internal/migrate
+          cd internal/integration/migrate
           queryx db:migrate --schema postgresql1.hcl
       - name: sleep
         run: sleep 1
       - name: migrate again
         run: |
-          cd internal/migrate
+          cd internal/integration/migrate
           queryx db:migrate --schema postgresql2.hcl
       - name: test
         run: |
@@ -113,13 +113,13 @@ jobs:
       - run: chmod a+x /usr/local/bin/queryx
       - name: migrate
         run: |
-          cd internal/migrate
+          cd internal/integration/migrate
           queryx db:migrate --schema mysql1.hcl
       - name: sleep
         run: sleep 1
       - name: migrate again
         run: |
-          cd internal/migrate
+          cd internal/integration/migrate
           queryx db:migrate --schema mysql2.hcl
       - name: test
         run: |

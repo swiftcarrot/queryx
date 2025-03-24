@@ -1,4 +1,4 @@
-name: integration/postgresql
+name: postgresql
 on:
   push:
     paths-ignore:

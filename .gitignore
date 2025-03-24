@@ -1,4 +1,4 @@
-internal/integration/db
+internal/integration/client/db
 internal/integration/postgresql/db
 internal/migrate/db
 node_modules
