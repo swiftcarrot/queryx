@@ -16,38 +16,37 @@ import (
 )
 
 //go:embed templates
-var templates embed.FS
+var templatesFS embed.FS
 
 func Run(g *generator.Generator, generatorConfig *schema.Generator, args []string) error {
 	schema := g.Schema
 	database := schema.Databases[0]
 
-	if err := g.LoadTemplates(templates, database.Adapter); err != nil {
+	if err := g.LoadTemplates(templatesFS, database.Adapter); err != nil {
 		return err
 	}
 
-	// remove test files from templates by default
-	if !generatorConfig.Test {
-		templates := []*template.Template{}
-		for _, tpl := range g.Templates {
-			name := tpl.Name()
-			if !strings.HasSuffix(name, "_test.go") {
-				templates = append(templates, tpl)
-			}
-		}
-		g.Templates = templates
-	}
-
-	// remove unused types in templates
 	templates := []*template.Template{}
 	typs := typesFromSchema(schema)
 	for _, tpl := range g.Templates {
 		name := tpl.Name()
-		name = strings.TrimPrefix(name, "/queryx/")
-		name = strings.TrimSuffix(name, ".go")
-		name = strings.TrimSuffix(name, "_column")
-		if b, ok := typs[name]; !ok || b {
-			templates = append(templates, tpl)
+
+		isTest := strings.HasSuffix(name, "_test.go")
+		if isTest && !generatorConfig.Test {
+			continue
+		} else {
+			name = strings.TrimPrefix(name, "/queryx/")
+			name = strings.TrimSuffix(name, ".go")
+			name = strings.TrimSuffix(name, "_column")
+
+			if isTest {
+				name = strings.TrimSuffix(name, "_test")
+			}
+
+			b, ok := typs[name]
+			if !ok || b {
+				templates = append(templates, tpl)
+			}
 		}
 	}
 	g.Templates = templates

@@ -1,4 +1,8 @@
-name: integration
+name: client
+
+env:
+  QUERYX_ENV: test
+
 on:
   push:
     paths-ignore:
@@ -14,8 +18,6 @@ jobs:
       - name: Test
         run: |
           go test $(go list ./... | grep -Ev "generator|internal") -race -coverprofile=coverage.txt -covermode=atomic
-      # - name: Upload coverage to Codecov
-      #   uses: codecov/codecov-action@v3
       - name: Build
         run: go build -o /usr/local/bin/queryx cmd/queryx/main.go
       - uses: actions/upload-artifact@v4
@@ -44,6 +46,8 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/queryx_test?sslmode=disable
     steps:
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v4
@@ -52,11 +56,8 @@ jobs:
           path: /usr/local/bin
       - run: chmod a+x /usr/local/bin/queryx
       - name: generate
-        env:
-          QUERYX_ENV: test
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/queryx_test?sslmode=disable
         run: |
-          cd internal/integration
+          cd internal/integration/client
           queryx db:migrate --schema postgresql.hcl
           queryx db:migrate --schema postgresql.hcl
           queryx generate --schema postgresql.hcl
@@ -64,10 +65,10 @@ jobs:
         uses: golangci/golangci-lint-action@v3
         with:
           args: --timeout=3m
-          working-directory: internal/integration/db
+          working-directory: internal/integration/client/db
       - name: go test
         run: |
-          cd internal/integration
+          cd internal/integration/client
           go test -v ./...
   postgresql-typescript:
     needs: [build]
@@ -86,6 +87,8 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/queryx_test?sslmode=disable
     steps:
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v4
@@ -94,25 +97,18 @@ jobs:
           path: /usr/local/bin
       - run: chmod a+x /usr/local/bin/queryx
       - name: generate
-        env:
-          QUERYX_ENV: test
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/queryx_test?sslmode=disable
         run: |
-          cd internal/integration
+          cd internal/integration/client
           queryx db:migrate --schema postgresql.hcl
           queryx generate --schema postgresql.hcl
       - name: yarn install
         run: |
-          cd internal/integration
+          cd internal/integration/client
           yarn install
       - name: yarn test
         run: |
-          cd internal/integration
-          yarn test
-      # - name: yarn tsc
-      #   run: |
-      #     cd internal/integration
-      #     yarn tsc
+          cd internal/integration/client
+          yarn vitest run --dir client
   mysql-golang:
     needs: [build]
     runs-on: ubuntu-latest
@@ -130,6 +126,8 @@ jobs:
           --health-start-period 10s
           --health-timeout 5s
           --health-retries 10
+    env:
+      DATABASE_URL: mysql://root:@localhost:3306/queryx_test
     steps:
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v4
@@ -138,11 +136,8 @@ jobs:
           path: /usr/local/bin
       - run: chmod a+x /usr/local/bin/queryx
       - name: generate
-        env:
-          QUERYX_ENV: test
-          DATABASE_URL: mysql://root:@localhost:3306/queryx_test
         run: |
-          cd internal/integration
+          cd internal/integration/client
           queryx db:migrate --schema mysql.hcl
           queryx db:migrate --schema mysql.hcl
           queryx generate --schema mysql.hcl
@@ -150,10 +145,10 @@ jobs:
         uses: golangci/golangci-lint-action@v3
         with:
           args: --timeout=3m
-          working-directory: internal/integration/db
+          working-directory: internal/integration/client/db
       - name: go test
         run: |
-          cd internal/integration
+          cd internal/integration/client
           go test -v ./...
   mysql-typescript:
     needs: [build]
@@ -172,6 +167,8 @@ jobs:
           --health-start-period 10s
           --health-timeout 5s
           --health-retries 10
+    env:
+      DATABASE_URL: mysql://root:@localhost:3306/queryx_test
     steps:
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v4
@@ -180,28 +177,23 @@ jobs:
           path: /usr/local/bin
       - run: chmod a+x /usr/local/bin/queryx
       - name: generate
-        env:
-          QUERYX_ENV: test
-          DATABASE_URL: mysql://root:@localhost:3306/queryx_test
         run: |
-          cd internal/integration
+          cd internal/integration/client
           queryx db:migrate --schema mysql.hcl
           queryx generate --schema mysql.hcl
       - name: yarn install
         run: |
-          cd internal/integration
+          cd internal/integration/client
           yarn install
       - name: yarn test
         run: |
-          cd internal/integration
-          yarn test
-      # - name: yarn tsc
-      #   run: |
-      #     cd internal/integration
-      #     yarn tsc
+          cd internal/integration/client
+          yarn vitest run --dir client
   sqlite-golang:
     needs: [build]
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: sqlite:test.sqlite3
     steps:
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v4
@@ -210,11 +202,8 @@ jobs:
           path: /usr/local/bin
       - run: chmod a+x /usr/local/bin/queryx
       - name: generate
-        env:
-          QUERYX_ENV: test
-          DATABASE_URL: sqlite:test.sqlite3
         run: |
-          cd internal/integration
+          cd internal/integration/client
           queryx db:migrate --schema sqlite.hcl
           queryx db:migrate --schema sqlite.hcl
           queryx generate --schema sqlite.hcl
@@ -222,14 +211,16 @@ jobs:
         uses: golangci/golangci-lint-action@v3
         with:
           args: --timeout=3m
-          working-directory: internal/integration/db
+          working-directory: internal/integration/client/db
       - name: go test
         run: |
-          cd internal/integration
+          cd internal/integration/client
           go test -v ./...
   sqlite-typescript:
     needs: [build]
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: sqlite:test.sqlite3
     steps:
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v4
@@ -238,22 +229,17 @@ jobs:
           path: /usr/local/bin
       - run: chmod a+x /usr/local/bin/queryx
       - name: generate
-        env:
-          QUERYX_ENV: test
-          DATABASE_URL: sqlite:test.sqlite3
         run: |
-          cd internal/integration
+          cd internal/integration/client
           queryx db:migrate --schema sqlite.hcl
           queryx generate --schema sqlite.hcl
       - name: yarn install
         run: |
-          cd internal/integration
+          cd internal/integration/client
           yarn install
       - name: yarn test
+        env:
+          DATABASE_URL: sqlite:client/test.sqlite3
         run: |
-          cd internal/integration
-          yarn test
-      # - name: yarn tsc
-      #   run: |
-      #     cd internal/integration
-      #     yarn tsc
+          cd internal/integration/client
+          yarn vitest run --dir client

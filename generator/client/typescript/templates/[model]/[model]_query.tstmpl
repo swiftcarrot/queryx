@@ -17,7 +17,7 @@ import type { {{ pascal $h.ModelName }} } from "../{{ snake $h.ModelName }}";
 
 {{- define "primary_key_params" }}
   {{- range $i, $c := $.Columns -}}
-    {{ if $i }}, {{ end }}{{ $c.Name | camel }}: {{ tsType $c.Type }}
+    {{ if $i }}, {{ end }}{{ $c.Name | camel }}: {{ tsType $c.Type $c.Null $c.Array }}
   {{- end -}}
 {{- end }}
 

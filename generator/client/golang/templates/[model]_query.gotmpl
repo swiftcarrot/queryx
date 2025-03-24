@@ -12,7 +12,7 @@ import (
 
 {{- define "primary_key_params" }}
 	{{- range $i, $c := $.Columns -}}
-		{{ if $i }}, {{ end }}{{ $c.Name | camel | goKeywordFix }} {{ goModelType $c.Type $c.Null }}
+		{{ if $i }}, {{ end }}{{ $c.Name | camel | goKeywordFix }} {{ goModelType $c.Type $c.Null $c.Array }}
 	{{- end -}}
 {{- end }}
 
