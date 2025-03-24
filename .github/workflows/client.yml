@@ -213,8 +213,6 @@ jobs:
           args: --timeout=3m
           working-directory: internal/integration/client/db
       - name: go test
-        env:
-          DATABASE_URL: sqlite:client/test.sqlite3
         run: |
           cd internal/integration/client
           go test -v ./...
