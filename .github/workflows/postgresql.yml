@@ -1,0 +1,103 @@
+name: integration
+on:
+  push:
+    paths-ignore:
+      - "website/**"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v4
+        with:
+          go-version: "1.20"
+      - name: Test
+        run: |
+          go test $(go list ./... | grep -Ev "generator|internal") -race -coverprofile=coverage.txt -covermode=atomic
+      - name: Build
+        run: go build -o /usr/local/bin/queryx cmd/queryx/main.go
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bin
+          path: /usr/local/bin/queryx
+  golang:
+    needs: [build]
+    strategy:
+      matrix:
+        postgres:
+          - "14.2"
+          - "16"
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:${{matrix.postgres}}
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: queryx_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v4
+        with:
+          name: bin
+          path: /usr/local/bin
+      - run: chmod a+x /usr/local/bin/queryx
+      - name: generate
+        env:
+          QUERYX_ENV: test
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/queryx_test?sslmode=disable
+        run: |
+          cd internal/integration/postgresql
+          queryx db:migrate
+          queryx generate
+      - name: go test
+        run: |
+          cd internal/integration/postgresql
+          go test -v ./...
+  typescript:
+    needs: [build]
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14.2
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: queryx_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v4
+        with:
+          name: bin
+          path: /usr/local/bin
+      - run: chmod a+x /usr/local/bin/queryx
+      - name: generate
+        env:
+          QUERYX_ENV: test
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/queryx_test?sslmode=disable
+        run: |
+          cd internal/integration/postgresql
+          queryx db:migrate
+          queryx generate
+      - name: yarn install
+        run: |
+          cd internal/integration/postgresql
+          yarn install
+      - name: yarn test
+        run: |
+          cd internal/integration/postgresql
+          yarn test
