@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
-	"github.com/swiftcarrot/queryx/internal/integration/db"
-	"github.com/swiftcarrot/queryx/internal/integration/db/queryx"
+	"github.com/swiftcarrot/queryx/internal/integration/client/db"
+	"github.com/swiftcarrot/queryx/internal/integration/client/db/queryx"
 )
 
 var c *db.QXClient

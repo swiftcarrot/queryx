@@ -108,7 +108,7 @@ jobs:
       - name: yarn test
         run: |
           cd internal/integration/client
-          yarn test
+          yarn vitest run --dir client
   mysql-golang:
     needs: [build]
     runs-on: ubuntu-latest
@@ -190,7 +190,7 @@ jobs:
       - name: yarn test
         run: |
           cd internal/integration/client
-          yarn test
+          yarn vitest run --dir client
   sqlite-golang:
     needs: [build]
     runs-on: ubuntu-latest
@@ -244,4 +244,4 @@ jobs:
       - name: yarn test
         run: |
           cd internal/integration/client
-          yarn test
+          yarn vitest run --dir client
