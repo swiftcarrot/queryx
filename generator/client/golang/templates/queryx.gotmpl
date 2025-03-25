@@ -3,9 +3,13 @@
 package {{ $.packageName }}
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
+	"log"
 	"os"
+
+	"{{ $.goModPath }}/{{ $.packageName }}/queryx"
 )
 
 type Queries interface {
@@ -15,7 +19,7 @@ type Queries interface {
 }
 
 type QXClient struct {
-	db *sql.DB
+	DB *sql.DB
 	config *queryx.Config
 	logger  queryx.Logger
 	*queryx.Adapter
@@ -40,20 +44,20 @@ func NewClientWithEnv(env string) (*QXClient, error) {
 	db, err := sql.Open("postgres", config.URL)
 	{{- else if eq $.client.Adapter "mysql" }}
 	db, err := sql.Open("mysql", config.URL)
-    {{- else if eq $.client.Adapter "sqlite" }}
-    db, err := sql.Open("sqlite3", config.URL)
+	{{- else if eq $.client.Adapter "sqlite" }}
+	db, err := sql.Open("sqlite3", config.URL)
 	{{- end }}
 	if err != nil {
 		return nil, err
 	}
 
 	client := &QXClient{
-		db: db,
+		DB: db,
 		config: config,
 		Adapter: queryx.NewAdapter(db),
 		Schema : queryx.NewSchema(),
 	}
-  client.setDefaultLogger()
+	client.setDefaultLogger()
 
 	return client, nil
 }
@@ -73,6 +77,22 @@ func (c *QXClient) Query{{ $m.Name }}() *{{ $m.Name }}Query {
 }
 {{- end }}
 
+func (c *QXClient) Transaction(f func(t *Tx) error) error {
+	tx, err := c.Tx()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	if err = f(tx);err != nil {
+		return err
+	}
+	return tx.Commit()
+}
+
+func (c *QXClient) Raw(fragment string, args ...interface{}) *queryx.Clause  {
+	return queryx.NewClause(fragment, args)
+}
+
 type Tx struct {
 	*queryx.Schema
 	*queryx.Adapter
@@ -82,7 +102,7 @@ type Tx struct {
 
 func (c *QXClient) Tx() (*Tx, error) {
 	ctx := context.Background()
-	tx, err := c.db.BeginTx(ctx, nil)
+	tx, err := c.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -109,3 +129,7 @@ func (tx *Tx) Query{{ $m.Name }}() *{{ $m.Name }}Query {
 	return New{{ $m.Name }}Query(tx.Adapter, tx.Schema, tx)
 }
 {{- end }}
+
+func (tx *Tx) Raw(fragment string, args ...interface{}) *queryx.Clause  {
+	return queryx.NewClause(fragment, args)
+}

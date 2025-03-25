@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"strings"
+	"path/filepath"
 	"time"
 
 	"ariga.io/atlas/sql/migrate"
@@ -31,7 +31,6 @@ func newAdapter() (adapter.Adapter, error) {
 	return adapter.NewAdapter(sch.Databases[0].LoadConfig(environment))
 }
 
-// TODO: should check unapplied migrations
 func findSchemaChanges(a string, db adapter.Adapter, database *schema.Database) ([]*migrate.Change, error) {
 	ctx := context.Background()
 
@@ -45,7 +44,7 @@ func findSchemaChanges(a string, db adapter.Adapter, database *schema.Database) 
 		environment = "development"
 	}
 	config := database.LoadConfig(environment)
-	dbName := config.GetDatabaseName()
+	dbName := adapter.NewConfig(config).Database
 
 	if a == "postgresql" {
 		driver, err = postgres.Open(db)
@@ -76,13 +75,13 @@ func findSchemaChanges(a string, db adapter.Adapter, database *schema.Database) 
 		if err != nil {
 			return nil, err
 		}
-		from, err = driver.InspectSchema(ctx, dbName, &sqlschema.InspectOptions{
+		from, err = driver.InspectSchema(ctx, "", &sqlschema.InspectOptions{
 			Tables: database.Tables(),
 		})
 		if err != nil {
 			return nil, err
 		}
-		desired = database.CreateSQLiteSchema(dbName)
+		desired = database.CreateSQLiteSchema("")
 	}
 
 	changes, err := driver.SchemaDiff(from, desired)
@@ -140,16 +139,15 @@ var dbMigrateCmd = &cobra.Command{
 		if err := a.Open(); err != nil {
 			return err
 		}
+		// defer a.Close()
 
 		migrator, err := adapter.NewMigrator(a)
 		if err != nil {
 			return err
 		}
-
 		if err := migrator.Up(); err != nil {
 			return err
 		}
-
 		if err := dbMigrateGenerate(); err != nil {
 			return err
 		}
@@ -171,6 +169,14 @@ func createFile(f string, content string) error {
 	return nil
 }
 
+func createSQL(stats []string) string {
+	var sql string
+	for _, stat := range stats {
+		sql += stat + ";\n" // TODO: support windows line break
+	}
+	return sql
+}
+
 func dbMigrateGenerate() error {
 	sch, err := newSchema()
 	if err != nil {
@@ -185,6 +191,7 @@ func dbMigrateGenerate() error {
 	if err := adapter.Open(); err != nil {
 		return err
 	}
+	// defer adapter.Close()
 
 	database := sch.Databases[0]
 	changes, err := findSchemaChanges(sch.Databases[0].Adapter, adapter, database)
@@ -201,15 +208,17 @@ func dbMigrateGenerate() error {
 	downs := []string{}
 	for _, change := range changes {
 		if change.Cmd != "" {
-			ups = append(ups, change.Cmd+";")
+			ups = append(ups, change.Cmd)
 		}
-		if change.Reverse != "" {
-			downs = append([]string{change.Reverse + ";"}, downs...)
+
+		stmts, err := change.ReverseStmts()
+		if err != nil {
+			return err
 		}
+		downs = append(stmts, downs...)
 	}
-	// TODO: support windows line break
-	up := strings.Join(ups, "\n")
-	down := strings.Join(downs, "\n")
+	up := createSQL(ups)
+	down := createSQL(downs)
 
 	// TODO: support migration name
 	name := "auto"
@@ -226,10 +235,13 @@ func dbMigrateGenerate() error {
 		version = time.Now().Format("20060102150405")
 	}
 
-	if err := createFile(fmt.Sprintf("%s/migrations/%s_%s.up.sql", database.Name, version, name), up); err != nil {
+	upFile := filepath.Join(database.Name, "migrations", fmt.Sprintf("%s_%s.up.sql", version, name))
+	downFile := filepath.Join(database.Name, "migrations", fmt.Sprintf("%s_%s.down.sql", version, name))
+
+	if err := createFile(upFile, up); err != nil {
 		return err
 	}
-	if err := createFile(fmt.Sprintf("%s/migrations/%s_%s.down.sql", database.Name, version, name), down); err != nil {
+	if err := createFile(downFile, down); err != nil {
 		return err
 	}
 	return nil
@@ -265,5 +277,42 @@ var dbVersionCmd = &cobra.Command{
 	Short: "Prints current migration version",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return nil
+	},
+}
+
+var dbSchemaDumpCmd = &cobra.Command{
+	Use:   "db:schema:dump",
+	Short: "Dump database schema",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		adapter, err := newAdapter()
+		if err != nil {
+			return err
+		}
+
+		if err := adapter.Open(); err != nil {
+			return err
+		}
+
+		filename := "db/schema.sql"
+		err = adapter.DumpSchema(filename, nil)
+		if err != nil {
+			return err
+		}
+
+		// content, err := os.ReadFile(filename)
+		// if err != nil {
+		// 	return err
+		// }
+		// fmt.Println(string(content))
+
+		return nil
+	},
+}
+
+var dbSchemaLoadCmd = &cobra.Command{
+	Use:   "db:schema:load",
+	Short: "Load database schema",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return fmt.Errorf("not implemented")
 	},
 }

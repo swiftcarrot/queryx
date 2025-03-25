@@ -1,0 +1,19 @@
+name: website
+on:
+  push:
+    branches: [main]
+    paths:
+      - package.json
+      - "website/**"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: curl -sf https://cli.caitouyun.com/install.sh | sh
+      - run: yarn
+      - run: yarn website:build
+      - run: |
+          cd website && caitou deploy --git
+        env:
+          CAITOU_TOKEN: ${{ secrets.CAITOU_TOKEN }}

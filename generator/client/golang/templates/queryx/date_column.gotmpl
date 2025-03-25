@@ -4,7 +4,6 @@ package queryx
 
 import (
 	"fmt"
-	"time"
 )
 
 type DateColumn struct {
@@ -28,7 +27,7 @@ func (c *DateColumn) EQ(v string) *Clause {
 	}
 	return &Clause{
 		fragment: fmt.Sprintf("%s.%s = ?", c.Table.Name, c.Name),
-		args:     []interface{}{d.UTC()},
+		args:     []interface{}{d},
 		err:      err,
 	}
 }
@@ -42,7 +41,7 @@ func (c *DateColumn) LE(v string) *Clause {
 	}
 	return &Clause{
 		fragment: fmt.Sprintf("%s.%s <= ?", c.Table.Name, c.Name),
-		args:     []interface{}{d.UTC()},
+		args:     []interface{}{d},
 		err:      err,
 	}
 }
@@ -56,7 +55,7 @@ func (c *DateColumn) LT(v string) *Clause {
 	}
 	return &Clause{
 		fragment: fmt.Sprintf("%s.%s <=?", c.Table.Name, c.Name),
-		args:     []interface{}{d.UTC()},
+		args:     []interface{}{d},
 		err:      err,
 	}
 }
@@ -70,7 +69,7 @@ func (c *DateColumn) GE(v string) *Clause {
 	}
 	return &Clause{
 		fragment: fmt.Sprintf("%s.%s >= ?", c.Table.Name, c.Name),
-		args:     []interface{}{d.UTC()},
+		args:     []interface{}{d},
 		err:      err,
 	}
 }
@@ -84,7 +83,7 @@ func (c *DateColumn) GT(v string) *Clause {
 	}
 	return &Clause{
 		fragment: fmt.Sprintf("%s.%s > ?", c.Table.Name, c.Name),
-		args:     []interface{}{d.UTC()},
+		args:     []interface{}{d},
 		err:      err,
 	}
 }

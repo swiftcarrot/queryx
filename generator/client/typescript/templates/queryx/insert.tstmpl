@@ -31,14 +31,17 @@ export class InsertStatement {
   }
 
   values(...values: any[]) {
-    this._values.push(values);
+    if (values.length > 0) {
+      this._values.push(values);
+    }
     return this;
   }
-
+  {{- if or (eq $.client.Adapter "postgresql") (eq $.client.Adapter "sqlite") }}
   returning(...returning: string[]) {
     this._returning = returning;
     return this;
   }
+  {{- end }}
 
   onConflict(onConflict: string) {
     this._onConflict = onConflict;
@@ -49,7 +52,17 @@ export class InsertStatement {
     let sql: string = `INSERT INTO ${this._into}`;
 
     if (this._columns.length > 0) {
+		  {{- if eq $.client.Adapter "mysql" }}
+      sql = `${sql} (\`${this._columns.join("`, `")}\`)`;
+      {{- else }}
       sql = `${sql} (${this._columns.join(", ")})`;
+      {{- end }}
+    } else {
+		  {{- if eq $.client.Adapter "mysql" }}
+      sql = `${sql} VALUES ()`;
+      {{- else }}
+      sql = `${sql} DEFAULT VALUES`;
+      {{- end }}
     }
 
     const values: string[] = [];
@@ -60,7 +73,9 @@ export class InsertStatement {
       }
       values.push(`(${ss.join(", ")})`);
     }
-    sql = `${sql} VALUES ${values.join(", ")}`;
+    if (values.length > 0) {
+      sql = `${sql} VALUES ${values.join(", ")}`;
+    }
 
     if (this._returning.length > 0) {
       sql = `${sql} RETURNING ${this._returning.join(", ")}`;

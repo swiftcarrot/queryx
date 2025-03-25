@@ -5,26 +5,26 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"os/exec"
 
 	sqlschema "ariga.io/atlas/sql/schema"
 	"ariga.io/atlas/sql/sqlite"
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/swiftcarrot/queryx/schema"
 )
 
 type SQLiteAdapter struct {
 	*sql.DB
-	Config *schema.Config
+	Config *Config
 }
 
-func NewSQLiteAdapter(config *schema.Config) *SQLiteAdapter {
+func NewSQLiteAdapter(config *Config) *SQLiteAdapter {
 	return &SQLiteAdapter{
 		Config: config,
 	}
 }
 
 func (a *SQLiteAdapter) Open() error {
-	db, err := sql.Open("sqlite3", a.Config.ConnectionURL(true))
+	db, err := sql.Open("sqlite3", a.Config.URL)
 	if err != nil {
 		return err
 	}
@@ -33,13 +33,12 @@ func (a *SQLiteAdapter) Open() error {
 }
 
 func (a *SQLiteAdapter) CreateDatabase() error {
-	// fmt.Println("env...", os.Getenv(a.Config.URL.EnvKey))
-	// _, err := os.Create(os.Getenv(a.Config.URL.EnvKey))
-	// if err != nil {
-	// 	return err
-	// }
+	_, err := os.Create(a.Config.Database)
+	if err != nil {
+		return err
+	}
 
-	// fmt.Println("Created database", a.Config.Database)
+	fmt.Println("Created database", a.Config.Database)
 
 	return nil
 }
@@ -84,10 +83,27 @@ func (a *SQLiteAdapter) CreateMigrationsTable(ctx context.Context) error {
 
 	return nil
 }
-func (a *SQLiteAdapter) GetAdapter() string {
-	return a.Config.Adapter
+
+func (a *SQLiteAdapter) QueryVersion(ctx context.Context, version string) (*sql.Rows, error) {
+	return a.DB.QueryContext(ctx, "select version from schema_migrations where version = $1", version)
 }
 
-func (a *SQLiteAdapter) GetDBName() string {
-	return ""
+func (a *SQLiteAdapter) DumpSchema(filename string, extraFlags []string) error {
+	file, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	cmd := exec.Command("sqlite3", a.Config.Database, ".schema")
+	cmd.Stdout = file
+
+	if err := cmd.Run(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (a *SQLiteAdapter) LoadSchema(filename string, extraFlags []string) error {
+	return fmt.Errorf("not implemented")
 }

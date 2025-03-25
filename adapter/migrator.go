@@ -22,7 +22,7 @@ type Migrator struct {
 
 func NewMigrator(adapter Adapter) (*Migrator, error) {
 	// TODO: set from config
-	migrationsPath := "./db/migrations"
+	migrationsPath := filepath.Join("db", "migrations")
 	migrationsTable := "schema_migrations"
 	os.MkdirAll(migrationsPath, 0766)
 
@@ -41,11 +41,7 @@ func NewMigrator(adapter Adapter) (*Migrator, error) {
 }
 
 func (m *Migrator) RunMigration(mg *Migration) error {
-	fmt.Println("run", mg.Version, mg.Path)
-	apapter := m.Adapter.GetAdapter()
-	if apapter == "" {
-		return fmt.Errorf("the dbName can not be nil")
-	}
+	fmt.Println("Migrating", mg.Path)
 	f, err := os.ReadFile(mg.Path)
 	if err != nil {
 		return err
@@ -53,9 +49,12 @@ func (m *Migrator) RunMigration(mg *Migration) error {
 	sql := string(f)
 
 	for _, line := range strings.Split(sql, "\n") {
-		_, err = m.Adapter.ExecContext(context.Background(), line)
-		if err != nil {
-			return err
+		line = strings.TrimSpace(line)
+		if line != "" {
+			_, err = m.Adapter.ExecContext(context.Background(), line)
+			if err != nil {
+				return fmt.Errorf("migration error: %v", err)
+			}
 		}
 	}
 
@@ -92,37 +91,21 @@ func (m *Migrator) Up() error {
 
 func (m *Migrator) exists(ctx context.Context, version string) (bool, error) {
 	exists := true
-	adapter := m.Adapter.GetAdapter()
-	if adapter == "" {
-		return false, fmt.Errorf("the dbName can not be nil")
-	}
-	if adapter == "postgresql" || adapter == "sqlite" {
-		rows, err := m.Adapter.QueryContext(ctx, "select version from schema_migrations where version = $1", version)
-		if err != nil {
-			// TODO: fix this
-			if err == sql.ErrNoRows {
-				exists = false
-			} else {
-				return false, err
-			}
-		}
-		if !rows.Next() {
+	rows, err := m.Adapter.QueryVersion(ctx, version)
+	if err != nil {
+		if err == sql.ErrNoRows {
 			exists = false
-		}
-	} else if adapter == "mysql" {
-		rows, err := m.Adapter.QueryContext(ctx, "select version from schema_migrations where version = ?", version)
-		if err != nil {
-			// TODO: fix this
-			if err == sql.ErrNoRows {
-				exists = false
-			} else {
-				return false, err
-			}
-		}
-		if !rows.Next() {
-			exists = false
+		} else {
+			return false, err
 		}
 	}
+	if !rows.Next() {
+		exists = false
+	}
+	if err := rows.Close(); err != nil {
+		return false, fmt.Errorf("closing rows %w", err)
+	}
+
 	return exists, nil
 }
 
@@ -146,11 +129,6 @@ func (m *Migrator) UpWithVersion(version string) error {
 		}
 
 		if !exists {
-			// TODO: transaction support
-			// adapter.Transaction(func(tx *Transaction) error {
-			// 	return nil
-			// })
-
 			if err := m.RunMigration(um); err != nil {
 				return err
 			}

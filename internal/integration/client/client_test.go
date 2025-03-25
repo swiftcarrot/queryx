@@ -9,10 +9,19 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
-	"github.com/swiftcarrot/queryx/internal/integration/db"
+	"github.com/swiftcarrot/queryx/internal/integration/client/db"
+	"github.com/swiftcarrot/queryx/internal/integration/client/db/queryx"
 )
 
 var c *db.QXClient
+
+func init() {
+	client, err := db.NewClient()
+	if err != nil {
+		log.Fatal(err)
+	}
+	c = client
+}
 
 func TestQueryOne(t *testing.T) {
 	user, err := c.QueryUser().Create(c.ChangeUser().SetName("test"))
@@ -59,25 +68,45 @@ func TestCreate(t *testing.T) {
 	user, err := c.QueryUser().Create(c.ChangeUser().SetName("user").SetType("admin"))
 	require.NoError(t, err)
 	require.Equal(t, "user", user.Name.Val)
-	require.False(t, user.Name.Null)
+	require.True(t, user.Name.Valid)
 	require.Equal(t, "admin", user.Type.Val)
-	require.False(t, user.Type.Null)
+	require.True(t, user.Type.Valid)
 	require.True(t, user.ID > 0)
+}
+
+func TestInsertAll(t *testing.T) {
+	_, err := c.QueryUserPost().DeleteAll()
+	require.NoError(t, err)
+
+	_, err = c.QueryPost().InsertAll(nil)
+	require.ErrorIs(t, err, db.ErrInsertAllEmptyChanges)
+	_, err = c.QueryPost().InsertAll([]*queryx.PostChange{})
+	require.ErrorIs(t, err, db.ErrInsertAllEmptyChanges)
+
+	inserted, err := c.QueryPost().InsertAll([]*queryx.PostChange{
+		c.ChangePost().SetTitle("title1"),
+		c.ChangePost().SetTitle("title2"),
+	})
+	require.NoError(t, err)
+	require.Equal(t, int64(2), inserted)
 }
 
 func TestCreateEmpty(t *testing.T) {
 	tag, err := c.QueryTag().Create(nil)
 	require.NoError(t, err)
 	require.True(t, tag.ID > 0)
-	require.True(t, tag.Name.Null)
+	require.False(t, tag.Name.Valid)
 
 	tag, err = c.QueryTag().Create(c.ChangeTag())
 	require.NoError(t, err)
 	require.True(t, tag.ID > 0)
-	require.True(t, tag.Name.Null)
+	require.False(t, tag.Name.Valid)
 }
 
 func TestFind(t *testing.T) {
+	_, err := c.QueryTag().DeleteAll()
+	require.NoError(t, err)
+
 	tag, err := c.QueryTag().Create(c.ChangeTag().SetName("test"))
 	require.NoError(t, err)
 	tag, err = c.QueryTag().Find(tag.ID)
@@ -131,6 +160,10 @@ func TestDate(t *testing.T) {
 	user, err := c.QueryUser().Create(c.ChangeUser().SetDate("2012-11-10"))
 	require.NoError(t, err)
 	require.Equal(t, "2012-11-10", user.Date.Val.Format("2006-01-02"))
+
+	user, err = c.QueryUser().Where(c.UserDate.EQ("2012-11-10")).First()
+	require.NoError(t, err)
+	require.Equal(t, "2012-11-10", user.Date.Val.Format("2006-01-02"))
 }
 
 func TestDatetime(t *testing.T) {
@@ -152,8 +185,8 @@ func TestDatetime(t *testing.T) {
 func TestTimestamps(t *testing.T) {
 	user, err := c.QueryUser().Create(c.ChangeUser())
 	require.NoError(t, err)
-	require.False(t, user.CreatedAt.Null)
-	require.False(t, user.UpdatedAt.Null)
+	require.True(t, user.CreatedAt.Valid)
+	require.True(t, user.UpdatedAt.Valid)
 	require.True(t, user.CreatedAt.Val.Equal(user.UpdatedAt.Val))
 
 	time.Sleep(time.Millisecond)
@@ -166,7 +199,7 @@ func TestTimestamps(t *testing.T) {
 func TestUUID(t *testing.T) {
 	user, err := c.QueryUser().Create(c.ChangeUser())
 	require.NoError(t, err)
-	require.True(t, user.UUID.Null)
+	require.False(t, user.UUID.Valid)
 
 	uuid1 := "c7e5b9af-0499-4eca-a7e6-77e10d56987b"
 	err = user.Update(c.ChangeUser().SetUUID(uuid1))
@@ -192,10 +225,10 @@ func TestSetNullable(t *testing.T) {
 	require.Equal(t, name, user.Name.Val)
 
 	user.Update(c.ChangeUser().SetNullableName(nil))
-	require.True(t, user.Name.Null)
+	require.False(t, user.Name.Valid)
 
 	user, _ = c.QueryUser().Find(user.ID)
-	require.True(t, user.Name.Null)
+	require.False(t, user.Name.Valid)
 }
 
 func TestJSON(t *testing.T) {
@@ -203,7 +236,10 @@ func TestJSON(t *testing.T) {
 	payload["theme"] = "dark"
 	payload["height"] = 170
 	payload["weight"] = 65
-	user, _ := c.QueryUser().Create(c.ChangeUser().SetPayload(payload))
+	user, err := c.QueryUser().Create(c.ChangeUser().SetPayload(payload))
+	require.NoError(t, err)
+	user, err = c.QueryUser().Find(user.ID)
+	require.NoError(t, err)
 	require.Equal(t, payload["theme"], user.Payload.Val["theme"])
 	// numbers are unmarshalled into float64 by default
 	require.Equal(t, float64(payload["height"].(int)), user.Payload.Val["height"])
@@ -226,7 +262,8 @@ func TestCompositePrimaryKey(t *testing.T) {
 	require.Equal(t, "key", code.Key)
 }
 
-func TestNoPrimaryKey(t *testing.T) {
+func TestWithoutPrimaryKey(t *testing.T) {
+	// TODO: test missing Delete() and Find() on ClientQuery and Client
 	client, err := c.QueryClient().Create(c.ChangeClient().SetName("client"))
 	require.NoError(t, err)
 	require.Equal(t, "client", client.Name.Val)
@@ -277,6 +314,41 @@ func TestAllEmpty(t *testing.T) {
 	require.Equal(t, 0, len(users))
 }
 
+func TestIn(t *testing.T) {
+	_, err := c.QueryUser().DeleteAll()
+	require.NoError(t, err)
+
+	user1, _ := c.QueryUser().Create(c.ChangeUser().SetName("test1"))
+	user2, _ := c.QueryUser().Create(c.ChangeUser().SetName("test2"))
+	user3, _ := c.QueryUser().Create(c.ChangeUser().SetName("test3"))
+
+	users1, _ := c.QueryUser().Where(c.UserID.In([]int64{user1.ID, user2.ID})).All()
+	require.Equal(t, 2, len(users1))
+	require.Equal(t, user1, users1[0])
+	require.Equal(t, user2, users1[1])
+
+	users2, _ := c.QueryUser().Where(c.UserName.In([]string{user1.Name.Val, user2.Name.Val})).All()
+	require.Equal(t, 2, len(users2))
+	require.Equal(t, user1, users2[0])
+	require.Equal(t, user2, users2[1])
+
+	users3, _ := c.QueryUser().Where(c.UserID.NIn([]int64{user1.ID, user2.ID})).All()
+	require.Equal(t, 1, len(users3))
+	require.Equal(t, user3, users3[0])
+
+	users4, _ := c.QueryUser().Where(c.UserName.NIn([]string{user1.Name.Val, user2.Name.Val})).All()
+	require.Equal(t, 1, len(users4))
+	require.Equal(t, user3, users4[0])
+
+	user5, _ := c.QueryUser().Where(c.UserID.EQ(user1.ID)).Where(c.UserName.EQ(user1.Name.Val)).All()
+	require.Equal(t, 1, len(user5))
+	require.Equal(t, user1, user5[0])
+
+	user6, _ := c.QueryUser().Where(c.UserID.In([]int64{user1.ID, user2.ID})).Where(c.UserName.EQ(user1.Name.Val)).All()
+	require.Equal(t, 1, len(user6))
+	require.Equal(t, user1, user6[0])
+}
+
 func TestInEmpty(t *testing.T) {
 	_, err := c.QueryUser().DeleteAll()
 	require.NoError(t, err)
@@ -289,6 +361,20 @@ func TestInEmpty(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, users)
 	require.Equal(t, 0, len(users))
+}
+
+func TestWhere(t *testing.T) {
+	user, err := c.QueryUser().Create(c.ChangeUser().SetName("name").SetType("type"))
+	require.NoError(t, err)
+	users, err := c.QueryUser().Where(c.UserID.EQ(user.ID)).Where(c.UserName.EQ("name"), c.UserType.EQ("type")).All()
+	require.NoError(t, err)
+	require.Equal(t, 1, len(users))
+	require.Equal(t, user, users[0])
+
+	users, err = c.QueryUser().Where(c.Raw("name = ? and type = ?", "name", "type")).All()
+	require.NoError(t, err)
+	require.Equal(t, 1, len(users))
+	require.Equal(t, user, users[0])
 }
 
 func TestHasManyEmpty(t *testing.T) {
@@ -308,6 +394,28 @@ func TestHasManyEmpty(t *testing.T) {
 	require.NotNil(t, user.UserPosts)
 	require.Equal(t, 0, len(user.Posts))
 	require.Equal(t, 0, len(user.UserPosts))
+}
+
+func TestHasMany(t *testing.T) {
+	user, err := c.QueryUser().Create(c.ChangeUser())
+	require.NoError(t, err)
+	post1, err := c.QueryPost().Create(c.ChangePost())
+	require.NoError(t, err)
+	userPost1, err := c.QueryUserPost().Create(c.ChangeUserPost().SetUserID(user.ID).SetPostID(post1.ID))
+	require.NoError(t, err)
+
+	_, err = c.QueryPost().Create(c.ChangePost())
+	require.NoError(t, err)
+	_, err = c.QueryUserPost().Create(c.ChangeUserPost())
+	require.NoError(t, err)
+
+	userPosts, err := user.QueryUserPosts().All()
+	require.NoError(t, err)
+	require.Equal(t, []*db.UserPost{userPost1}, userPosts)
+
+	posts, err := user.QueryPosts().All()
+	require.NoError(t, err)
+	require.Equal(t, []*db.Post{post1}, posts)
 }
 
 func TestHasOne(t *testing.T) {
@@ -344,6 +452,18 @@ func TestPreload(t *testing.T) {
 	post, _ := c.QueryPost().PreloadUserPosts().Find(post1.ID)
 	require.Equal(t, 1, len(post.UserPosts))
 	require.Equal(t, userPost1.ID, post.UserPosts[0].ID)
+
+	user, err := c.QueryUser().Find(user1.ID)
+	require.NoError(t, err)
+	err = user.PreloadUserPosts()
+	require.NoError(t, err)
+	require.Equal(t, 2, len(user.UserPosts))
+	err = user.PreloadPosts()
+	require.NoError(t, err)
+	require.Equal(t, 2, len(user.Posts))
+	err = user.PreloadAccount()
+	require.NoError(t, err)
+	require.Equal(t, account1.ID, user.Account.ID)
 }
 
 func TestTransaction(t *testing.T) {
@@ -377,6 +497,36 @@ func TestTransaction(t *testing.T) {
 	require.Equal(t, "tag1-updated", tag1.Name.Val)
 }
 
+func TestTransactionBlock(t *testing.T) {
+	_, err := c.QueryTag().DeleteAll()
+	require.NoError(t, err)
+
+	err = c.Transaction(func(tx *db.Tx) error {
+		tag1, err := tx.QueryTag().Create(tx.ChangeTag().SetName("tag1"))
+		require.NoError(t, err)
+		require.Equal(t, "tag1", tag1.Name.Val)
+		tag2, err := tx.QueryTag().Create(tx.ChangeTag().SetName("tag2"))
+		require.Equal(t, "tag2", tag2.Name.Val)
+		require.NoError(t, err)
+		return nil
+	})
+	require.NoError(t, err)
+
+	total, err := c.QueryTag().Count()
+	require.NoError(t, err)
+	require.Equal(t, int64(2), total)
+
+	err = c.Transaction(func(tx *db.Tx) error {
+		_, err = tx.QueryTag().Create(c.ChangeTag().SetName("tag3"))
+		_, err = tx.QueryTag().Create(c.ChangeTag().SetName("tag3"))
+		return err
+	})
+	require.Error(t, err)
+	total, err = c.QueryTag().Count()
+	require.NoError(t, err)
+	require.Equal(t, int64(2), total)
+}
+
 func TestChangeJSON(t *testing.T) {
 	s := `{"name":"user name","isAdmin":false}`
 
@@ -399,20 +549,11 @@ func TestModelJSON(t *testing.T) {
 }
 
 func TestModelStringer(t *testing.T) {
-	_, err := c.QueryCode().DeleteAll()
+	client, err := c.QueryClient().Create(c.ChangeClient().SetName("test"))
 	require.NoError(t, err)
+	require.Equal(t, `(Client name: "test", float: null)`, client.String())
 
-	code, err := c.QueryCode().Create(c.ChangeCode().SetKey("code key").SetType("code type"))
+	client, err = c.QueryClient().Create(c.ChangeClient().SetName("test").SetFloat(51.1234))
 	require.NoError(t, err)
-
-	s := fmt.Sprintf(`(Code type: "%s", key: "%s")`, code.Type, code.Key)
-	require.Equal(t, s, code.String())
-}
-
-func init() {
-	client, err := db.NewClientWithEnv("test")
-	if err != nil {
-		log.Fatal(err)
-	}
-	c = client
+	require.Equal(t, `(Client name: "test", float: 51.1234)`, client.String())
 }

@@ -6,7 +6,7 @@ type Schema struct {
 	{{- range $m := $.client.Models }}
 		{{ $m.Name }} *Table
 		{{- range .Columns }}
-		{{ $m.Name }}{{ firstWordUpperCamel .Name }} *{{goType .Type}}Column
+		{{ $m.Name }}{{ firstWordUpperCamel .Name }} *{{goType .Type .Null .Array}}Column
 		{{- end}}
 	{{- end}}
 }
@@ -20,7 +20,7 @@ func NewSchema() *Schema {
 	{{- range $m := $.client.Models }}
 		{{ $m.Name }}: {{ camel $m.Name }},
 		{{- range $c := $m.Columns }}
-			{{ $m.Name }}{{ firstWordUpperCamel $c.Name }}: {{ camel $m.Name }}.New{{ goType $c.Type }}Column("{{ $c.Name }}"),
+			{{ $m.Name }}{{ firstWordUpperCamel $c.Name }}: {{ camel $m.Name }}.New{{ goType $c.Type $c.Null $c.Array }}Column("{{ $c.Name }}"),
 		{{- end }}
 	{{- end }}
 	}
@@ -40,7 +40,7 @@ func (s *Schema) Change{{ $m.Name }}() *{{ $m.Name }}Change {
 	return &{{ $m.Name }}Change{
 	{{- range $c := $m.Columns }}
 		{{- $f := $c.Name | pascal }}
-		{{ $f }}: {{ goType $c.Type }}{},
+		{{ $f }}: {{ goType $c.Type $c.Null $c.Array }}{},
 	{{- end }}
 	}
 }

@@ -26,6 +26,10 @@ export class Table {
     return new StringColumn(this, name);
   }
 
+  newStringArrayColumn(name: string) {
+    return new StringArrayColumn(this, name);
+  }
+
   newTextColumn(name: string) {
     return new TextColumn(this, name);
   }
@@ -33,21 +37,27 @@ export class Table {
   newDateColumn(name: string) {
     return new DateColumn(this, name);
   }
+
   newTimeColumn(name: string) {
     return new TimeColumn(this, name);
   }
+
   newDatetimeColumn(name: string) {
     return new DatetimeColumn(this, name);
   }
+
   newBooleanColumn(name: string) {
     return new BooleanColumn(this, name);
   }
+
   newJSONColumn(name: string) {
     return new JSONColumn(this, name);
   }
+
   newUUIDColumn(name: string) {
     return new UUIDColumn(this, name);
   }
+
   newFloatColumn(name: string) {
     return new FloatColumn(this, name);
   }
@@ -63,35 +73,145 @@ class Column {
   }
 }
 
-// TODO: on demand generation based on types in schema
-
 class NumberColumn extends Column {
-  eq(v: number): Clause {
+  eq(v: number) {
     return new Clause(`${this.table.name}.${this.name} = ?`, [v]);
   }
-  in(v: number[]): Clause {
+  ne(v: number) {
+    return new Clause(`${this.table.name}.${this.name} != ?`, [v]);
+  }
+  gt(v: number) {
+    return new Clause(`${this.table.name}.${this.name} > ?`, [v]);
+  }
+  gte(v: number) {
+    return new Clause(`${this.table.name}.${this.name} >= ?`, [v]);
+  }
+  lt(v: number) {
+    return new Clause(`${this.table.name}.${this.name} < ?`, [v]);
+  }
+  lte(v: number) {
+    return new Clause(`${this.table.name}.${this.name} <= ?`, [v]);
+  }
+  in(v: number[]) {
     if (!v.length) {
       return new Clause("1=0", []);
     }
     return new Clause(`${this.table.name}.${this.name} in (?)`, [v]);
   }
-}
-export class BigIntColumn extends NumberColumn {}
-export class IntegerColumn extends NumberColumn {}
-export class FloatColumn extends NumberColumn {}
-
-export class BooleanColumn extends Column {}
-
-export class StringColumn extends Column {
-  eq(v: string): Clause {
-    return new Clause(`${this.table.name}.${this.name} = ?`, [v]);
+  nin(v: number[]) {
+    if (!v.length) {
+      return new Clause("1!=0", []);
+    }
+    return new Clause(`${this.table.name}.${this.name} not in (?)`, [v]);
   }
 }
 
+export class BigIntColumn extends NumberColumn {}
+
+export class IntegerColumn extends NumberColumn {}
+
+export class FloatColumn extends NumberColumn {}
+
+export class BooleanColumn extends Column {
+  eq(v: boolean) {
+    return new Clause(`${this.table.name}.${this.name} = ?`, [v]);
+  }
+  ne(v: boolean) {
+    return new Clause(`${this.table.name}.${this.name} <> ?`, [v]);
+  }
+}
+
+export class StringColumn extends Column {
+  eq(v: string) {
+    return new Clause(`${this.table.name}.${this.name} = ?`, [v]);
+  }
+  ne(v: string) {
+    return new Clause(`${this.table.name}.${this.name} != ?`, [v]);
+  }
+  gt(v: string) {
+    return new Clause(`${this.table.name}.${this.name} > ?`, [v]);
+  }
+  gte(v: string) {
+    return new Clause(`${this.table.name}.${this.name} >= ?`, [v]);
+  }
+  lt(v: string) {
+    return new Clause(`${this.table.name}.${this.name} < ?`, [v]);
+  }
+  lte(v: string) {
+    return new Clause(`${this.table.name}.${this.name} <= ?`, [v]);
+  }
+  in(v: string[]) {
+    if (!v.length) {
+      return new Clause("1=0", []);
+    }
+    return new Clause(`${this.table.name}.${this.name} in (?)`, [v]);
+  }
+  nin(v: string[]) {
+    if (!v.length) {
+      return new Clause("1!=0", []);
+    }
+    return new Clause(`${this.table.name}.${this.name} not in (?)`, [v]);
+  }
+}
+
+export class StringArrayColumn extends Column {}
+
 export class TextColumn extends StringColumn {}
 
-export class DateColumn extends Column {}
-export class TimeColumn extends Column {}
-export class DatetimeColumn extends Column {}
-export class UUIDColumn extends Column {}
+export class DateColumn extends Column {
+  eq(v: string) {
+    return new Clause(`${this.table.name}.${this.name} = ?`, [v]);
+  }
+  gt(v: string) {
+    return new Clause(`${this.table.name}.${this.name} > ?`, [v]);
+  }
+  gte(v: string) {
+    return new Clause(`${this.table.name}.${this.name} >= ?`, [v]);
+  }
+  lt(v: string) {
+    return new Clause(`${this.table.name}.${this.name} < ?`, [v]);
+  }
+  lte(v: string) {
+    return new Clause(`${this.table.name}.${this.name} <= ?`, [v]);
+  }
+}
+
+export class TimeColumn extends Column {
+  eq(v: string) {
+    return new Clause(`${this.table.name}.${this.name} = ?`, [v]);
+  }
+  gt(v: string) {
+    return new Clause(`${this.table.name}.${this.name} > ?`, [v]);
+  }
+  gte(v: string) {
+    return new Clause(`${this.table.name}.${this.name} >= ?`, [v]);
+  }
+  lt(v: string) {
+    return new Clause(`${this.table.name}.${this.name} < ?`, [v]);
+  }
+  lte(v: string) {
+    return new Clause(`${this.table.name}.${this.name} <= ?`, [v]);
+  }
+}
+
+export class DatetimeColumn extends Column {
+  eq(v: string) {
+    return new Clause(`${this.table.name}.${this.name} = ?`, [v]);
+  }
+  gt(v: string) {
+    return new Clause(`${this.table.name}.${this.name} > ?`, [v]);
+  }
+  gte(v: string) {
+    return new Clause(`${this.table.name}.${this.name} >= ?`, [v]);
+  }
+  lt(v: string) {
+    return new Clause(`${this.table.name}.${this.name} < ?`, [v]);
+  }
+  lte(v: string) {
+    return new Clause(`${this.table.name}.${this.name} <= ?`, [v]);
+  }
+}
+
+export class UUIDColumn extends StringColumn {}
+
 export class JSONColumn extends Column {}

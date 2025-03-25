@@ -2,6 +2,14 @@
 
 package queryx
 
+import (
+	{{- if eq $.client.Adapter "mysql" }}
+	"net/url"
+	"fmt"
+	{{- end }}
+	{{- if eq $.client.Adapter "sqlite" }}"strings"{{- end }}
+)
+
 type Config struct {
 	URL string
 }
@@ -11,9 +19,28 @@ func NewConfig(env string) *Config {
 	{{- range $c := $.client.Configs }}
 		case "{{ $c.Environment }}":
 			return &Config{
-				URL: {{if $c.URL.EnvKey}}os.Getenv("{{$c.URL.EnvKey}}"){{else}}"{{$c.URL.Value}}"{{end}},
+				URL: fixURL({{ if $c.URL.EnvKey }}getenv("{{ $c.URL.EnvKey }}"){{ else }}"{{ $c.URL.Value }}"{{ end }}),
 			}
 	{{- end }}
   }
   return nil
 }
+
+{{- if eq $.client.Adapter "postgresql" }}
+func fixURL(rawURL string) string {
+	return rawURL
+}
+{{- else if eq $.client.Adapter "mysql" }}
+func fixURL(rawURL string) string {
+	u, _ := url.Parse(rawURL)
+	password, _ := u.User.Password()
+	options, _ := url.ParseQuery(u.RawQuery)
+	options.Set("parseTime", "true")
+	options.Set("loc", "Asia/Shanghai")
+	return fmt.Sprintf("%s:%s@tcp(%s)%s?%s", u.User.Username(), password, u.Host, u.Path, options.Encode())
+}
+{{- else if eq $.client.Adapter "sqlite" }}
+func fixURL(rawURL string) string {
+	return "file:" + strings.TrimPrefix(rawURL, "sqlite:")
+}
+{{- end }}

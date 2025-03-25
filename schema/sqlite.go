@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"ariga.io/atlas/sql/schema"
+	"ariga.io/atlas/sql/sqlite"
 )
 
 func (d *Database) CreateSQLiteSchema(dbName string) *schema.Schema {
@@ -18,13 +19,10 @@ func (d *Database) CreateSQLiteSchema(dbName string) *schema.Schema {
 		if t.Name == "sqlite_master" {
 			continue
 		}
-		m := make(map[string]struct{})
 		for _, c := range model.Columns {
 			col := schema.NewColumn(c.Name)
 
 			switch c.Type {
-			case "id":
-				col.SetType(&schema.IntegerType{T: "INTEGER"})
 			case "string", "uuid":
 				col.SetType(&schema.StringType{T: "varchar", Size: 0})
 				if c.Default != nil {
@@ -46,10 +44,10 @@ func (d *Database) CreateSQLiteSchema(dbName string) *schema.Schema {
 				}
 			case "bigint":
 				if c.AutoIncrement {
-					col.SetType(&schema.IntegerType{T: "integer PRIMARY KEY AUTOINCREMENT"})
-					m[c.Name] = struct{}{}
-				} else {
 					col.SetType(&schema.IntegerType{T: "integer"})
+					col.AddAttrs(&sqlite.AutoIncrement{})
+				} else {
+					col.SetType(&schema.IntegerType{T: "bigint"})
 				}
 			case "float":
 				col.SetType(&schema.FloatType{T: "float"})
@@ -72,14 +70,13 @@ func (d *Database) CreateSQLiteSchema(dbName string) *schema.Schema {
 			case "date":
 				col.SetType(&schema.TimeType{T: "date"})
 			case "time":
-				col.SetType(&schema.TimeType{T: "datetime"})
+				col.SetType(&schema.TimeType{T: "datetime"}) // TODO: "time"
 			case "datetime":
 				col.SetType(&schema.TimeType{T: "datetime"})
-			case "jsonb":
-				col.SetType(&schema.JSONType{T: "jsonb"})
+			case "json", "jsonb":
+				col.SetType(&schema.JSONType{T: "json"})
 			default:
 				fmt.Printf("This type is not supported:%+v", col.Type)
-
 			}
 
 			col.SetNull(c.Null)
@@ -90,14 +87,10 @@ func (d *Database) CreateSQLiteSchema(dbName string) *schema.Schema {
 		if model.PrimaryKey != nil {
 			cols := []*schema.Column{}
 			for _, name := range model.PrimaryKey.ColumnNames {
-				if _, ok := m[name]; !ok {
-					cols = append(cols, columnMap[name])
-				}
+				cols = append(cols, columnMap[name])
 			}
-			if len(m) == 0 {
-				pk := schema.NewPrimaryKey(cols...)
-				t.SetPrimaryKey(pk)
-			}
+			pk := schema.NewPrimaryKey(cols...)
+			t.SetPrimaryKey(pk)
 		}
 
 		for _, i := range model.Index {

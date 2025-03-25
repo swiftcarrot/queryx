@@ -12,10 +12,10 @@ import (
 func TestNewBoolean(t *testing.T) {
 	b1 := NewBoolean(true)
 	require.Equal(t, true, b1.Val)
-	require.Equal(t, false, b1.Null)
+	require.True(t, b1.Valid)
 
 	b2 := NewNullableBoolean(nil)
-	require.Equal(t, true, b2.Null)
+	require.False(t, b2.Valid)
 }
 
 func TestBooleanJSON(t *testing.T) {

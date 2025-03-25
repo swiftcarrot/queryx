@@ -1,4 +1,6 @@
-internal/integration/db
+internal/integration/client/db
+internal/integration/postgresql/db
+internal/migrate/db
 node_modules
 /bin
 .idea
@@ -6,3 +8,5 @@ node_modules
 *.out
 node_modules
 __pycache__
+website/.vitepress/dist
+website/.vitepress/cache

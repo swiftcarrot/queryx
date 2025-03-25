@@ -2,12 +2,19 @@ database "db" {
   adapter   = "sqlite"
   time_zone = "Asia/Shanghai"
 
+  config "development" {
+    url = "sqlite:test.sqlite3"
+  }
   config "test" {
-    url = "file:test.sqlite3"
+    url = env("DATABASE_URL")
   }
 
-  generator "client-golang" {}
-  generator "client-typescript" {}
+  generator "client-golang" {
+    test = true
+  }
+  generator "client-typescript" {
+    test = true
+  }
 
   model "User" {
     has_one "account" {}
@@ -66,6 +73,9 @@ database "db" {
     column "content" {
       type = text
     }
+    column "payload" {
+      type = json
+    }
   }
 
   model "UserPost" {
@@ -98,6 +108,11 @@ database "db" {
     column "name" {
       type = string
     }
+
+    index {
+      columns = ["name"]
+      unique  = true
+    }
   }
 
   model "Code" {
@@ -125,6 +140,9 @@ database "db" {
 
     column "name" {
       type = string
+    }
+    column "float" {
+      type = float
     }
   }
 

@@ -10,9 +10,9 @@ import (
 )
 
 type Date struct {
-	Val  time.Time
-	Null bool
-	Set  bool
+	Val   time.Time
+	Valid bool
+	Set   bool
 }
 
 func parseDate(s string) (*time.Time, error) {
@@ -30,17 +30,17 @@ func parseDate(s string) (*time.Time, error) {
 func NewDate(v string) Date {
 	t, err := parseDate(v)
 	if err != nil {
-		return Date{Null: true, Set: true}
+		return Date{Set: true}
 	}
 
-	return Date{Val: *t, Set: true}
+	return Date{Val: *t, Valid: true, Set: true}
 }
 
 func NewNullableDate(v *string) Date {
 	if v != nil {
 		return NewDate(*v)
 	}
-	return Date{Null: true, Set: true}
+	return Date{Set: true}
 }
 
 // Scan implements the Scanner interface.
@@ -50,13 +50,13 @@ func (d *Date) Scan(value interface{}) error {
 	if err != nil {
 		return err
 	}
-	d.Val, d.Null = n.Time, !n.Valid
+	d.Val, d.Valid = n.Time, n.Valid
 	return nil
 }
 
 // Value implements the driver Valuer interface.
 func (d Date) Value() (driver.Value, error) {
-	if d.Null {
+	if !d.Valid {
 		return nil, nil
 	}
 	return d.Val, nil
@@ -64,7 +64,7 @@ func (d Date) Value() (driver.Value, error) {
 
 // MarshalJSON implements the json.Marshaler interface.
 func (d Date) MarshalJSON() ([]byte, error) {
-	if d.Null {
+	if !d.Valid {
 		return json.Marshal(nil)
 	}
 	return json.Marshal(d.Val.Format("2006-01-02"))
@@ -75,10 +75,9 @@ func (d *Date) UnmarshalJSON(data []byte) error {
 	d.Set = true
 	s := string(data)
 	if s == "null" || s == "" {
-		d.Null = true
 		return nil
 	}
-
+	d.Valid = true
 	s = s[len(`"`) : len(s)-len(`"`)]
 	t, err := parseDate(s)
 	if err != nil {
@@ -87,4 +86,12 @@ func (d *Date) UnmarshalJSON(data []byte) error {
 
 	d.Val = *t
 	return nil
+}
+
+// String implements the stringer interface.
+func (d Date) String() string {
+	if !d.Valid {
+		return "null"
+	}
+	return d.Val.Format("2006-01-02")
 }

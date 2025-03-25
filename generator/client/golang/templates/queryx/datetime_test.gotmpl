@@ -3,8 +3,8 @@
 package queryx
 
 import (
+	"encoding/json"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/require"
 )
@@ -12,10 +12,10 @@ import (
 func TestNewDatetime(t *testing.T) {
 	d1 := NewDatetime("2012-12-12 11:10:09")
 	require.Equal(t, "2012-12-12 11:10:09", d1.Val.Format("2006-01-02 15:04:05"))
-	require.Equal(t, false, d1.Null)
+	require.True(t, d1.Valid)
 
 	d2 := NewNullableDatetime(nil)
-	require.Equal(t, true, d2.Null)
+	require.False(t, d2.Valid)
 }
 
 func TestDatetimeJSON(t *testing.T) {

@@ -1,6 +1,7 @@
 package inflect
 
 import (
+	"fmt"
 	"log"
 	"strings"
 )
@@ -23,7 +24,7 @@ func goKeywordFix(s string) string {
 
 // TODO: use a map
 // convert column type to corresponding queryx type
-func goModelType(t string, null bool) string {
+func goModelType(t string, null bool, array bool) string {
 	if null {
 		switch t {
 		case "bigint":
@@ -31,6 +32,9 @@ func goModelType(t string, null bool) string {
 		case "uuid":
 			return "queryx.UUID"
 		case "string", "text":
+			if array {
+				return "queryx.StringArray"
+			}
 			return "queryx.String"
 		case "datetime":
 			return "queryx.Datetime"
@@ -47,7 +51,7 @@ func goModelType(t string, null bool) string {
 		case "json", "jsonb":
 			return "queryx.JSON"
 		default:
-			log.Fatal("not found", t)
+			log.Fatal(fmt.Errorf("unhandled data type %s in goModelType", t))
 			return ""
 		}
 	} else {
@@ -73,20 +77,23 @@ func goModelType(t string, null bool) string {
 		case "json", "jsonb":
 			return "queryx.JSON"
 		default:
-			log.Fatal("not found", t)
+			log.Fatal(fmt.Errorf("unhandled data type %s in goModelType", t))
 			return ""
 		}
 	}
 }
 
 // convert column type to corresponding queryx type
-func goType(t string) string {
+func goType(t string, null bool, array bool) string {
 	switch t {
 	case "bigint":
 		return "BigInt"
 	case "uuid":
 		return "UUID"
 	case "string", "text":
+		if array {
+			return "StringArray"
+		}
 		return "String"
 	case "datetime":
 		return "Datetime"
@@ -103,12 +110,13 @@ func goType(t string) string {
 	case "json", "jsonb":
 		return "JSON"
 	default:
+		log.Fatal(fmt.Errorf("unhandled data type %s in goType", t))
 		return ""
 	}
 }
 
 // convert column type to go type in setter method of change object
-func goChangeSetType(t string) string {
+func goChangeSetType(t string, null bool, array bool) string {
 	switch t {
 	case "bigint":
 		return "int64"
@@ -116,24 +124,17 @@ func goChangeSetType(t string) string {
 		return "bool"
 	case "integer":
 		return "int32"
-	case "string":
-		return "string"
-	case "text":
-		return "string"
-	case "datetime":
-		return "string"
-	case "date":
-		return "string"
-	case "time":
-		return "string"
-	case "uuid":
+	case "string", "text", "date", "time", "datetime", "uuid":
+		if array {
+			return "[]string"
+		}
 		return "string"
 	case "float":
 		return "float64"
 	case "json", "jsonb":
 		return "map[string]interface{}"
 	default:
-		log.Fatal("unknown type in goChangeSetType", t)
+		log.Fatal(fmt.Errorf("unhandled data type %s in goChangeSetType", t))
 		return ""
 	}
 }

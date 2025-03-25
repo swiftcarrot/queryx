@@ -24,14 +24,16 @@ var generateCmd = &cobra.Command{
 
 		g := generator.NewGenerator(sch)
 
+		hasGenerator := false
 		for _, generator := range database.Generators {
+			hasGenerator = true
 			switch generator.Name {
 			case "client-golang":
-				if err := golang.Run(g, args); err != nil {
+				if err := golang.Run(g, generator, args); err != nil {
 					return err
 				}
 			case "client-typescript":
-				if err := typescript.Run(g, args); err != nil {
+				if err := typescript.Run(g, generator, args); err != nil {
 					return err
 				}
 			case "client-python":
@@ -41,6 +43,10 @@ var generateCmd = &cobra.Command{
 			default:
 				return fmt.Errorf("only supports generator.Name: %s , %s", "client-golang", "client-typescript")
 			}
+		}
+
+		if !hasGenerator {
+			return fmt.Errorf("no generator is found in schema file")
 		}
 
 		if err := g.Clean(); err != nil {

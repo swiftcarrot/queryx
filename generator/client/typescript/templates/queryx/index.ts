@@ -7,3 +7,4 @@ export * from "./update";
 export * from "./delete";
 export * from "./table";
 export * from "./clause";
+export * from "./adapter";

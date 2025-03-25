@@ -1,25 +1,86 @@
 name: release
-
 on:
   push:
     tags:
       - "*"
-
 jobs:
-  goreleaser:
+  release-windows:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        goarch: [amd64]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "stable"
+      - name: Build
+        shell: pwsh
+        env:
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: 1
+        run: |
+          go build -o queryx.exe cmd/queryx/main.go
+          tar zcvf queryx_${{ github.ref_name }}_windows_${{ matrix.goarch }}.tar.gz ./*.md LICENSE queryx.exe
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: false
+          prerelease: false
+          files: |
+            queryx_${{ github.ref_name }}_windows_${{ matrix.goarch }}.tar.gz
+      - name: Checksums
+        uses: wangzuo/action-release-checksums@v1
+  release-linux:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Install GNU C compiler for the arm64 architecture
+        run: sudo apt-get update && sudo apt-get -y install gcc-aarch64-linux-gnu
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
         with:
-          fetch-depth: 0
-      - run: git fetch --force --tags
-      - uses: actions/setup-go@v4
-        with:
-          go-version: stable
-      - uses: goreleaser/goreleaser-action@v4
-        with:
-          distribution: goreleaser
-          version: latest
-          args: release --clean
+          go-version: "stable"
+      - name: Build
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CGO_ENABLED: 1
+        run: |
+          go build -o queryx cmd/queryx/main.go
+          tar zcvf queryx_${{ github.ref_name }}_linux_amd64.tar.gz ./*.md LICENSE queryx
+          GOARCH=arm64 CC=aarch64-linux-gnu-gcc go build -o queryx cmd/queryx/main.go
+          tar zcvf queryx_${{ github.ref_name }}_linux_arm64.tar.gz ./*.md LICENSE queryx
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: false
+          prerelease: false
+          files: |
+            queryx_${{ github.ref_name }}_linux_amd64.tar.gz
+            queryx_${{ github.ref_name }}_linux_arm64.tar.gz
+      - name: Checksums
+        uses: wangzuo/action-release-checksums@v1
+  release-mac:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        goarch: [amd64, arm64]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "stable"
+      - name: Build
+        env:
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: 1
+        run: |
+          go build -o queryx cmd/queryx/main.go
+          tar zcvf queryx_${{ github.ref_name }}_darwin_${{ matrix.goarch }}.tar.gz  ./*.md LICENSE  queryx
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: false
+          prerelease: false
+          files: |
+            queryx_${{ github.ref_name }}_darwin_${{ matrix.goarch }}.tar.gz
+      - name: Checksums
+        uses: wangzuo/action-release-checksums@v1

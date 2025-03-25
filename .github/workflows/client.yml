@@ -1,0 +1,245 @@
+name: client
+
+env:
+  QUERYX_ENV: test
+
+on:
+  push:
+    paths-ignore:
+      - "website/**"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v4
+        with:
+          go-version: "1.20"
+      - name: Test
+        run: |
+          go test $(go list ./... | grep -Ev "generator|internal") -race -coverprofile=coverage.txt -covermode=atomic
+      - name: Build
+        run: go build -o /usr/local/bin/queryx cmd/queryx/main.go
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bin
+          path: /usr/local/bin/queryx
+  postgresql-golang:
+    needs: [build]
+    strategy:
+      matrix:
+        postgres:
+          - "14.2"
+          - "16"
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:${{matrix.postgres}}
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: queryx_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/queryx_test?sslmode=disable
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v4
+        with:
+          name: bin
+          path: /usr/local/bin
+      - run: chmod a+x /usr/local/bin/queryx
+      - name: generate
+        run: |
+          cd internal/integration/client
+          queryx db:migrate --schema postgresql.hcl
+          queryx db:migrate --schema postgresql.hcl
+          queryx generate --schema postgresql.hcl
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          args: --timeout=3m
+          working-directory: internal/integration/client/db
+      - name: go test
+        run: |
+          cd internal/integration/client
+          go test -v ./...
+  postgresql-typescript:
+    needs: [build]
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14.2
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: queryx_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/queryx_test?sslmode=disable
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v4
+        with:
+          name: bin
+          path: /usr/local/bin
+      - run: chmod a+x /usr/local/bin/queryx
+      - name: generate
+        run: |
+          cd internal/integration/client
+          queryx db:migrate --schema postgresql.hcl
+          queryx generate --schema postgresql.hcl
+      - name: yarn install
+        run: |
+          cd internal/integration/client
+          yarn install
+      - name: yarn test
+        run: |
+          cd internal/integration/client
+          yarn vitest run --dir client
+  mysql-golang:
+    needs: [build]
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0.32
+        env:
+          MYSQL_DATABASE: queryx_test
+          MYSQL_ALLOW_EMPTY_PASSWORD: true
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping -uuser_test -pqueryx_test"
+          --health-interval 10s
+          --health-start-period 10s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: mysql://root:@localhost:3306/queryx_test
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v4
+        with:
+          name: bin
+          path: /usr/local/bin
+      - run: chmod a+x /usr/local/bin/queryx
+      - name: generate
+        run: |
+          cd internal/integration/client
+          queryx db:migrate --schema mysql.hcl
+          queryx db:migrate --schema mysql.hcl
+          queryx generate --schema mysql.hcl
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          args: --timeout=3m
+          working-directory: internal/integration/client/db
+      - name: go test
+        run: |
+          cd internal/integration/client
+          go test -v ./...
+  mysql-typescript:
+    needs: [build]
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0.32
+        env:
+          MYSQL_DATABASE: queryx_test
+          MYSQL_ALLOW_EMPTY_PASSWORD: true
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping -uuser_test -pqueryx_test"
+          --health-interval 10s
+          --health-start-period 10s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: mysql://root:@localhost:3306/queryx_test
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v4
+        with:
+          name: bin
+          path: /usr/local/bin
+      - run: chmod a+x /usr/local/bin/queryx
+      - name: generate
+        run: |
+          cd internal/integration/client
+          queryx db:migrate --schema mysql.hcl
+          queryx generate --schema mysql.hcl
+      - name: yarn install
+        run: |
+          cd internal/integration/client
+          yarn install
+      - name: yarn test
+        run: |
+          cd internal/integration/client
+          yarn vitest run --dir client
+  sqlite-golang:
+    needs: [build]
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: sqlite:test.sqlite3
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v4
+        with:
+          name: bin
+          path: /usr/local/bin
+      - run: chmod a+x /usr/local/bin/queryx
+      - name: generate
+        run: |
+          cd internal/integration/client
+          queryx db:migrate --schema sqlite.hcl
+          queryx db:migrate --schema sqlite.hcl
+          queryx generate --schema sqlite.hcl
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          args: --timeout=3m
+          working-directory: internal/integration/client/db
+      - name: go test
+        run: |
+          cd internal/integration/client
+          go test -v ./...
+  sqlite-typescript:
+    needs: [build]
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: sqlite:test.sqlite3
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v4
+        with:
+          name: bin
+          path: /usr/local/bin
+      - run: chmod a+x /usr/local/bin/queryx
+      - name: generate
+        run: |
+          cd internal/integration/client
+          queryx db:migrate --schema sqlite.hcl
+          queryx generate --schema sqlite.hcl
+      - name: yarn install
+        run: |
+          cd internal/integration/client
+          yarn install
+      - name: yarn test
+        env:
+          DATABASE_URL: sqlite:client/test.sqlite3
+        run: |
+          cd internal/integration/client
+          yarn vitest run --dir client

@@ -2,16 +2,19 @@ database "db" {
   adapter   = "postgresql"
   time_zone = "Asia/Shanghai"
 
-  config "test" {
-    url = "postgres://postgres:postgres@localhost:5432/queryx_test?sslmode=disable"
+  config "development" {
+    url = "postgresql://postgres:postgres@localhost:5432/queryx_test?sslmode=disable"
   }
-
-  config "production" {
+  config "test" {
     url = env("DATABASE_URL")
   }
 
-  // generator "client-golang" {}
-  // generator "client-typescript" {}
+  generator "client-golang" {
+    test = true
+  }
+  generator "client-typescript" {
+    test = true
+  }
   generator "client-python" {}
 
   model "User" {
@@ -71,6 +74,9 @@ database "db" {
     column "content" {
       type = text
     }
+    column "payload" {
+      type = json
+    }
   }
 
   model "UserPost" {
@@ -103,6 +109,11 @@ database "db" {
     column "name" {
       type = string
     }
+
+    index {
+      columns = ["name",]
+      unique  = true
+    }
   }
 
   model "Code" {
@@ -130,6 +141,9 @@ database "db" {
 
     column "name" {
       type = string
+    }
+    column "float" {
+      type = float
     }
   }
 

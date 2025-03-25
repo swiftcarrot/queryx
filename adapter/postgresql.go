@@ -4,26 +4,26 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"os/exec"
 
 	"ariga.io/atlas/sql/postgres"
 	sqlschema "ariga.io/atlas/sql/schema"
 	_ "github.com/lib/pq"
-	"github.com/swiftcarrot/queryx/schema"
 )
 
 type PostgreSQLAdapter struct {
 	*sql.DB
-	Config *schema.Config
+	Config *Config
 }
 
-func NewPostgreSQLAdapter(config *schema.Config) *PostgreSQLAdapter {
+func NewPostgreSQLAdapter(config *Config) *PostgreSQLAdapter {
 	return &PostgreSQLAdapter{
 		Config: config,
 	}
 }
 
 func (a *PostgreSQLAdapter) Open() error {
-	db, err := sql.Open("postgres", a.Config.ConnectionURL(true))
+	db, err := sql.Open("postgres", a.Config.URL)
 	if err != nil {
 		return err
 	}
@@ -32,7 +32,7 @@ func (a *PostgreSQLAdapter) Open() error {
 }
 
 func (a *PostgreSQLAdapter) CreateDatabase() error {
-	db, err := sql.Open("postgres", a.Config.ConnectionURL(false))
+	db, err := sql.Open("postgres", a.Config.URL2)
 	if err != nil {
 		return err
 	}
@@ -51,7 +51,7 @@ func (a *PostgreSQLAdapter) CreateDatabase() error {
 }
 
 func (a *PostgreSQLAdapter) DropDatabase() error {
-	db, err := sql.Open("postgres", a.Config.ConnectionURL(false))
+	db, err := sql.Open("postgres", a.Config.URL2)
 	if err != nil {
 		return err
 	}
@@ -101,11 +101,15 @@ func (a *PostgreSQLAdapter) CreateMigrationsTable(ctx context.Context) error {
 	return nil
 }
 
-func (a *PostgreSQLAdapter) GetDBName() string {
-	a.Config.ConnectionURL(false)
-	return a.Config.Database
+func (a *PostgreSQLAdapter) QueryVersion(ctx context.Context, version string) (*sql.Rows, error) {
+	return a.DB.QueryContext(ctx, "select version from schema_migrations where version = $1", version)
 }
 
-func (a *PostgreSQLAdapter) GetAdapter() string {
-	return a.Config.Adapter
+func (a *PostgreSQLAdapter) DumpSchema(filename string, extraFlags []string) error {
+	cmd := exec.Command("pg_dump", "--schema-only", "--no-owner", "--file", filename, a.Config.Database)
+	return cmd.Run()
+}
+
+func (a *PostgreSQLAdapter) LoadSchema(filename string, extraFlags []string) error {
+	return fmt.Errorf("not implemented")
 }
